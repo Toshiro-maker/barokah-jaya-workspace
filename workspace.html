@@ -133,9 +133,9 @@
     <main class="flex-1 p-4 md:p-6 max-w-6xl w-full mx-auto">
 
       <!-- ==================== HALAMAN 1: LIVE POWER FLOW ==================== -->
-      <section id="page-monitor" class="page-section space-y-4">
+      <section id="page-monitor" class="page-section space-y-5">
 
-        <!-- Canvas Diagram Aliran Energi -->
+        <!-- Canvas Diagram Aliran Energi (TIDAK DIUBAH) -->
         <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 md:p-6">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div>
@@ -196,10 +196,8 @@
               <!-- ================= ELEMEN 1: PANEL SURYA 50Wp (INA1) ================= -->
               <g>
                 <rect x="20" y="106" width="215" height="228" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
-                <!-- Accent bar atas -->
                 <rect x="20" y="106" width="215" height="4" rx="2" fill="#f59e0b" />
 
-                <!-- Ikon Panel & Judul -->
                 <rect x="36" y="124" width="28" height="28" rx="7" fill="#f59e0b" fill-opacity="0.12" />
                 <rect x="43" y="131" width="14" height="14" rx="2" fill="none" stroke="#fbbf24" stroke-width="1.5" />
                 <line x1="50" y1="131" x2="50" y2="145" stroke="#fbbf24" stroke-width="1.2" />
@@ -208,10 +206,8 @@
                 <text x="74" y="136" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Panel Surya</text>
                 <text x="74" y="150" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">50Wp • INA1 0x40</text>
 
-                <!-- Daya Live -->
                 <text id="svgPvP" x="36" y="196" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
 
-                <!-- Tegangan & Arus -->
                 <line x1="36" y1="212" x2="219" y2="212" stroke="#27272a" stroke-width="1" />
                 <text x="36" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgPvV" x="36" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
@@ -219,7 +215,6 @@
                 <text x="132" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgPvI" x="132" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
 
-                <!-- Sensor Lingkungan (Cahaya & Suhu Panel) -->
                 <rect x="36" y="266" width="183" height="52" rx="9" fill="#09090b" stroke="#27272a" stroke-width="1" />
                 <text x="48" y="284" fill="#fbbf24" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Cahaya</text>
                 <text id="svgLux" x="48" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0 lx</text>
@@ -235,17 +230,14 @@
                 <rect x="310" y="130" width="200" height="180" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect x="310" y="130" width="200" height="4" rx="2" fill="#14b8a6" />
 
-                <!-- Ikon MPPT & Judul -->
                 <rect x="326" y="148" width="28" height="28" rx="7" fill="#14b8a6" fill-opacity="0.12" />
                 <polyline points="333,165 338,157 342,163 347,155" fill="none" stroke="#2dd4bf" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
 
                 <text x="364" y="160" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">MPPT Output</text>
                 <text x="364" y="174" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA2 • 0x41</text>
 
-                <!-- Daya Live -->
                 <text id="svgMpptP" x="326" y="218" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
 
-                <!-- Tegangan & Arus -->
                 <line x1="326" y1="232" x2="494" y2="232" stroke="#27272a" stroke-width="1" />
                 <text x="326" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgMpptV" x="326" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
@@ -253,7 +245,6 @@
                 <text x="415" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgMpptI" x="415" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
 
-                <!-- Badge Efisiensi -->
                 <rect x="326" y="277" width="168" height="22" rx="6" fill="#14b8a6" fill-opacity="0.12" />
                 <text id="svgEff" x="410" y="292" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">Efisiensi: 0.0%</text>
               </g>
@@ -264,7 +255,6 @@
                 <rect x="710" y="24" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect id="battTopBar" x="710" y="24" width="230" height="4" rx="2" fill="#10b981" />
 
-                <!-- Ikon Baterai & Judul -->
                 <rect x="726" y="42" width="28" height="28" rx="7" fill="#10b981" fill-opacity="0.12" />
                 <rect x="733" y="51" width="12" height="10" rx="1.5" fill="none" stroke="#34d399" stroke-width="1.5" />
                 <line x1="747" y1="54" x2="747" y2="58" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
@@ -272,10 +262,8 @@
                 <text x="764" y="54" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Baterai LiFePO4</text>
                 <text x="764" y="68" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA3 • 0x44</text>
 
-                <!-- Daya Live -->
                 <text id="svgBattP" x="726" y="110" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
 
-                <!-- Tegangan & Arus -->
                 <line x1="726" y1="124" x2="924" y2="124" stroke="#27272a" stroke-width="1" />
                 <text x="726" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgBattV" x="726" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
@@ -283,7 +271,6 @@
                 <text x="826" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgBattI" x="826" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
 
-                <!-- Status Charge / Discharge -->
                 <rect id="svgBattBadgeBg" x="726" y="168" width="198" height="22" rx="6" fill="#27272a" />
                 <text id="svgBattState" x="825" y="183" text-anchor="middle" fill="#a1a1aa" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
               </g>
@@ -294,17 +281,14 @@
                 <rect x="710" y="240" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect x="710" y="240" width="230" height="4" rx="2" fill="#a855f7" />
 
-                <!-- Ikon Beban & Judul -->
                 <rect x="726" y="258" width="28" height="28" rx="7" fill="#a855f7" fill-opacity="0.12" />
                 <polygon points="741,264 734,273 740,273 739,280 746,271 740,271" fill="#c084fc" />
 
                 <text x="764" y="270" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Beban &amp; Inverter</text>
                 <text x="764" y="284" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA4 • 0x45</text>
 
-                <!-- Daya Live -->
                 <text id="svgLoadP" x="726" y="326" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
 
-                <!-- Tegangan & Arus -->
                 <line x1="726" y1="340" x2="924" y2="340" stroke="#27272a" stroke-width="1" />
                 <text x="726" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgLoadV" x="726" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
@@ -312,7 +296,6 @@
                 <text x="826" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgLoadI" x="826" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
 
-                <!-- Keterangan -->
                 <rect x="726" y="384" width="198" height="22" rx="6" fill="#a855f7" fill-opacity="0.12" />
                 <text x="825" y="399" text-anchor="middle" fill="#c084fc" font-size="10.5" font-family="Plus Jakarta Sans, sans-serif">Inverter DC-AC + Kontrol Mini560</text>
               </g>
@@ -320,6 +303,84 @@
             </svg>
           </div>
         </div>
+
+        <!-- ================= BARU: PANEL AKUMULASI ENERGI (Wh) ================= -->
+        <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 md:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="sigma" class="w-4 h-4 text-teal-400"></i>
+              <h2 class="text-sm font-semibold text-zinc-100">Akumulasi Energi (Wh)</h2>
+            </div>
+            <button onclick="resetEnergyAcc()"
+              class="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 hover:text-zinc-100 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-2.5 py-1.5 rounded-lg transition">
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              Reset Akumulasi
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- 1. Panel -->
+            <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
+              <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
+                <span>Daya Panel</span>
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              </div>
+              <div class="text-lg font-bold font-mono tabular-nums text-white">
+                <span id="accPv">0.000</span> <span class="text-xs font-normal text-zinc-500">Wh</span>
+              </div>
+              <div class="text-[10px] text-zinc-500 mt-1">Dihasilkan panel surya</div>
+            </div>
+
+            <!-- 2. MPPT -->
+            <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
+              <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
+                <span>Daya MPPT</span>
+                <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+              </div>
+              <div class="text-lg font-bold font-mono tabular-nums text-white">
+                <span id="accMppt">0.000</span> <span class="text-xs font-normal text-zinc-500">Wh</span>
+              </div>
+              <div class="text-[10px] text-zinc-500 mt-1">Dihasilkan output MPPT</div>
+            </div>
+
+            <!-- 3. Baterai Terisi -->
+            <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
+              <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
+                <span>Baterai Terisi</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              </div>
+              <div class="text-lg font-bold font-mono tabular-nums text-emerald-400">
+                <span id="accBattCharge">0.000</span> <span class="text-xs font-normal text-zinc-500">Wh</span>
+              </div>
+              <div class="text-[10px] text-zinc-500 mt-1">Total energi masuk (Charge)</div>
+            </div>
+
+            <!-- 4. Baterai Terkuras -->
+            <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
+              <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
+                <span>Baterai Terkuras</span>
+                <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+              </div>
+              <div class="text-lg font-bold font-mono tabular-nums text-orange-400">
+                <span id="accBattDischarge">0.000</span> <span class="text-xs font-normal text-zinc-500">Wh</span>
+              </div>
+              <div class="text-[10px] text-zinc-500 mt-1">Total energi keluar (Discharge)</div>
+            </div>
+
+            <!-- 5. Beban Terpakai -->
+            <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5 col-span-2 sm:col-span-1">
+              <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
+                <span>Beban Terpakai</span>
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+              </div>
+              <div class="text-lg font-bold font-mono tabular-nums text-purple-300">
+                <span id="accLoad">0.000</span> <span class="text-xs font-normal text-zinc-500">Wh</span>
+              </div>
+              <div class="text-[10px] text-zinc-500 mt-1">Inverter + kontrol Mini560</div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- ==================== HALAMAN 2: GRAFIK ==================== -->
@@ -483,12 +544,37 @@
     let recordedDataset = [];
     const MAX_CHART_POINTS = 60;
 
+    // State Akumulasi Energi (Wh)
+    let energyAcc = {
+      pv: 0,
+      mppt: 0,
+      battCharge: 0,
+      battDischarge: 0,
+      load: 0,
+    };
+    let lastEnergyTick = null;
+
     const PAGE_TITLES = {
       monitor: "Live Power Flow",
       grafik: "Grafik Real-Time",
       dataset: "Akuisisi Dataset",
       pengaturan: "Pengaturan Koneksi",
     };
+
+    function renderEnergyAcc() {
+      document.getElementById("accPv").textContent = energyAcc.pv.toFixed(3);
+      document.getElementById("accMppt").textContent = energyAcc.mppt.toFixed(3);
+      document.getElementById("accBattCharge").textContent = energyAcc.battCharge.toFixed(3);
+      document.getElementById("accBattDischarge").textContent = energyAcc.battDischarge.toFixed(3);
+      document.getElementById("accLoad").textContent = energyAcc.load.toFixed(3);
+    }
+
+    function resetEnergyAcc() {
+      energyAcc = { pv: 0, mppt: 0, battCharge: 0, battDischarge: 0, load: 0 };
+      lastEnergyTick = null;
+      localStorage.removeItem("barokah_jaya_energy_acc");
+      renderEnergyAcc();
+    }
 
     function switchPage(page) {
       if (!PAGE_TITLES[page]) page = "monitor";
@@ -513,7 +599,6 @@
       }
     }
 
-    // Helper kontrol animasi aliran daya & kecepatan berdasarkan Watt
     function setFlowLine(pathId, mode, watts, color) {
       const el = document.getElementById(pathId);
       if (!el) return;
@@ -582,6 +667,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
 
+      // Muat konfigurasi MQTT tersimpan
       const saved = localStorage.getItem("barokah_jaya_mqtt_cfg");
       if (saved) {
         try {
@@ -591,6 +677,22 @@
           if (cfg.topic) document.getElementById("mqttTopic").value = cfg.topic;
         } catch {}
       }
+
+      // Muat akumulasi energi tersimpan
+      const savedEnergy = localStorage.getItem("barokah_jaya_energy_acc");
+      if (savedEnergy) {
+        try {
+          const parsed = JSON.parse(savedEnergy);
+          energyAcc = {
+            pv: Number(parsed.pv) || 0,
+            mppt: Number(parsed.mppt) || 0,
+            battCharge: Number(parsed.battCharge) || 0,
+            battDischarge: Number(parsed.battDischarge) || 0,
+            load: Number(parsed.load) || 0,
+          };
+        } catch {}
+      }
+      renderEnergyAcc();
 
       const initialPage = window.location.hash.replace("#", "") || "monitor";
       switchPage(initialPage);
@@ -612,6 +714,7 @@
         text.textContent = "Menghubungkan...";
       } else {
         isConnected = false;
+        lastEnergyTick = null;
         dot.className = "w-2 h-2 rounded-full bg-rose-500";
         text.textContent = "Terputus";
         btn.className = "w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-semibold text-xs px-5 py-2.5 rounded-lg transition";
@@ -663,11 +766,11 @@
     function updateDashboard(d) {
       document.getElementById("rtcText").textContent = (d.ts || "--:--:--").split(" ")[1] || d.ts;
 
-      // 1. Update Lingkungan
+      // 1. Lingkungan
       document.getElementById("svgLux").textContent = `${Number(d.lux || 0).toLocaleString("id-ID")} lx`;
       document.getElementById("svgTemp").textContent = `${Number(d.temp || 0).toFixed(1)} °C`;
 
-      // 2. Update Panel Surya (INA1)
+      // 2. Panel Surya (INA1)
       const pvV = Number(d.pv?.v || 0);
       const pvI = Number(d.pv?.i || 0);
       const pvP = Number(d.pv?.p || 0);
@@ -679,7 +782,7 @@
       setFlowLine("flowPvMppt", pvActive ? "forward" : "idle", pvP, "#f59e0b");
       document.getElementById("arrowPv").setAttribute("fill", pvActive ? "#f59e0b" : "#3f3f46");
 
-      // 3. Update MPPT (INA2)
+      // 3. MPPT (INA2)
       const mpptV = Number(d.mppt?.v || 0);
       const mpptI = Number(d.mppt?.i || 0);
       const mpptP = Number(d.mppt?.p || 0);
@@ -693,7 +796,7 @@
       setFlowLine("flowMpptBus", mpptActive ? "forward" : "idle", mpptP, "#14b8a6");
       document.getElementById("arrowMppt").setAttribute("fill", mpptActive ? "#14b8a6" : "#3f3f46");
 
-      // 4. Update Baterai LiFePO4 (INA3 — Dua Arah)
+      // 4. Baterai LiFePO4 (INA3 — Dua Arah)
       const battV = Number(d.batt?.v || 0);
       const battI = Number(d.batt?.i || 0);
       const battP = Number(d.batt?.p || 0);
@@ -709,7 +812,6 @@
       const arrDischarge = document.getElementById("arrowBattDischarge");
 
       if (battI < -0.015) {
-        // Charging: Bus -> Baterai (forward)
         setFlowLine("flowBusBatt", "forward", battP, "#10b981");
         battStateEl.textContent = "STATUS: CHARGING";
         battStateEl.setAttribute("fill", "#34d399");
@@ -721,7 +823,6 @@
         arrCharge.setAttribute("opacity", "1");
         arrDischarge.setAttribute("opacity", "0.2");
       } else if (battI > 0.015) {
-        // Discharging: Baterai -> Bus (reverse)
         setFlowLine("flowBusBatt", "reverse", battP, "#fb923c");
         battStateEl.textContent = "STATUS: DISCHARGING";
         battStateEl.setAttribute("fill", "#fdba74");
@@ -746,7 +847,7 @@
         arrDischarge.setAttribute("opacity", "0.25");
       }
 
-      // 5. Update Beban & Inverter (INA4)
+      // 5. Beban & Inverter (INA4)
       const loadV = Number(d.load?.v || 0);
       const loadI = Number(d.load?.i || 0);
       const loadP = Number(d.load?.p || 0);
@@ -758,7 +859,32 @@
       setFlowLine("flowBusLoad", loadActive ? "forward" : "idle", loadP, "#a855f7");
       document.getElementById("arrowLoad").setAttribute("fill", loadActive ? "#a855f7" : "#3f3f46");
 
-      // 6. Update Grafik
+      // 6. Integrasi Akumulasi Energi (Wh)
+      const nowMs = Date.now();
+      let dtMs = 0;
+      if (lastEnergyTick !== null) {
+        const rawDt = nowMs - lastEnergyTick;
+        // Batasi jika sempat terputus lebih dari 10 detik agar tidak terjadi lonjakan semu
+        dtMs = rawDt > 10000 ? 2000 : Math.max(0, rawDt);
+      } else {
+        dtMs = 2000; // Interval sampling default ESP32 (2 detik) pada paket pertama
+      }
+      lastEnergyTick = nowMs;
+
+      const dtHours = dtMs / 3600000;
+      energyAcc.pv += Math.max(0, pvP) * dtHours;
+      energyAcc.mppt += Math.max(0, mpptP) * dtHours;
+      if (battI < -0.015) {
+        energyAcc.battCharge += Math.abs(battP) * dtHours;
+      } else if (battI > 0.015) {
+        energyAcc.battDischarge += Math.abs(battP) * dtHours;
+      }
+      energyAcc.load += Math.max(0, loadP) * dtHours;
+
+      renderEnergyAcc();
+      localStorage.setItem("barokah_jaya_energy_acc", JSON.stringify(energyAcc));
+
+      // 7. Update Grafik
       const shortTime = (d.ts || "").split(" ")[1] || new Date().toLocaleTimeString("id-ID");
       powerChart.data.labels.push(shortTime);
       powerChart.data.datasets[0].data.push(pvP);
@@ -779,7 +905,7 @@
       powerChart.update();
       envChart.update();
 
-      // 7. Rekam Dataset Training
+      // 8. Rekam Dataset Training
       if (isRecording) {
         recordedDataset.push(d);
         document.getElementById("recordCount").textContent = recordedDataset.length;
