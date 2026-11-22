@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barokah Jaya Workspace — PLTS 50Wp Monitor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-6 font-sans">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-teal-400">Barokah Jaya Workspace</h1>
+        <p class="text-xs text-slate-400">
+          PLTS 50Wp Monitoring & Dataset Acquisition • ESP32-S3 • 4x INA219 • SEN0390 • DS18B20 • RTC DS1302
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="statusBadge" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-900/60 text-rose-300">
+          ● Disconnected
+        </span>
+        <span id="rtcBadge" class="px-3 py-1.5 rounded-full text-xs bg-slate-900 border border-slate-800 text-slate-300 font-mono">
+          RTC: --:--:--
+        </span>
+      </div>
+    </header>
+
+    <!-- Panel Koneksi MQTT -->
+    <section class="grid grid-cols-1 md:grid-cols-6 gap-2.5 bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <input id="brokerUrl" type="text" placeholder="wss://[cluster].hivemq.cloud:8884/mqtt"
+        value="wss://xxx.s1.eu.hivemq.cloud:8884/mqtt"
+        class="bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs md:col-span-2 focus:outline-none focus:border-teal-500" />
+      <input id="mqttUser" type="text" placeholder="Username" value="plts_web"
+        class="bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs focus:outline-none focus:border-teal-500" />
+      <input id="mqttPass" type="password" placeholder="Password"
+        class="bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs focus:outline-none focus:border-teal-500" />
+      <input id="mqttTopic" type="text" placeholder="Topic MQTT" value="barokahjaya/plts/telemetry"
+        class="bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs focus:outline-none focus:border-teal-500" />
+      <button id="btnConnect" onclick="toggleMqtt()"
+        class="bg-teal-600 hover:bg-teal-500 font-semibold rounded px-4 py-2 text-xs transition">
+        Hubungkan MQTT
+      </button>
+    </section>
+
+    <!-- Panel Kontrol Perekaman Dataset Training -->
+    <section class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <div class="flex flex-wrap items-center gap-4">
+        <button id="btnRecord" onclick="toggleRecord()"
+          class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition">
+          ⏸ Jeda Rekam Data
+        </button>
+        <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+          <input id="chkSyncApi" type="checkbox" class="accent-teal-500" />
+          Sinkron ke API Backend (<span class="font-mono text-teal-400">/api/telemetry</span>)
+        </label>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs text-slate-400 mr-2">
+          Terekam: <b id="recordCount" class="text-white">0</b> baris
+        </span>
+        <button onclick="resetDataset()"
+          class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs transition">
+          🗑 Reset
+        </button>
+        <button id="btnExport" onclick="exportCSV()" disabled
+          class="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition">
+          ⬇ Export CSV Training
+        </button>
+      </div>
+    </section>
+
+    <!-- Kartu Sensor Lingkungan & Efisiensi -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <div class="text-xs text-amber-400 mb-1">☀ Intensitas Cahaya (SEN0390)</div>
+        <div id="valLux" class="text-2xl font-bold">0 lx</div>
+        <div class="text-xs text-slate-500 mt-1">Fitur Input X1 (Training MLR &amp; MLP)</div>
+      </div>
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <div class="text-xs text-rose-400 mb-1">🌡 Suhu Permukaan Panel (DS18B20)</div>
+        <div id="valTemp" class="text-2xl font-bold">0.00 °C</div>
+        <div class="text-xs text-slate-500 mt-1">Fitur Input X2 (Training MLR &amp; MLP)</div>
+      </div>
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <div class="text-xs text-teal-400 mb-1">⚡ Efisiensi Konversi MPPT</div>
+        <div id="valEff" class="text-2xl font-bold">0.0 %</div>
+        <div id="valEffSub" class="text-xs text-slate-500 mt-1">MPPT 0.00 W / PV 0.00 W</div>
+      </div>
+    </section>
+
+    <!-- 4 Kartu Sensor INA219 -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-900 p-4 rounded-xl border border-amber-500/40">
+        <div class="text-xs font-semibold text-amber-400 mb-2">1. Output Panel Surya (0x40)</div>
+        <div class="text-2xl font-bold text-white mb-2"><span id="pvP">0.00</span> <span class="text-sm font-normal text-slate-400">W</span></div>
+        <div class="flex justify-between text-xs text-slate-400 border-t border-slate-800 pt-2 font-mono">
+          <span>V: <b id="pvV" class="text-slate-200">0.00</b> V</span>
+          <span>I: <b id="pvI" class="text-slate-200">0.000</b> A</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 p-4 rounded-xl border border-teal-500/40">
+        <div class="text-xs font-semibold text-teal-400 mb-2">2. Output MPPT (0x41)</div>
+        <div class="text-2xl font-bold text-white mb-2"><span id="mpptP">0.00</span> <span class="text-sm font-normal text-slate-400">W</span></div>
+        <div class="flex justify-between text-xs text-slate-400 border-t border-slate-800 pt-2 font-mono">
+          <span>V: <b id="mpptV" class="text-slate-200">0.00</b> V</span>
+          <span>I: <b id="mpptI" class="text-slate-200">0.000</b> A</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 p-4 rounded-xl border border-emerald-500/40">
+        <div class="text-xs font-semibold text-emerald-400 mb-2">3. Baterai LiFePO4 (0x44)</div>
+        <div class="text-2xl font-bold text-white mb-2"><span id="battP">0.00</span> <span class="text-sm font-normal text-slate-400">W</span></div>
+        <div class="flex justify-between text-xs text-slate-400 border-t border-slate-800 pt-2 font-mono">
+          <span>V: <b id="battV" class="text-slate-200">0.00</b> V</span>
+          <span>I: <b id="battI" class="text-slate-200">0.000</b> A</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 p-4 rounded-xl border border-purple-500/40">
+        <div class="text-xs font-semibold text-purple-400 mb-2">4. Beban &amp; Inverter (0x45)</div>
+        <div class="text-2xl font-bold text-white mb-2"><span id="loadP">0.00</span> <span class="text-sm font-normal text-slate-400">W</span></div>
+        <div class="flex justify-between text-xs text-slate-400 border-t border-slate-800 pt-2 font-mono">
+          <span>V: <b id="loadV" class="text-slate-200">0.00</b> V</span>
+          <span>I: <b id="loadI" class="text-slate-200">0.000</b> A</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 Grafik Real-Time -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <h2 class="text-sm font-semibold mb-3 text-slate-300">Grafik Real-Time Daya 4 Titik INA219 (Watt)</h2>
+        <div class="h-72"><canvas id="powerChart"></canvas></div>
+      </div>
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <h2 class="text-sm font-semibold mb-3 text-slate-300">Grafik Fitur Lingkungan: Cahaya (Lux) &amp; Suhu Panel (°C)</h2>
+        <div class="h-72"><canvas id="envChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Tabel Preview 10 Sampel Terbaru -->
+    <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 overflow-x-auto">
+      <h2 class="text-sm font-semibold mb-3 text-slate-300">Preview 10 Sampel Dataset Terbaru (Siap Export CSV)</h2>
+      <table class="w-full text-xs text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-800 text-slate-400">
+            <th class="py-2 pr-3">Timestamp</th>
+            <th class="py-2 px-2">Lux</th>
+            <th class="py-2 px-2">Temp (°C)</th>
+            <th class="py-2 px-2 text-amber-400">PV (V / A / W)</th>
+            <th class="py-2 px-2 text-teal-400">MPPT (V / A / W)</th>
+            <th class="py-2 px-2 text-emerald-400">Batt (V / A / W)</th>
+            <th class="py-2 pl-2 text-purple-400">Load (V / A / W)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" class="divide-y divide-slate-800/70 font-mono">
+          <tr>
+            <td colspan="7" class="py-6 text-center text-slate-500 font-sans">
+              Belum ada data terekam. Hubungkan ke MQTT untuk mulai mengambil dataset.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    let client = null;
+    let isConnected = false;
+    let isRecording = true;
+    let recordedDataset = [];
+    const MAX_CHART_POINTS = 60;
+
+    // Muat kredensial MQTT tersimpan
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("barokah_jaya_mqtt_cfg");
+      if (saved) {
+        try {
+          const cfg = JSON.parse(saved);
+          if (cfg.brokerUrl) document.getElementById("brokerUrl").value = cfg.brokerUrl;
+          if (cfg.username) document.getElementById("mqttUser").value = cfg.username;
+          if (cfg.topic) document.getElementById("mqttTopic").value = cfg.topic;
+        } catch {}
+      }
+    });
+
+    // Grafik 1: Daya 4 Kanal INA219
+    const powerChart = new Chart(document.getElementById("powerChart"), {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          { label: "Panel (W)", data: [], borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, tension: 0.25 },
+          { label: "MPPT (W)", data: [], borderColor: "#2dd4bf", borderWidth: 2, pointRadius: 0, tension: 0.25 },
+          { label: "Baterai (W)", data: [], borderColor: "#10b981", borderWidth: 2, pointRadius: 0, tension: 0.25 },
+          { label: "Beban (W)", data: [], borderColor: "#a855f7", borderWidth: 2, pointRadius: 0, tension: 0.25 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        scales: {
+          x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "#1e293b" } },
+          y: { ticks: { color: "#94a3b8" }, grid: { color: "#1e293b" }, title: { display: true, text: "Watt", color: "#94a3b8" } }
+        },
+        plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } }
+      }
+    });
+
+    // Grafik 2: Cahaya (Lux) & Suhu Panel (°C) Dual-Axis
+    const envChart = new Chart(document.getElementById("envChart"), {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          { label: "Cahaya (Lux)", data: [], borderColor: "#fbbf24", yAxisID: "yLux", borderWidth: 2, pointRadius: 0, tension: 0.25 },
+          { label: "Suhu Panel (°C)", data: [], borderColor: "#fb7185", yAxisID: "yTemp", borderWidth: 2, pointRadius: 0, tension: 0.25 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        scales: {
+          x: { ticks: { color: "#94a3b8", font: { size: 10 } }, grid: { color: "#1e293b" } },
+          yLux: { type: "linear", position: "left", ticks: { color: "#fbbf24" }, grid: { color: "#1e293b" } },
+          yTemp: { type: "linear", position: "right", ticks: { color: "#fb7185" }, grid: { drawOnChartArea: false } }
+        },
+        plugins: { legend: { labels: { color: "#cbd5e1", font: { size: 11 } } } }
+      }
+    });
+
+    function setStatusUI(state) {
+      const badge = document.getElementById("statusBadge");
+      const btn = document.getElementById("btnConnect");
+      if (state === "Connected") {
+        isConnected = true;
+        badge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-900/60 text-emerald-300";
+        badge.textContent = "● Connected";
+        btn.className = "bg-rose-600 hover:bg-rose-500 font-semibold rounded px-4 py-2 text-xs transition";
+        btn.textContent = "Putuskan";
+      } else if (state === "Connecting") {
+        badge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-900/60 text-amber-300";
+        badge.textContent = "● Connecting...";
+      } else {
+        isConnected = false;
+        badge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-900/60 text-rose-300";
+        badge.textContent = "● Disconnected";
+        btn.className = "bg-teal-600 hover:bg-teal-500 font-semibold rounded px-4 py-2 text-xs transition";
+        btn.textContent = "Hubungkan MQTT";
+      }
+    }
+
+    function toggleMqtt() {
+      if (isConnected && client) {
+        client.end();
+        client = null;
+        setStatusUI("Disconnected");
+        return;
+      }
+
+      const brokerUrl = document.getElementById("brokerUrl").value.trim();
+      const username = document.getElementById("mqttUser").value.trim();
+      const password = document.getElementById("mqttPass").value;
+      const topic = document.getElementById("mqttTopic").value.trim();
+
+      localStorage.setItem("barokah_jaya_mqtt_cfg", JSON.stringify({ brokerUrl, username, topic }));
+      setStatusUI("Connecting");
+
+      client = mqtt.connect(brokerUrl, {
+        username,
+        password,
+        reconnectPeriod: 3000
+      });
+
+      client.on("connect", () => {
+        setStatusUI("Connected");
+        client.subscribe(topic);
+      });
+
+      client.on("message", (_t, payload) => {
+        try {
+          const d = JSON.parse(payload.toString());
+          updateDashboard(d);
+        } catch (err) {
+          console.error("JSON Parse Error:", err);
+        }
+      });
+
+      client.on("close", () => setStatusUI("Disconnected"));
+      client.on("error", () => setStatusUI("Disconnected"));
+    }
+
+    function updateDashboard(d) {
+      document.getElementById("rtcBadge").textContent = "RTC: " + (d.ts || "--:--:--");
+      document.getElementById("valLux").textContent = Number(d.lux || 0).toLocaleString("id-ID") + " lx";
+      document.getElementById("valTemp").textContent = Number(d.temp || 0).toFixed(2) + " °C";
+
+      const pvP = Number(d.pv?.p || 0);
+      const mpptP = Number(d.mppt?.p || 0);
+      const eff = pvP > 0.3 ? Math.min(100, (mpptP / pvP) * 100) : 0;
+      document.getElementById("valEff").textContent = eff.toFixed(1) + " %";
+      document.getElementById("valEffSub").textContent = `MPPT ${mpptP.toFixed(2)} W / PV ${pvP.toFixed(2)} W`;
+
+      const channels = ["pv", "mppt", "batt", "load"];
+      channels.forEach((ch) => {
+        const obj = d[ch] || { v: 0, i: 0, p: 0 };
+        document.getElementById(ch + "V").textContent = Number(obj.v).toFixed(2);
+        document.getElementById(ch + "I").textContent = Number(obj.i).toFixed(3);
+        document.getElementById(ch + "P").textContent = Number(obj.p).toFixed(2);
+      });
+
+      const shortTime = (d.ts || "").split(" ")[1] || new Date().toLocaleTimeString("id-ID");
+      powerChart.data.labels.push(shortTime);
+      powerChart.data.datasets[0].data.push(d.pv?.p || 0);
+      powerChart.data.datasets[1].data.push(d.mppt?.p || 0);
+      powerChart.data.datasets[2].data.push(d.batt?.p || 0);
+      powerChart.data.datasets[3].data.push(d.load?.p || 0);
+
+      envChart.data.labels.push(shortTime);
+      envChart.data.datasets[0].data.push(d.lux || 0);
+      envChart.data.datasets[1].data.push(d.temp || 0);
+
+      if (powerChart.data.labels.length > MAX_CHART_POINTS) {
+        powerChart.data.labels.shift();
+        powerChart.data.datasets.forEach((ds) => ds.data.shift());
+        envChart.data.labels.shift();
+        envChart.data.datasets.forEach((ds) => ds.data.shift());
+      }
+      powerChart.update();
+      envChart.update();
+
+      if (isRecording) {
+        recordedDataset.push(d);
+        document.getElementById("recordCount").textContent = recordedDataset.length;
+        document.getElementById("btnExport").disabled = false;
+        renderTable();
+
+        if (document.getElementById("chkSyncApi").checked) {
+          fetch("/api/telemetry", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(d)
+          }).catch(() => {});
+        }
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("tableBody");
+      const latestRows = recordedDataset.slice(-10).reverse();
+      tbody.innerHTML = latestRows.map((r) => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 pr-3 text-slate-300">${r.ts}</td>
+          <td class="py-2 px-2">${r.lux}</td>
+          <td class="py-2 px-2">${r.temp}</td>
+          <td class="py-2 px-2">${r.pv.v}V / ${r.pv.i}A / <b>${r.pv.p}W</b></td>
+          <td class="py-2 px-2">${r.mppt.v}V / ${r.mppt.i}A / <b>${r.mppt.p}W</b></td>
+          <td class="py-2 px-2">${r.batt.v}V / ${r.batt.i}A / <b>${r.batt.p}W</b></td>
+          <td class="py-2 pl-2">${r.load.v}V / ${r.load.i}A / <b>${r.load.p}W</b></td>
+        </tr>
+      `).join("");
+    }
+
+    function toggleRecord() {
+      isRecording = !isRecording;
+      const btn = document.getElementById("btnRecord");
+      if (isRecording) {
+        btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition";
+        btn.textContent = "⏸ Jeda Rekam Data";
+      } else {
+        btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition";
+        btn.textContent = "▶ Mulai Rekam Data";
+      }
+    }
+
+    async function resetDataset() {
+      recordedDataset = [];
+      document.getElementById("recordCount").textContent = "0";
+      document.getElementById("btnExport").disabled = true;
+      document.getElementById("tableBody").innerHTML = `
+        <tr><td colspan="7" class="py-6 text-center text-slate-500 font-sans">
+          Dataset telah direset.
+        </td></tr>`;
+      if (document.getElementById("chkSyncApi").checked) {
+        await fetch("/api/telemetry", { method: "DELETE" }).catch(() => {});
+      }
+    }
+
+    function exportCSV() {
+      if (recordedDataset.length === 0) return;
+      const header = "timestamp,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p\n";
+      const rows = recordedDataset.map((d) =>
+        `${d.ts},${d.lux},${d.temp},${d.pv.v},${d.pv.i},${d.pv.p},${d.mppt.v},${d.mppt.i},${d.mppt.p},${d.batt.v},${d.batt.i},${d.batt.p},${d.load.v},${d.load.i},${d.load.p}`
+      ).join("\n");
+
+      const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `barokah_jaya_plts_dataset_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
