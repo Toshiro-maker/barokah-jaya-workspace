@@ -25,6 +25,10 @@
   </script>
   <style>
     .tabular-nums { font-variant-numeric: tabular-nums; }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.8);
+      cursor: pointer;
+    }
 
     /* Animasi Aliran Energi SVG */
     @keyframes flowForward {
@@ -151,40 +155,28 @@
             </div>
           </div>
 
-          <!-- Responsive SVG Power Flow -->
           <div class="overflow-x-auto pb-2">
             <svg viewBox="0 0 960 440" class="w-full min-w-[780px] h-auto select-none">
-
-              <!-- ================= JALUR ALIRAN (TRACK + PULSE) ================= -->
-
-              <!-- 1. Jalur Panel Surya -> MPPT -->
+              <!-- JALUR ALIRAN -->
               <path d="M 235 220 L 310 220" class="flow-track" />
               <path id="flowPvMppt" d="M 235 220 L 310 220" class="flow-pulse" stroke="#f59e0b" />
               <polygon id="arrowPv" points="309,220 299,214 299,226" fill="#3f3f46" />
 
-              <!-- 2. Jalur MPPT -> DC Bus -->
               <path d="M 510 220 L 580 220" class="flow-track" />
               <path id="flowMpptBus" d="M 510 220 L 580 220" class="flow-pulse" stroke="#14b8a6" />
               <polygon id="arrowMppt" points="579,220 569,214 569,226" fill="#3f3f46" />
 
-              <!-- 3. Jalur DC Bus <-> Baterai LiFePO4 (Dua Arah) -->
               <path d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-track" />
               <path id="flowBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-pulse" stroke="#10b981" />
-              <!-- Panah Charging (Masuk Baterai) -->
               <polygon id="arrowBattCharge" points="709,112 699,106 699,118" fill="#3f3f46" />
-              <!-- Panah Discharging (Keluar ke Bus) -->
               <polygon id="arrowBattDischarge" points="604,195 598,185 610,185" fill="#3f3f46" opacity="0.25" />
-
-              <!-- Label Arah Baterai di Atas Jalur -->
               <text id="flowBattDir" x="658" y="100" text-anchor="middle" fill="#71717a" font-size="10" font-family="JetBrains Mono, monospace" font-weight="600">STANDBY</text>
 
-              <!-- 4. Jalur DC Bus -> Beban & Inverter -->
               <path d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-track" />
               <path id="flowBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-pulse" stroke="#a855f7" />
               <polygon id="arrowLoad" points="709,328 699,322 699,334" fill="#3f3f46" />
 
-
-              <!-- ================= SIMPUL TENGAH: DC BUSBAR (+) ================= -->
+              <!-- SIMPUL DC BUS -->
               <g>
                 <circle cx="604" cy="220" r="24" fill="#18181b" stroke="#3f3f46" stroke-width="2" />
                 <circle id="busDot" cx="604" cy="220" r="20" fill="none" stroke="#14b8a6" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" />
@@ -192,119 +184,89 @@
                 <text x="604" y="229" text-anchor="middle" fill="#a1a1aa" font-size="9" font-family="JetBrains Mono, monospace">BUS</text>
               </g>
 
-
-              <!-- ================= ELEMEN 1: PANEL SURYA 50Wp (INA1) ================= -->
+              <!-- ELEMEN 1: PANEL SURYA -->
               <g>
                 <rect x="20" y="106" width="215" height="228" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect x="20" y="106" width="215" height="4" rx="2" fill="#f59e0b" />
-
                 <rect x="36" y="124" width="28" height="28" rx="7" fill="#f59e0b" fill-opacity="0.12" />
                 <rect x="43" y="131" width="14" height="14" rx="2" fill="none" stroke="#fbbf24" stroke-width="1.5" />
                 <line x1="50" y1="131" x2="50" y2="145" stroke="#fbbf24" stroke-width="1.2" />
                 <line x1="43" y1="138" x2="57" y2="138" stroke="#fbbf24" stroke-width="1.2" />
-
                 <text x="74" y="136" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Panel Surya</text>
                 <text x="74" y="150" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">50Wp • INA1 0x40</text>
-
                 <text id="svgPvP" x="36" y="196" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-
                 <line x1="36" y1="212" x2="219" y2="212" stroke="#27272a" stroke-width="1" />
                 <text x="36" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgPvV" x="36" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-
                 <text x="132" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgPvI" x="132" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-
                 <rect x="36" y="266" width="183" height="52" rx="9" fill="#09090b" stroke="#27272a" stroke-width="1" />
                 <text x="48" y="284" fill="#fbbf24" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Cahaya</text>
                 <text id="svgLux" x="48" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0 lx</text>
-
                 <line x1="138" y1="274" x2="138" y2="310" stroke="#27272a" stroke-width="1" />
                 <text x="149" y="284" fill="#fb7185" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Suhu</text>
                 <text id="svgTemp" x="149" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.0 °C</text>
               </g>
 
-
-              <!-- ================= ELEMEN 2: MPPT CONTROLLER (INA2) ================= -->
+              <!-- ELEMEN 2: MPPT CONTROLLER -->
               <g>
                 <rect x="310" y="130" width="200" height="180" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect x="310" y="130" width="200" height="4" rx="2" fill="#14b8a6" />
-
                 <rect x="326" y="148" width="28" height="28" rx="7" fill="#14b8a6" fill-opacity="0.12" />
                 <polyline points="333,165 338,157 342,163 347,155" fill="none" stroke="#2dd4bf" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-
                 <text x="364" y="160" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">MPPT Output</text>
                 <text x="364" y="174" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA2 • 0x41</text>
-
                 <text id="svgMpptP" x="326" y="218" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-
                 <line x1="326" y1="232" x2="494" y2="232" stroke="#27272a" stroke-width="1" />
                 <text x="326" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgMpptV" x="326" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-
                 <text x="415" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgMpptI" x="415" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-
                 <rect x="326" y="277" width="168" height="22" rx="6" fill="#14b8a6" fill-opacity="0.12" />
                 <text id="svgEff" x="410" y="292" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">Efisiensi: 0.0%</text>
               </g>
 
-
-              <!-- ================= ELEMEN 3: BATERAI LiFePO4 (INA3) ================= -->
+              <!-- ELEMEN 3: BATERAI LiFePO4 -->
               <g>
                 <rect x="710" y="24" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect id="battTopBar" x="710" y="24" width="230" height="4" rx="2" fill="#10b981" />
-
                 <rect x="726" y="42" width="28" height="28" rx="7" fill="#10b981" fill-opacity="0.12" />
                 <rect x="733" y="51" width="12" height="10" rx="1.5" fill="none" stroke="#34d399" stroke-width="1.5" />
                 <line x1="747" y1="54" x2="747" y2="58" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
-
                 <text x="764" y="54" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Baterai LiFePO4</text>
                 <text x="764" y="68" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA3 • 0x44</text>
-
                 <text id="svgBattP" x="726" y="110" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-
                 <line x1="726" y1="124" x2="924" y2="124" stroke="#27272a" stroke-width="1" />
                 <text x="726" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgBattV" x="726" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-
                 <text x="826" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgBattI" x="826" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-
                 <rect id="svgBattBadgeBg" x="726" y="168" width="198" height="22" rx="6" fill="#27272a" />
                 <text id="svgBattState" x="825" y="183" text-anchor="middle" fill="#a1a1aa" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
               </g>
 
-
-              <!-- ================= ELEMEN 4: BEBAN & INVERTER (INA4) ================= -->
+              <!-- ELEMEN 4: BEBAN & INVERTER -->
               <g>
                 <rect x="710" y="240" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                 <rect x="710" y="240" width="230" height="4" rx="2" fill="#a855f7" />
-
                 <rect x="726" y="258" width="28" height="28" rx="7" fill="#a855f7" fill-opacity="0.12" />
                 <polygon points="741,264 734,273 740,273 739,280 746,271 740,271" fill="#c084fc" />
-
                 <text x="764" y="270" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Beban &amp; Inverter</text>
                 <text x="764" y="284" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA4 • 0x45</text>
-
                 <text id="svgLoadP" x="726" y="326" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-
                 <line x1="726" y1="340" x2="924" y2="340" stroke="#27272a" stroke-width="1" />
                 <text x="726" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                 <text id="svgLoadV" x="726" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-
                 <text x="826" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
                 <text id="svgLoadI" x="826" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-
                 <rect x="726" y="384" width="198" height="22" rx="6" fill="#a855f7" fill-opacity="0.12" />
                 <text x="825" y="399" text-anchor="middle" fill="#c084fc" font-size="10.5" font-family="Plus Jakarta Sans, sans-serif">Inverter DC-AC + Kontrol Mini560</text>
               </g>
-
             </svg>
           </div>
         </div>
 
-        <!-- ================= BARU: PANEL AKUMULASI ENERGI (Wh) ================= -->
+        <!-- PANEL AKUMULASI ENERGI (Wh) -->
         <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 md:p-5">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div class="flex items-center gap-2">
@@ -319,7 +281,6 @@
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <!-- 1. Panel -->
             <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
               <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
                 <span>Daya Panel</span>
@@ -331,7 +292,6 @@
               <div class="text-[10px] text-zinc-500 mt-1">Dihasilkan panel surya</div>
             </div>
 
-            <!-- 2. MPPT -->
             <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
               <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
                 <span>Daya MPPT</span>
@@ -343,7 +303,6 @@
               <div class="text-[10px] text-zinc-500 mt-1">Dihasilkan output MPPT</div>
             </div>
 
-            <!-- 3. Baterai Terisi -->
             <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
               <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
                 <span>Baterai Terisi</span>
@@ -355,7 +314,6 @@
               <div class="text-[10px] text-zinc-500 mt-1">Total energi masuk (Charge)</div>
             </div>
 
-            <!-- 4. Baterai Terkuras -->
             <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5">
               <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
                 <span>Baterai Terkuras</span>
@@ -367,7 +325,6 @@
               <div class="text-[10px] text-zinc-500 mt-1">Total energi keluar (Discharge)</div>
             </div>
 
-            <!-- 5. Beban Terpakai -->
             <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-xl p-3.5 col-span-2 sm:col-span-1">
               <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
                 <span>Beban Terpakai</span>
@@ -380,23 +337,72 @@
             </div>
           </div>
         </div>
-
       </section>
 
-      <!-- ==================== HALAMAN 2: GRAFIK ==================== -->
-      <section id="page-grafik" class="page-section hidden space-y-6">
+      <!-- ==================== HALAMAN 2: GRAFIK 24 JAM & HISTORI ==================== -->
+      <section id="page-grafik" class="page-section hidden space-y-5">
+
+        <!-- Kontrol Tanggal & Histori Harian -->
+        <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 space-y-3">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="shiftChartDate(-1)" title="Hari Sebelumnya"
+                class="inline-flex items-center gap-1 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs px-3 py-2 rounded-lg transition">
+                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                Sebelumnya
+              </button>
+
+              <input id="chartDatePicker" type="date" onchange="selectChartDate(this.value)"
+                class="bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono px-3 py-2 rounded-lg focus:outline-none focus:border-teal-500" />
+
+              <button onclick="shiftChartDate(1)" title="Hari Berikutnya"
+                class="inline-flex items-center gap-1 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs px-3 py-2 rounded-lg transition">
+                Berikutnya
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+
+              <button onclick="goToTodayChart()"
+                class="inline-flex items-center gap-1.5 bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-300 text-xs font-medium px-3 py-2 rounded-lg transition">
+                <i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i>
+                Hari Ini
+              </button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span id="chartModeBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                ● Live 24 Jam
+              </span>
+              <span id="chartPointCount" class="text-xs font-mono text-zinc-400">0 titik</span>
+
+              <label class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                Muat CSV
+                <input id="csvHistoryInput" type="file" accept=".csv" class="hidden" onchange="importCsvToHistory(event)" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Daftar Tanggal Histori Tersimpan -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-zinc-800/70">
+            <span class="text-[11px] text-zinc-500 mr-1">Histori tersimpan:</span>
+            <div id="savedDateChips" class="flex flex-wrap items-center gap-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Grafik 1: Daya 4 Kanal INA219 (00:00 - 24:00) -->
         <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-sm font-semibold text-zinc-200">Grafik Daya 4 Kanal INA219 (Watt)</h2>
-            <span class="text-xs text-zinc-500">60 sampel terakhir</span>
+            <span id="powerChartDateLabel" class="text-xs font-mono text-zinc-500">00:00 – 24:00</span>
           </div>
           <div class="h-72 md:h-80"><canvas id="powerChart"></canvas></div>
         </div>
 
+        <!-- Grafik 2: Cahaya (Lux) & Suhu Panel (°C) (00:00 - 24:00) -->
         <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-sm font-semibold text-zinc-200">Grafik Cahaya (Lux) &amp; Suhu Panel (°C)</h2>
-            <span class="text-xs text-zinc-500">Sumbu ganda</span>
+            <span id="envChartDateLabel" class="text-xs font-mono text-zinc-500">00:00 – 24:00</span>
           </div>
           <div class="h-72 md:h-80"><canvas id="envChart"></canvas></div>
         </div>
@@ -542,25 +548,321 @@
     let isConnected = false;
     let isRecording = true;
     let recordedDataset = [];
-    const MAX_CHART_POINTS = 60;
+
+    // State Histori Grafik Harian: { "YYYY-MM-DD": [ { m, x, lux, temp, pv, mppt, batt, load }, ... ] }
+    const HISTORY_STORAGE_KEY = "barokah_jaya_daily_history_v1";
+    let dailyHistory = {};
+    let selectedChartDate = getLocalDateStr();
 
     // State Akumulasi Energi (Wh)
-    let energyAcc = {
-      pv: 0,
-      mppt: 0,
-      battCharge: 0,
-      battDischarge: 0,
-      load: 0,
-    };
+    let energyAcc = { pv: 0, mppt: 0, battCharge: 0, battDischarge: 0, load: 0 };
     let lastEnergyTick = null;
 
     const PAGE_TITLES = {
       monitor: "Live Power Flow",
-      grafik: "Grafik Real-Time",
+      grafik: "Grafik Harian (24 Jam)",
       dataset: "Akuisisi Dataset",
       pengaturan: "Pengaturan Koneksi",
     };
 
+    // ===================== HELPER WAKTU 24 JAM =====================
+    function getLocalDateStr(dateObj = new Date()) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseTimestamp(tsStr) {
+      if (typeof tsStr === "string" && tsStr.includes(" ")) {
+        const [datePart, timePart] = tsStr.trim().split(" ");
+        const [hh, mm, ss] = (timePart || "00:00:00").split(":").map(Number);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(datePart) && !isNaN(hh) && !isNaN(mm)) {
+          const sec = isNaN(ss) ? 0 : ss;
+          const x = Number((hh + mm / 60 + sec / 3600).toFixed(4));
+          return { dateStr: datePart, x, m: hh * 60 + mm };
+        }
+      }
+      const now = new Date();
+      const hh = now.getHours(), mm = now.getMinutes(), ss = now.getSeconds();
+      return {
+        dateStr: getLocalDateStr(now),
+        x: Number((hh + mm / 60 + ss / 3600).toFixed(4)),
+        m: hh * 60 + mm
+      };
+    }
+
+    function formatHourDecimal(hDec) {
+      const clamped = Math.max(0, Math.min(24, Number(hDec) || 0));
+      const totalSec = Math.round(clamped * 3600);
+      const hh = Math.floor(totalSec / 3600);
+      const mm = Math.floor((totalSec % 3600) / 60);
+      const ss = totalSec % 60;
+      return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+    }
+
+    // ===================== PENYIMPANAN HISTORI HARIAN =====================
+    function loadDailyHistory() {
+      const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") dailyHistory = parsed;
+      } catch {}
+    }
+
+    function saveDailyHistory() {
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(dailyHistory));
+      } catch {
+        // Jika localStorage penuh, hapus tanggal paling lama secara otomatis
+        const dates = Object.keys(dailyHistory).sort();
+        if (dates.length > 1) {
+          delete dailyHistory[dates[0]];
+          try {
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(dailyHistory));
+          } catch {}
+        }
+      }
+    }
+
+    // Simpan 1 titik per menit agar memori ringan namun tetap update live setiap 2 detik
+    function upsertHistoryPoint(d) {
+      const { dateStr, x, m } = parseTimestamp(d.ts);
+      if (!dailyHistory[dateStr]) dailyHistory[dateStr] = [];
+
+      const pt = {
+        m,
+        x,
+        lux: Number(d.lux || 0),
+        temp: Number(d.temp || 0),
+        pv: Number(d.pv?.p || 0),
+        mppt: Number(d.mppt?.p || 0),
+        batt: Number(d.batt?.p || 0),
+        load: Number(d.load?.p || 0),
+      };
+
+      const arr = dailyHistory[dateStr];
+      const existingIdx = arr.findIndex((item) => item.m === m);
+      if (existingIdx >= 0) {
+        arr[existingIdx] = pt;
+      } else {
+        arr.push(pt);
+        arr.sort((a, b) => a.x - b.x);
+      }
+
+      saveDailyHistory();
+      return dateStr;
+    }
+
+    // Bangun seri {x, y} dengan pemutus garis otomatis bila jeda > 15 menit
+    function buildSeriesWithGaps(points, field) {
+      const out = [];
+      for (let i = 0; i < points.length; i++) {
+        if (i > 0 && points[i].x - points[i - 1].x > 0.25) {
+          out.push({ x: Number((points[i - 1].x + 0.01).toFixed(4)), y: null });
+        }
+        out.push({ x: points[i].x, y: points[i][field] });
+      }
+      return out;
+    }
+
+    // ===================== RENDER GRAFIK 24 JAM =====================
+    function renderSavedDateChips() {
+      const container = document.getElementById("savedDateChips");
+      const today = getLocalDateStr();
+      const dates = Array.from(new Set([today, ...Object.keys(dailyHistory)])).sort().reverse().slice(0, 10);
+
+      container.innerHTML = dates.map((dt) => {
+        const count = (dailyHistory[dt] || []).length;
+        const active = dt === selectedChartDate;
+        const label = dt === today ? `${dt} (Hari Ini)` : dt;
+        return `
+          <button onclick="selectChartDate('${dt}')"
+            class="px-2.5 py-1 rounded-md text-[11px] font-mono border transition ${
+              active
+                ? "bg-teal-500/20 border-teal-500/50 text-teal-300"
+                : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+            }">
+            ${label} <span class="opacity-60">(${count})</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderChartsForDate(dateStr) {
+      selectedChartDate = dateStr || getLocalDateStr();
+      const today = getLocalDateStr();
+      const points = (dailyHistory[selectedChartDate] || []).slice().sort((a, b) => a.x - b.x);
+
+      document.getElementById("chartDatePicker").value = selectedChartDate;
+      document.getElementById("powerChartDateLabel").textContent = `${selectedChartDate} • 00:00 – 24:00`;
+      document.getElementById("envChartDateLabel").textContent = `${selectedChartDate} • 00:00 – 24:00`;
+      document.getElementById("chartPointCount").textContent = `${points.length} titik`;
+
+      const badge = document.getElementById("chartModeBadge");
+      if (selectedChartDate === today) {
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+        badge.textContent = "● Live 24 Jam";
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30";
+        badge.textContent = `Histori • ${selectedChartDate}`;
+      }
+
+      powerChart.data.datasets[0].data = buildSeriesWithGaps(points, "pv");
+      powerChart.data.datasets[1].data = buildSeriesWithGaps(points, "mppt");
+      powerChart.data.datasets[2].data = buildSeriesWithGaps(points, "batt");
+      powerChart.data.datasets[3].data = buildSeriesWithGaps(points, "load");
+      powerChart.update();
+
+      envChart.data.datasets[0].data = buildSeriesWithGaps(points, "lux");
+      envChart.data.datasets[1].data = buildSeriesWithGaps(points, "temp");
+      envChart.update();
+
+      renderSavedDateChips();
+    }
+
+    async function selectChartDate(dateStr) {
+      if (!dateStr) return;
+      selectedChartDate = dateStr;
+
+      // Jika data lokal kosong, coba cek dari API backend (/api/telemetry?date=YYYY-MM-DD)
+      if (!dailyHistory[dateStr] || dailyHistory[dateStr].length === 0) {
+        try {
+          const res = await fetch(`/api/telemetry?date=${encodeURIComponent(dateStr)}`);
+          if (res.ok) {
+            const json = await res.json();
+            if (Array.isArray(json.data) && json.data.length > 0) {
+              json.data.forEach((d) => upsertHistoryPoint(d));
+            }
+          }
+        } catch {}
+      }
+      renderChartsForDate(dateStr);
+    }
+
+    function shiftChartDate(deltaDays) {
+      const [y, m, d] = selectedChartDate.split("-").map(Number);
+      const dt = new Date(y, m - 1, d + deltaDays);
+      selectChartDate(getLocalDateStr(dt));
+    }
+
+    function goToTodayChart() {
+      selectChartDate(getLocalDateStr());
+    }
+
+    // Impor file CSV lama untuk melihat grafik 24 jam histori hari sebelumnya
+    function importCsvToHistory(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = String(e.target?.result || "");
+        const lines = text.trim().split(/\r?\n/);
+        let lastImportedDate = null;
+
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(",");
+          if (cols.length < 15) continue;
+          const d = {
+            ts: cols[0].trim(),
+            lux: parseFloat(cols[1]) || 0,
+            temp: parseFloat(cols[2]) || 0,
+            pv: { v: parseFloat(cols[3]) || 0, i: parseFloat(cols[4]) || 0, p: parseFloat(cols[5]) || 0 },
+            mppt: { v: parseFloat(cols[6]) || 0, i: parseFloat(cols[7]) || 0, p: parseFloat(cols[8]) || 0 },
+            batt: { v: parseFloat(cols[9]) || 0, i: parseFloat(cols[10]) || 0, p: parseFloat(cols[11]) || 0 },
+            load: { v: parseFloat(cols[12]) || 0, i: parseFloat(cols[13]) || 0, p: parseFloat(cols[14]) || 0 },
+          };
+          lastImportedDate = upsertHistoryPoint(d);
+        }
+
+        if (lastImportedDate) {
+          renderChartsForDate(lastImportedDate);
+        }
+        event.target.value = "";
+      };
+      reader.readAsText(file);
+    }
+
+    // ===================== KONFIGURASI SUMBU-X 24 JAM CHART.JS =====================
+    const xAxis24hConfig = {
+      type: "linear",
+      min: 0,
+      max: 24,
+      ticks: {
+        stepSize: 2,
+        color: "#71717a",
+        font: { size: 10, family: "JetBrains Mono, monospace" },
+        callback: (val) => `${String(val).padStart(2, "0")}:00`,
+      },
+      grid: { color: "#18181b" },
+      title: { display: true, text: "Waktu (24 Jam)", color: "#71717a", font: { size: 11 } },
+    };
+
+    const tooltip24hConfig = {
+      callbacks: {
+        title: (items) => {
+          if (!items.length) return "";
+          return `${selectedChartDate} • ${formatHourDecimal(items[0].parsed.x)}`;
+        },
+      },
+    };
+
+    // Grafik 1: Daya 4 Kanal INA219
+    const powerChart = new Chart(document.getElementById("powerChart"), {
+      type: "line",
+      data: {
+        datasets: [
+          { label: "Panel (W)", data: [], borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, spanGaps: false },
+          { label: "MPPT (W)", data: [], borderColor: "#14b8a6", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, spanGaps: false },
+          { label: "Baterai (W)", data: [], borderColor: "#10b981", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, spanGaps: false },
+          { label: "Beban (W)", data: [], borderColor: "#a855f7", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, spanGaps: false }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: "nearest", axis: "x", intersect: false },
+        scales: {
+          x: xAxis24hConfig,
+          y: { ticks: { color: "#71717a" }, grid: { color: "#27272a" }, title: { display: true, text: "Watt", color: "#71717a" } }
+        },
+        plugins: {
+          tooltip: tooltip24hConfig,
+          legend: { labels: { color: "#d4d4d8", usePointStyle: true, boxWidth: 6, font: { size: 11 } } }
+        }
+      }
+    });
+
+    // Grafik 2: Cahaya (Lux) & Suhu Panel (°C)
+    const envChart = new Chart(document.getElementById("envChart"), {
+      type: "line",
+      data: {
+        datasets: [
+          { label: "Cahaya (Lux)", data: [], borderColor: "#fbbf24", yAxisID: "yLux", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, spanGaps: false },
+          { label: "Suhu Panel (°C)", data: [], borderColor: "#fb7185", yAxisID: "yTemp", borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.25, spanGaps: false }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { mode: "nearest", axis: "x", intersect: false },
+        scales: {
+          x: xAxis24hConfig,
+          yLux: { type: "linear", position: "left", min: 0, ticks: { color: "#fbbf24" }, grid: { color: "#27272a" }, title: { display: true, text: "Lux", color: "#fbbf24" } },
+          yTemp: { type: "linear", position: "right", ticks: { color: "#fb7185" }, grid: { drawOnChartArea: false }, title: { display: true, text: "Suhu (°C)", color: "#fb7185" } }
+        },
+        plugins: {
+          tooltip: tooltip24hConfig,
+          legend: { labels: { color: "#d4d4d8", usePointStyle: true, boxWidth: 6, font: { size: 11 } } }
+        }
+      }
+    });
+
+    // ===================== AKUMULASI ENERGI & NAVIGASI =====================
     function renderEnergyAcc() {
       document.getElementById("accPv").textContent = energyAcc.pv.toFixed(3);
       document.getElementById("accMppt").textContent = energyAcc.mppt.toFixed(3);
@@ -594,6 +896,7 @@
       history.replaceState(null, "", "#" + page);
 
       if (page === "grafik") {
+        renderChartsForDate(selectedChartDate);
         powerChart.resize();
         envChart.resize();
       }
@@ -605,11 +908,8 @@
       el.classList.remove("flow-forward", "flow-reverse");
       if (color) el.setAttribute("stroke", color);
 
-      if (mode === "forward") {
-        el.classList.add("flow-forward");
-      } else if (mode === "reverse") {
-        el.classList.add("flow-reverse");
-      }
+      if (mode === "forward") el.classList.add("flow-forward");
+      else if (mode === "reverse") el.classList.add("flow-reverse");
 
       if (mode !== "idle") {
         const dur = Math.max(0.35, Math.min(1.3, 1.35 - (Math.abs(watts) / 55)));
@@ -617,57 +917,10 @@
       }
     }
 
-    // Grafik 1: Daya 4 Kanal INA219
-    const powerChart = new Chart(document.getElementById("powerChart"), {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [
-          { label: "Panel (W)", data: [], borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-          { label: "MPPT (W)", data: [], borderColor: "#14b8a6", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-          { label: "Baterai (W)", data: [], borderColor: "#10b981", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-          { label: "Beban (W)", data: [], borderColor: "#a855f7", borderWidth: 2, pointRadius: 0, tension: 0.3 }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        scales: {
-          x: { ticks: { color: "#71717a", font: { size: 10 } }, grid: { color: "#18181b" } },
-          y: { ticks: { color: "#71717a" }, grid: { color: "#27272a" }, title: { display: true, text: "Watt", color: "#71717a" } }
-        },
-        plugins: { legend: { labels: { color: "#d4d4d8", usePointStyle: true, boxWidth: 6, font: { size: 11 } } } }
-      }
-    });
-
-    // Grafik 2: Cahaya & Suhu
-    const envChart = new Chart(document.getElementById("envChart"), {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [
-          { label: "Cahaya (Lux)", data: [], borderColor: "#fbbf24", yAxisID: "yLux", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-          { label: "Suhu (°C)", data: [], borderColor: "#fb7185", yAxisID: "yTemp", borderWidth: 2, pointRadius: 0, tension: 0.3 }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        scales: {
-          x: { ticks: { color: "#71717a", font: { size: 10 } }, grid: { color: "#18181b" } },
-          yLux: { type: "linear", position: "left", ticks: { color: "#fbbf24" }, grid: { color: "#27272a" } },
-          yTemp: { type: "linear", position: "right", ticks: { color: "#fb7185" }, grid: { drawOnChartArea: false } }
-        },
-        plugins: { legend: { labels: { color: "#d4d4d8", usePointStyle: true, boxWidth: 6, font: { size: 11 } } } }
-      }
-    });
-
     window.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
+      loadDailyHistory();
 
-      // Muat konfigurasi MQTT tersimpan
       const saved = localStorage.getItem("barokah_jaya_mqtt_cfg");
       if (saved) {
         try {
@@ -678,7 +931,6 @@
         } catch {}
       }
 
-      // Muat akumulasi energi tersimpan
       const savedEnergy = localStorage.getItem("barokah_jaya_energy_acc");
       if (savedEnergy) {
         try {
@@ -693,11 +945,13 @@
         } catch {}
       }
       renderEnergyAcc();
+      renderChartsForDate(selectedChartDate);
 
       const initialPage = window.location.hash.replace("#", "") || "monitor";
       switchPage(initialPage);
     });
 
+    // ===================== KONEKSI MQTT =====================
     function setStatusUI(state) {
       const dot = document.getElementById("statusDot");
       const text = document.getElementById("statusText");
@@ -763,6 +1017,7 @@
       client.on("error", () => setStatusUI("Disconnected"));
     }
 
+    // ===================== UPDATE TELEMETRI REAL-TIME =====================
     function updateDashboard(d) {
       document.getElementById("rtcText").textContent = (d.ts || "--:--:--").split(" ")[1] || d.ts;
 
@@ -861,49 +1116,30 @@
 
       // 6. Integrasi Akumulasi Energi (Wh)
       const nowMs = Date.now();
-      let dtMs = 0;
+      let dtMs = 2000;
       if (lastEnergyTick !== null) {
         const rawDt = nowMs - lastEnergyTick;
-        // Batasi jika sempat terputus lebih dari 10 detik agar tidak terjadi lonjakan semu
         dtMs = rawDt > 10000 ? 2000 : Math.max(0, rawDt);
-      } else {
-        dtMs = 2000; // Interval sampling default ESP32 (2 detik) pada paket pertama
       }
       lastEnergyTick = nowMs;
 
       const dtHours = dtMs / 3600000;
       energyAcc.pv += Math.max(0, pvP) * dtHours;
       energyAcc.mppt += Math.max(0, mpptP) * dtHours;
-      if (battI < -0.015) {
-        energyAcc.battCharge += Math.abs(battP) * dtHours;
-      } else if (battI > 0.015) {
-        energyAcc.battDischarge += Math.abs(battP) * dtHours;
-      }
+      if (battI < -0.015) energyAcc.battCharge += Math.abs(battP) * dtHours;
+      else if (battI > 0.015) energyAcc.battDischarge += Math.abs(battP) * dtHours;
       energyAcc.load += Math.max(0, loadP) * dtHours;
 
       renderEnergyAcc();
       localStorage.setItem("barokah_jaya_energy_acc", JSON.stringify(energyAcc));
 
-      // 7. Update Grafik
-      const shortTime = (d.ts || "").split(" ")[1] || new Date().toLocaleTimeString("id-ID");
-      powerChart.data.labels.push(shortTime);
-      powerChart.data.datasets[0].data.push(pvP);
-      powerChart.data.datasets[1].data.push(mpptP);
-      powerChart.data.datasets[2].data.push(battP);
-      powerChart.data.datasets[3].data.push(loadP);
-
-      envChart.data.labels.push(shortTime);
-      envChart.data.datasets[0].data.push(d.lux || 0);
-      envChart.data.datasets[1].data.push(d.temp || 0);
-
-      if (powerChart.data.labels.length > MAX_CHART_POINTS) {
-        powerChart.data.labels.shift();
-        powerChart.data.datasets.forEach((ds) => ds.data.shift());
-        envChart.data.labels.shift();
-        envChart.data.datasets.forEach((ds) => ds.data.shift());
+      // 7. Simpan ke Histori Harian 24 Jam & Update Grafik jika tanggal cocok
+      const pointDate = upsertHistoryPoint(d);
+      if (pointDate === selectedChartDate) {
+        renderChartsForDate(selectedChartDate);
+      } else {
+        renderSavedDateChips();
       }
-      powerChart.update();
-      envChart.update();
 
       // 8. Rekam Dataset Training
       if (isRecording) {
