@@ -21,125 +21,157 @@
       },
     };
   </script>
+  <style>
+    @keyframes pageEnter {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page-wrapper {
+      animation: pageEnter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .page-leaving {
+      opacity: 0 !important;
+      transform: translateY(-8px) !important;
+    }
+  </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-teal-500/30">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen antialiased selection:bg-teal-500/30">
+  <div id="appShell" class="page-wrapper min-h-screen flex flex-col">
 
-  <!-- Navbar Minimalis -->
-  <nav class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
-    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400">
-          <i data-lucide="sun" class="w-4 h-4"></i>
+    <!-- Navbar Minimalis -->
+    <nav class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
+      <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <i data-lucide="sun" class="w-4 h-4"></i>
+          </div>
+          <span class="font-semibold tracking-tight text-sm md:text-base">Barokah Jaya Workspace</span>
         </div>
-        <span class="font-semibold tracking-tight text-sm md:text-base">Barokah Jaya Workspace</span>
-      </div>
-      <a href="workspace.html#monitor"
-        class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-semibold text-xs md:text-sm px-4 py-2 rounded-lg transition">
-        Buka Workspace
-        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-      </a>
-    </div>
-  </nav>
-
-  <!-- Hero Section -->
-  <main class="flex-1 flex flex-col justify-center max-w-5xl mx-auto px-6 py-16 md:py-24 w-full">
-    <div class="max-w-2xl">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 mb-6">
-        <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-        ESP32-S3 • 4x INA219 • SEN0390 • DS18B20
-      </div>
-
-      <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight mb-4">
-        Monitoring Daya PLTS 50Wp &amp; Akuisisi Dataset
-      </h1>
-
-      <p class="text-zinc-400 text-sm md:text-base leading-relaxed mb-8">
-        Pantau performa panel surya, MPPT, baterai LiFePO4, dan beban secara real-time melalui MQTT, lalu ekspor dataset bersih untuk pemodelan daya.
-      </p>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <a href="workspace.html#monitor"
-          class="inline-flex items-center gap-2 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-sm px-5 py-2.5 rounded-lg transition">
-          <i data-lucide="activity" class="w-4 h-4"></i>
-          Mulai Monitoring
-        </a>
-        <a href="workspace.html#pengaturan"
-          class="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-medium text-sm px-5 py-2.5 rounded-lg transition">
-          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-          Atur Koneksi MQTT
+        <a href="workspace.html#monitor" data-transition
+          class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-semibold text-xs md:text-sm px-4 py-2 rounded-lg transition">
+          Buka Workspace
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
       </div>
-    </div>
+    </nav>
 
-    <!-- Navigasi Cepat 4 Halaman -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16 pt-12 border-t border-zinc-900">
-      <a href="workspace.html#monitor"
-        class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-        <div class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
-          <i data-lucide="gauge" class="w-4 h-4"></i>
+    <!-- Hero Section -->
+    <main class="flex-1 flex flex-col justify-center max-w-5xl mx-auto px-6 py-16 md:py-24 w-full">
+      <div class="max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 mb-6">
+          <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+          ESP32-S3 • 4x INA219 • SEN0390 • DS18B20
         </div>
-        <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-          Live Monitoring
-          <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-        </h2>
-        <p class="text-xs text-zinc-400 leading-relaxed">
-          Pembacaan tegangan, arus, daya 4 kanal INA219, cahaya, dan suhu panel.
-        </p>
-      </a>
 
-      <a href="workspace.html#grafik"
-        class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-        <div class="w-9 h-9 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4">
-          <i data-lucide="line-chart" class="w-4 h-4"></i>
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight mb-4">
+          Monitoring Daya PLTS 50Wp &amp; Akuisisi Dataset
+        </h1>
+
+        <p class="text-zinc-400 text-sm md:text-base leading-relaxed mb-8">
+          Pantau aliran energi panel surya, MPPT, baterai LiFePO4, dan beban secara real-time melalui MQTT, lalu ekspor dataset bersih untuk pemodelan daya.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="workspace.html#monitor" data-transition
+            class="inline-flex items-center gap-2 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-sm px-5 py-2.5 rounded-lg transition">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            Mulai Monitoring
+          </a>
+          <a href="workspace.html#pengaturan" data-transition
+            class="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-medium text-sm px-5 py-2.5 rounded-lg transition">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+            Atur Koneksi MQTT
+          </a>
         </div>
-        <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-          Grafik Real-Time
-          <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-        </h2>
-        <p class="text-xs text-zinc-400 leading-relaxed">
-          Visualisasi tren daya output PLTS serta perubahan intensitas cahaya dan suhu.
-        </p>
-      </a>
+      </div>
 
-      <a href="workspace.html#dataset"
-        class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-        <div class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
-          <i data-lucide="database" class="w-4 h-4"></i>
-        </div>
-        <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-          Akuisisi Dataset
-          <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-        </h2>
-        <p class="text-xs text-zinc-400 leading-relaxed">
-          Rekam data sensor secara terstruktur dan unduh file CSV untuk training model.
-        </p>
-      </a>
+      <!-- Navigasi Cepat 4 Halaman -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16 pt-12 border-t border-zinc-900">
+        <a href="workspace.html#monitor" data-transition
+          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
+          <div class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
+            <i data-lucide="gauge" class="w-4 h-4"></i>
+          </div>
+          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
+            Live Monitoring
+            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
+          </h2>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Skema aliran daya live 4 kanal INA219, cahaya, suhu panel, dan akumulasi energi Wh.
+          </p>
+        </a>
 
-      <a href="workspace.html#pengaturan"
-        class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-        <div class="w-9 h-9 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center mb-4">
-          <i data-lucide="wifi" class="w-4 h-4"></i>
-        </div>
-        <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-          Koneksi &amp; AP
-          <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-        </h2>
-        <p class="text-xs text-zinc-400 leading-relaxed">
-          Konfigurasi broker HiveMQ Cloud WSS dan panduan akses AP kalibrasi ESP32-S3.
-        </p>
-      </a>
-    </section>
-  </main>
+        <a href="workspace.html#grafik" data-transition
+          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
+          <div class="w-9 h-9 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4">
+            <i data-lucide="line-chart" class="w-4 h-4"></i>
+          </div>
+          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
+            Grafik 24 Jam
+            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
+          </h2>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Grafik harian terpisah untuk Daya (W), Cahaya (Lux), dan Suhu (°C) beserta histori.
+          </p>
+        </a>
 
-  <footer class="border-t border-zinc-900 py-6">
-    <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-zinc-500">
-      <span>Barokah Jaya Workspace</span>
-      <span class="font-mono">PLTS 50Wp Telemetry System</span>
-    </div>
-  </footer>
+        <a href="workspace.html#dataset" data-transition
+          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
+          <div class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
+            <i data-lucide="database" class="w-4 h-4"></i>
+          </div>
+          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
+            Akuisisi Dataset
+            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
+          </h2>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Rekam data sensor secara terstruktur dan unduh file CSV untuk training model.
+          </p>
+        </a>
+
+        <a href="workspace.html#pengaturan" data-transition
+          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
+          <div class="w-9 h-9 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center mb-4">
+            <i data-lucide="wifi" class="w-4 h-4"></i>
+          </div>
+          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
+            Koneksi &amp; AP
+            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
+          </h2>
+          <p class="text-xs text-zinc-400 leading-relaxed">
+            Konfigurasi broker HiveMQ Cloud WSS dan panduan akses AP kalibrasi ESP32-S3.
+          </p>
+        </a>
+      </section>
+    </main>
+
+    <footer class="border-t border-zinc-900 py-6">
+      <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-zinc-500">
+        <span>Barokah Jaya Workspace</span>
+        <span class="font-mono">PLTS 50Wp Telemetry System</span>
+      </div>
+    </footer>
+  </div>
 
   <script>
     lucide.createIcons();
+
+    // Animasi keluar halus saat berpindah ke workspace.html
+    document.querySelectorAll('a[data-transition]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (!href) return;
+        e.preventDefault();
+        document.getElementById('appShell').classList.add('page-leaving');
+        setTimeout(() => { window.location.href = href; }, 180);
+      });
+    });
+
+    // Pastikan halaman tampil kembali saat memakai tombol Back browser
+    window.addEventListener('pageshow', () => {
+      document.getElementById('appShell').classList.remove('page-leaving');
+    });
   </script>
 </body>
 </html>
