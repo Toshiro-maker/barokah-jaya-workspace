@@ -6,7 +6,7 @@
   <title>Workspace — Barokah Jaya</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -25,11 +25,45 @@
   </script>
   <style>
     .tabular-nums { font-variant-numeric: tabular-nums; }
+
+    /* Animasi Aliran Energi SVG */
+    @keyframes flowForward {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes flowReverse {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 24; }
+    }
+    .flow-track {
+      stroke: #27272a;
+      stroke-width: 3.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .flow-pulse {
+      stroke-width: 3.5;
+      fill: none;
+      stroke-dasharray: 8 16;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
+      transition: opacity 0.25s ease, stroke 0.25s ease;
+    }
+    .flow-forward {
+      opacity: 1;
+      animation: flowForward 0.9s linear infinite;
+    }
+    .flow-reverse {
+      opacity: 1;
+      animation: flowReverse 0.9s linear infinite;
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col md:flex-row antialiased">
 
-  <!-- Sidebar Navigasi (Desktop) -->
+  <!-- Sidebar Navigasi -->
   <aside class="w-full md:w-60 border-b md:border-b-0 md:border-r border-zinc-900 bg-zinc-950 flex flex-col shrink-0">
     <div class="h-16 px-5 flex items-center justify-between border-b border-zinc-900">
       <a href="index.html" class="flex items-center gap-2.5 hover:opacity-80 transition">
@@ -46,7 +80,7 @@
     <nav class="p-3 flex md:flex-col gap-1 overflow-x-auto">
       <button onclick="switchPage('monitor')" id="nav-monitor"
         class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs md:text-sm font-medium transition whitespace-nowrap">
-        <i data-lucide="gauge" class="w-4 h-4"></i>
+        <i data-lucide="activity" class="w-4 h-4"></i>
         Monitoring
       </button>
       <button onclick="switchPage('grafik')" id="nav-grafik"
@@ -78,17 +112,17 @@
   <!-- Konten Utama -->
   <div class="flex-1 flex flex-col min-w-0">
 
-    <!-- Topbar Status Ringkas -->
+    <!-- Topbar -->
     <header class="h-16 px-6 border-b border-zinc-900 flex items-center justify-between gap-4 shrink-0">
-      <h1 id="pageTitle" class="font-semibold text-base text-white">Live Monitoring</h1>
+      <h1 id="pageTitle" class="font-semibold text-base text-white">Live Power Flow</h1>
 
       <div class="flex items-center gap-2.5">
-        <span id="rtcBadge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
+        <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
           <i data-lucide="clock" class="w-3.5 h-3.5"></i>
           <span id="rtcText">--:--:--</span>
         </span>
 
-        <button onclick="switchPage('pengaturan')" id="statusBadge"
+        <button onclick="switchPage('pengaturan')"
           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 transition">
           <span id="statusDot" class="w-2 h-2 rounded-full bg-rose-500"></span>
           <span id="statusText">Terputus</span>
@@ -96,130 +130,194 @@
       </div>
     </header>
 
-    <main class="flex-1 p-6 max-w-6xl w-full mx-auto">
+    <main class="flex-1 p-4 md:p-6 max-w-6xl w-full mx-auto">
 
-      <!-- ==================== HALAMAN 1: MONITORING ==================== -->
-      <section id="page-monitor" class="page-section space-y-6">
-        <!-- Ringkasan Lingkungan & Efisiensi -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-            <div class="flex items-center justify-between text-xs text-zinc-400 mb-3">
-              <span>Intensitas Cahaya</span>
-              <i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>
+      <!-- ==================== HALAMAN 1: LIVE POWER FLOW ==================== -->
+      <section id="page-monitor" class="page-section space-y-4">
+
+        <!-- Canvas Diagram Aliran Energi -->
+        <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 md:p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-sm font-semibold text-zinc-100">Skema Aliran Daya PLTS 50Wp</h2>
+              <p class="text-xs text-zinc-500">Pemantauan tegangan, arus, daya, dan arah aliran energi secara real-time</p>
             </div>
-            <div class="text-2xl font-bold tabular-nums text-white">
-              <span id="valLux">0</span> <span class="text-sm font-normal text-zinc-500">lx</span>
+            <div class="flex flex-wrap items-center gap-3 text-[11px] text-zinc-400">
+              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Panel</span>
+              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-400"></span> MPPT</span>
+              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Charge</span>
+              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Discharge</span>
+              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-400"></span> Beban</span>
             </div>
           </div>
 
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-            <div class="flex items-center justify-between text-xs text-zinc-400 mb-3">
-              <span>Suhu Panel Surya</span>
-              <i data-lucide="thermometer" class="w-4 h-4 text-rose-400"></i>
-            </div>
-            <div class="text-2xl font-bold tabular-nums text-white">
-              <span id="valTemp">0.0</span> <span class="text-sm font-normal text-zinc-500">°C</span>
-            </div>
-          </div>
+          <!-- Responsive SVG Power Flow -->
+          <div class="overflow-x-auto pb-2">
+            <svg viewBox="0 0 960 440" class="w-full min-w-[780px] h-auto select-none">
 
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-            <div class="flex items-center justify-between text-xs text-zinc-400 mb-3">
-              <span>Efisiensi MPPT</span>
-              <i data-lucide="zap" class="w-4 h-4 text-teal-400"></i>
-            </div>
-            <div class="text-2xl font-bold tabular-nums text-white">
-              <span id="valEff">0.0</span> <span class="text-sm font-normal text-zinc-500">%</span>
-            </div>
-          </div>
-        </div>
+              <!-- ================= JALUR ALIRAN (TRACK + PULSE) ================= -->
 
-        <!-- 4 Kanal INA219 -->
-        <div>
-          <h2 class="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-3">Titik Pengukuran Daya (INA219)</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- INA 1 -->
-            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-zinc-200">Panel Surya 50Wp</span>
-                <span class="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">INA1 • 0x40</span>
-              </div>
-              <div class="text-3xl font-bold tabular-nums text-white mb-4">
-                <span id="pvP">0.00</span> <span class="text-base font-normal text-zinc-500">W</span>
-              </div>
-              <div class="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-800/80 text-xs">
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Tegangan</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="pvV">0.00</b> V</span>
-                </div>
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Arus</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="pvI">0.000</b> A</span>
-                </div>
-              </div>
-            </div>
+              <!-- 1. Jalur Panel Surya -> MPPT -->
+              <path d="M 235 220 L 310 220" class="flow-track" />
+              <path id="flowPvMppt" d="M 235 220 L 310 220" class="flow-pulse" stroke="#f59e0b" />
+              <polygon id="arrowPv" points="309,220 299,214 299,226" fill="#3f3f46" />
 
-            <!-- INA 2 -->
-            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-zinc-200">Output MPPT</span>
-                <span class="text-[11px] font-mono text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded">INA2 • 0x41</span>
-              </div>
-              <div class="text-3xl font-bold tabular-nums text-white mb-4">
-                <span id="mpptP">0.00</span> <span class="text-base font-normal text-zinc-500">W</span>
-              </div>
-              <div class="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-800/80 text-xs">
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Tegangan</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="mpptV">0.00</b> V</span>
-                </div>
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Arus</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="mpptI">0.000</b> A</span>
-                </div>
-              </div>
-            </div>
+              <!-- 2. Jalur MPPT -> DC Bus -->
+              <path d="M 510 220 L 580 220" class="flow-track" />
+              <path id="flowMpptBus" d="M 510 220 L 580 220" class="flow-pulse" stroke="#14b8a6" />
+              <polygon id="arrowMppt" points="579,220 569,214 569,226" fill="#3f3f46" />
 
-            <!-- INA 3 -->
-            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-zinc-200">Baterai LiFePO4</span>
-                <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">INA3 • 0x44</span>
-              </div>
-              <div class="text-3xl font-bold tabular-nums text-white mb-4">
-                <span id="battP">0.00</span> <span class="text-base font-normal text-zinc-500">W</span>
-              </div>
-              <div class="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-800/80 text-xs">
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Tegangan</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="battV">0.00</b> V</span>
-                </div>
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Arus</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="battI">0.000</b> A</span>
-                </div>
-              </div>
-            </div>
+              <!-- 3. Jalur DC Bus <-> Baterai LiFePO4 (Dua Arah) -->
+              <path d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-track" />
+              <path id="flowBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-pulse" stroke="#10b981" />
+              <!-- Panah Charging (Masuk Baterai) -->
+              <polygon id="arrowBattCharge" points="709,112 699,106 699,118" fill="#3f3f46" />
+              <!-- Panah Discharging (Keluar ke Bus) -->
+              <polygon id="arrowBattDischarge" points="604,195 598,185 610,185" fill="#3f3f46" opacity="0.25" />
 
-            <!-- INA 4 -->
-            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-zinc-200">Beban &amp; Inverter</span>
-                <span class="text-[11px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">INA4 • 0x45</span>
-              </div>
-              <div class="text-3xl font-bold tabular-nums text-white mb-4">
-                <span id="loadP">0.00</span> <span class="text-base font-normal text-zinc-500">W</span>
-              </div>
-              <div class="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-800/80 text-xs">
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Tegangan</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="loadV">0.00</b> V</span>
-                </div>
-                <div>
-                  <span class="text-zinc-500 block mb-0.5">Arus</span>
-                  <span class="font-mono text-zinc-200 tabular-nums"><b id="loadI">0.000</b> A</span>
-                </div>
-              </div>
-            </div>
+              <!-- Label Arah Baterai di Atas Jalur -->
+              <text id="flowBattDir" x="658" y="100" text-anchor="middle" fill="#71717a" font-size="10" font-family="JetBrains Mono, monospace" font-weight="600">STANDBY</text>
+
+              <!-- 4. Jalur DC Bus -> Beban & Inverter -->
+              <path d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-track" />
+              <path id="flowBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-pulse" stroke="#a855f7" />
+              <polygon id="arrowLoad" points="709,328 699,322 699,334" fill="#3f3f46" />
+
+
+              <!-- ================= SIMPUL TENGAH: DC BUSBAR (+) ================= -->
+              <g>
+                <circle cx="604" cy="220" r="24" fill="#18181b" stroke="#3f3f46" stroke-width="2" />
+                <circle id="busDot" cx="604" cy="220" r="20" fill="none" stroke="#14b8a6" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" />
+                <text x="604" y="217" text-anchor="middle" fill="#e4e4e7" font-size="10" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">DC</text>
+                <text x="604" y="229" text-anchor="middle" fill="#a1a1aa" font-size="9" font-family="JetBrains Mono, monospace">BUS</text>
+              </g>
+
+
+              <!-- ================= ELEMEN 1: PANEL SURYA 50Wp (INA1) ================= -->
+              <g>
+                <rect x="20" y="106" width="215" height="228" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
+                <!-- Accent bar atas -->
+                <rect x="20" y="106" width="215" height="4" rx="2" fill="#f59e0b" />
+
+                <!-- Ikon Panel & Judul -->
+                <rect x="36" y="124" width="28" height="28" rx="7" fill="#f59e0b" fill-opacity="0.12" />
+                <rect x="43" y="131" width="14" height="14" rx="2" fill="none" stroke="#fbbf24" stroke-width="1.5" />
+                <line x1="50" y1="131" x2="50" y2="145" stroke="#fbbf24" stroke-width="1.2" />
+                <line x1="43" y1="138" x2="57" y2="138" stroke="#fbbf24" stroke-width="1.2" />
+
+                <text x="74" y="136" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Panel Surya</text>
+                <text x="74" y="150" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">50Wp • INA1 0x40</text>
+
+                <!-- Daya Live -->
+                <text id="svgPvP" x="36" y="196" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+
+                <!-- Tegangan & Arus -->
+                <line x1="36" y1="212" x2="219" y2="212" stroke="#27272a" stroke-width="1" />
+                <text x="36" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
+                <text id="svgPvV" x="36" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                <text x="132" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
+                <text id="svgPvI" x="132" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                <!-- Sensor Lingkungan (Cahaya & Suhu Panel) -->
+                <rect x="36" y="266" width="183" height="52" rx="9" fill="#09090b" stroke="#27272a" stroke-width="1" />
+                <text x="48" y="284" fill="#fbbf24" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Cahaya</text>
+                <text id="svgLux" x="48" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0 lx</text>
+
+                <line x1="138" y1="274" x2="138" y2="310" stroke="#27272a" stroke-width="1" />
+                <text x="149" y="284" fill="#fb7185" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Suhu</text>
+                <text id="svgTemp" x="149" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.0 °C</text>
+              </g>
+
+
+              <!-- ================= ELEMEN 2: MPPT CONTROLLER (INA2) ================= -->
+              <g>
+                <rect x="310" y="130" width="200" height="180" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
+                <rect x="310" y="130" width="200" height="4" rx="2" fill="#14b8a6" />
+
+                <!-- Ikon MPPT & Judul -->
+                <rect x="326" y="148" width="28" height="28" rx="7" fill="#14b8a6" fill-opacity="0.12" />
+                <polyline points="333,165 338,157 342,163 347,155" fill="none" stroke="#2dd4bf" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+
+                <text x="364" y="160" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">MPPT Output</text>
+                <text x="364" y="174" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA2 • 0x41</text>
+
+                <!-- Daya Live -->
+                <text id="svgMpptP" x="326" y="218" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+
+                <!-- Tegangan & Arus -->
+                <line x1="326" y1="232" x2="494" y2="232" stroke="#27272a" stroke-width="1" />
+                <text x="326" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
+                <text id="svgMpptV" x="326" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                <text x="415" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
+                <text id="svgMpptI" x="415" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                <!-- Badge Efisiensi -->
+                <rect x="326" y="277" width="168" height="22" rx="6" fill="#14b8a6" fill-opacity="0.12" />
+                <text id="svgEff" x="410" y="292" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">Efisiensi: 0.0%</text>
+              </g>
+
+
+              <!-- ================= ELEMEN 3: BATERAI LiFePO4 (INA3) ================= -->
+              <g>
+                <rect x="710" y="24" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
+                <rect id="battTopBar" x="710" y="24" width="230" height="4" rx="2" fill="#10b981" />
+
+                <!-- Ikon Baterai & Judul -->
+                <rect x="726" y="42" width="28" height="28" rx="7" fill="#10b981" fill-opacity="0.12" />
+                <rect x="733" y="51" width="12" height="10" rx="1.5" fill="none" stroke="#34d399" stroke-width="1.5" />
+                <line x1="747" y1="54" x2="747" y2="58" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
+
+                <text x="764" y="54" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Baterai LiFePO4</text>
+                <text x="764" y="68" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA3 • 0x44</text>
+
+                <!-- Daya Live -->
+                <text id="svgBattP" x="726" y="110" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+
+                <!-- Tegangan & Arus -->
+                <line x1="726" y1="124" x2="924" y2="124" stroke="#27272a" stroke-width="1" />
+                <text x="726" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
+                <text id="svgBattV" x="726" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                <text x="826" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
+                <text id="svgBattI" x="826" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                <!-- Status Charge / Discharge -->
+                <rect id="svgBattBadgeBg" x="726" y="168" width="198" height="22" rx="6" fill="#27272a" />
+                <text id="svgBattState" x="825" y="183" text-anchor="middle" fill="#a1a1aa" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
+              </g>
+
+
+              <!-- ================= ELEMEN 4: BEBAN & INVERTER (INA4) ================= -->
+              <g>
+                <rect x="710" y="240" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
+                <rect x="710" y="240" width="230" height="4" rx="2" fill="#a855f7" />
+
+                <!-- Ikon Beban & Judul -->
+                <rect x="726" y="258" width="28" height="28" rx="7" fill="#a855f7" fill-opacity="0.12" />
+                <polygon points="741,264 734,273 740,273 739,280 746,271 740,271" fill="#c084fc" />
+
+                <text x="764" y="270" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Beban &amp; Inverter</text>
+                <text x="764" y="284" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA4 • 0x45</text>
+
+                <!-- Daya Live -->
+                <text id="svgLoadP" x="726" y="326" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+
+                <!-- Tegangan & Arus -->
+                <line x1="726" y1="340" x2="924" y2="340" stroke="#27272a" stroke-width="1" />
+                <text x="726" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
+                <text id="svgLoadV" x="726" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                <text x="826" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
+                <text id="svgLoadI" x="826" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                <!-- Keterangan -->
+                <rect x="726" y="384" width="198" height="22" rx="6" fill="#a855f7" fill-opacity="0.12" />
+                <text x="825" y="399" text-anchor="middle" fill="#c084fc" font-size="10.5" font-family="Plus Jakarta Sans, sans-serif">Inverter DC-AC + Kontrol Mini560</text>
+              </g>
+
+            </svg>
           </div>
         </div>
       </section>
@@ -308,7 +406,6 @@
 
       <!-- ==================== HALAMAN 4: PENGATURAN ==================== -->
       <section id="page-pengaturan" class="page-section hidden max-w-2xl space-y-6">
-        <!-- Konfigurasi Broker MQTT -->
         <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-6 space-y-4">
           <div>
             <h2 class="text-sm font-semibold text-white">Koneksi MQTT (HiveMQ Cloud)</h2>
@@ -351,7 +448,6 @@
           </div>
         </div>
 
-        <!-- Info Access Point ESP32-S3 -->
         <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-6 space-y-3">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-semibold text-white">Portal Kalibrasi &amp; WiFi ESP32-S3</h2>
@@ -388,13 +484,12 @@
     const MAX_CHART_POINTS = 60;
 
     const PAGE_TITLES = {
-      monitor: "Live Monitoring",
+      monitor: "Live Power Flow",
       grafik: "Grafik Real-Time",
       dataset: "Akuisisi Dataset",
       pengaturan: "Pengaturan Koneksi",
     };
 
-    // Navigasi antar halaman tanpa memuat ulang browser (MQTT tetap aktif)
     function switchPage(page) {
       if (!PAGE_TITLES[page]) page = "monitor";
 
@@ -412,14 +507,32 @@
       document.getElementById("pageTitle").textContent = PAGE_TITLES[page];
       history.replaceState(null, "", "#" + page);
 
-      // Pastikan Chart.js merender ulang ukurannya saat halaman Grafik dibuka
       if (page === "grafik") {
         powerChart.resize();
         envChart.resize();
       }
     }
 
-    // Inisialisasi Chart 1: Daya 4 Kanal INA219
+    // Helper kontrol animasi aliran daya & kecepatan berdasarkan Watt
+    function setFlowLine(pathId, mode, watts, color) {
+      const el = document.getElementById(pathId);
+      if (!el) return;
+      el.classList.remove("flow-forward", "flow-reverse");
+      if (color) el.setAttribute("stroke", color);
+
+      if (mode === "forward") {
+        el.classList.add("flow-forward");
+      } else if (mode === "reverse") {
+        el.classList.add("flow-reverse");
+      }
+
+      if (mode !== "idle") {
+        const dur = Math.max(0.35, Math.min(1.3, 1.35 - (Math.abs(watts) / 55)));
+        el.style.animationDuration = dur.toFixed(2) + "s";
+      }
+    }
+
+    // Grafik 1: Daya 4 Kanal INA219
     const powerChart = new Chart(document.getElementById("powerChart"), {
       type: "line",
       data: {
@@ -443,7 +556,7 @@
       }
     });
 
-    // Inisialisasi Chart 2: Cahaya & Suhu
+    // Grafik 2: Cahaya & Suhu
     const envChart = new Chart(document.getElementById("envChart"), {
       type: "line",
       data: {
@@ -466,7 +579,6 @@
       }
     });
 
-    // Muat halaman sesuai hash URL dan kredensial tersimpan
     window.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
 
@@ -550,27 +662,109 @@
 
     function updateDashboard(d) {
       document.getElementById("rtcText").textContent = (d.ts || "--:--:--").split(" ")[1] || d.ts;
-      document.getElementById("valLux").textContent = Number(d.lux || 0).toLocaleString("id-ID");
-      document.getElementById("valTemp").textContent = Number(d.temp || 0).toFixed(1);
 
+      // 1. Update Lingkungan
+      document.getElementById("svgLux").textContent = `${Number(d.lux || 0).toLocaleString("id-ID")} lx`;
+      document.getElementById("svgTemp").textContent = `${Number(d.temp || 0).toFixed(1)} °C`;
+
+      // 2. Update Panel Surya (INA1)
+      const pvV = Number(d.pv?.v || 0);
+      const pvI = Number(d.pv?.i || 0);
       const pvP = Number(d.pv?.p || 0);
+      document.getElementById("svgPvP").textContent = `${pvP.toFixed(2)} W`;
+      document.getElementById("svgPvV").textContent = `${pvV.toFixed(2)} V`;
+      document.getElementById("svgPvI").textContent = `${pvI.toFixed(3)} A`;
+
+      const pvActive = pvP > 0.15;
+      setFlowLine("flowPvMppt", pvActive ? "forward" : "idle", pvP, "#f59e0b");
+      document.getElementById("arrowPv").setAttribute("fill", pvActive ? "#f59e0b" : "#3f3f46");
+
+      // 3. Update MPPT (INA2)
+      const mpptV = Number(d.mppt?.v || 0);
+      const mpptI = Number(d.mppt?.i || 0);
       const mpptP = Number(d.mppt?.p || 0);
       const eff = pvP > 0.3 ? Math.min(100, (mpptP / pvP) * 100) : 0;
-      document.getElementById("valEff").textContent = eff.toFixed(1);
+      document.getElementById("svgMpptP").textContent = `${mpptP.toFixed(2)} W`;
+      document.getElementById("svgMpptV").textContent = `${mpptV.toFixed(2)} V`;
+      document.getElementById("svgMpptI").textContent = `${mpptI.toFixed(3)} A`;
+      document.getElementById("svgEff").textContent = `Efisiensi: ${eff.toFixed(1)}%`;
 
-      ["pv", "mppt", "batt", "load"].forEach((ch) => {
-        const obj = d[ch] || { v: 0, i: 0, p: 0 };
-        document.getElementById(ch + "V").textContent = Number(obj.v).toFixed(2);
-        document.getElementById(ch + "I").textContent = Number(obj.i).toFixed(3);
-        document.getElementById(ch + "P").textContent = Number(obj.p).toFixed(2);
-      });
+      const mpptActive = mpptP > 0.15;
+      setFlowLine("flowMpptBus", mpptActive ? "forward" : "idle", mpptP, "#14b8a6");
+      document.getElementById("arrowMppt").setAttribute("fill", mpptActive ? "#14b8a6" : "#3f3f46");
 
+      // 4. Update Baterai LiFePO4 (INA3 — Dua Arah)
+      const battV = Number(d.batt?.v || 0);
+      const battI = Number(d.batt?.i || 0);
+      const battP = Number(d.batt?.p || 0);
+      document.getElementById("svgBattP").textContent = `${Math.abs(battP).toFixed(2)} W`;
+      document.getElementById("svgBattV").textContent = `${battV.toFixed(2)} V`;
+      document.getElementById("svgBattI").textContent = `${battI >= 0 ? "+" : ""}${battI.toFixed(3)} A`;
+
+      const battStateEl = document.getElementById("svgBattState");
+      const battBgEl = document.getElementById("svgBattBadgeBg");
+      const battBarEl = document.getElementById("battTopBar");
+      const battDirEl = document.getElementById("flowBattDir");
+      const arrCharge = document.getElementById("arrowBattCharge");
+      const arrDischarge = document.getElementById("arrowBattDischarge");
+
+      if (battI < -0.015) {
+        // Charging: Bus -> Baterai (forward)
+        setFlowLine("flowBusBatt", "forward", battP, "#10b981");
+        battStateEl.textContent = "STATUS: CHARGING";
+        battStateEl.setAttribute("fill", "#34d399");
+        battBgEl.setAttribute("fill", "#064e3b");
+        battBarEl.setAttribute("fill", "#10b981");
+        battDirEl.textContent = "CHARGING →";
+        battDirEl.setAttribute("fill", "#34d399");
+        arrCharge.setAttribute("fill", "#10b981");
+        arrCharge.setAttribute("opacity", "1");
+        arrDischarge.setAttribute("opacity", "0.2");
+      } else if (battI > 0.015) {
+        // Discharging: Baterai -> Bus (reverse)
+        setFlowLine("flowBusBatt", "reverse", battP, "#fb923c");
+        battStateEl.textContent = "STATUS: DISCHARGING";
+        battStateEl.setAttribute("fill", "#fdba74");
+        battBgEl.setAttribute("fill", "#7c2d12");
+        battBarEl.setAttribute("fill", "#fb923c");
+        battDirEl.textContent = "← DISCHARGING";
+        battDirEl.setAttribute("fill", "#fb923c");
+        arrCharge.setAttribute("opacity", "0.2");
+        arrDischarge.setAttribute("fill", "#fb923c");
+        arrDischarge.setAttribute("opacity", "1");
+      } else {
+        setFlowLine("flowBusBatt", "idle", 0, "#10b981");
+        battStateEl.textContent = "STATUS: STANDBY";
+        battStateEl.setAttribute("fill", "#a1a1aa");
+        battBgEl.setAttribute("fill", "#27272a");
+        battBarEl.setAttribute("fill", "#52525b");
+        battDirEl.textContent = "STANDBY";
+        battDirEl.setAttribute("fill", "#71717a");
+        arrCharge.setAttribute("fill", "#3f3f46");
+        arrCharge.setAttribute("opacity", "0.4");
+        arrDischarge.setAttribute("fill", "#3f3f46");
+        arrDischarge.setAttribute("opacity", "0.25");
+      }
+
+      // 5. Update Beban & Inverter (INA4)
+      const loadV = Number(d.load?.v || 0);
+      const loadI = Number(d.load?.i || 0);
+      const loadP = Number(d.load?.p || 0);
+      document.getElementById("svgLoadP").textContent = `${loadP.toFixed(2)} W`;
+      document.getElementById("svgLoadV").textContent = `${loadV.toFixed(2)} V`;
+      document.getElementById("svgLoadI").textContent = `${loadI.toFixed(3)} A`;
+
+      const loadActive = loadP > 0.15;
+      setFlowLine("flowBusLoad", loadActive ? "forward" : "idle", loadP, "#a855f7");
+      document.getElementById("arrowLoad").setAttribute("fill", loadActive ? "#a855f7" : "#3f3f46");
+
+      // 6. Update Grafik
       const shortTime = (d.ts || "").split(" ")[1] || new Date().toLocaleTimeString("id-ID");
       powerChart.data.labels.push(shortTime);
-      powerChart.data.datasets[0].data.push(d.pv?.p || 0);
-      powerChart.data.datasets[1].data.push(d.mppt?.p || 0);
-      powerChart.data.datasets[2].data.push(d.batt?.p || 0);
-      powerChart.data.datasets[3].data.push(d.load?.p || 0);
+      powerChart.data.datasets[0].data.push(pvP);
+      powerChart.data.datasets[1].data.push(mpptP);
+      powerChart.data.datasets[2].data.push(battP);
+      powerChart.data.datasets[3].data.push(loadP);
 
       envChart.data.labels.push(shortTime);
       envChart.data.datasets[0].data.push(d.lux || 0);
@@ -585,6 +779,7 @@
       powerChart.update();
       envChart.update();
 
+      // 7. Rekam Dataset Training
       if (isRecording) {
         recordedDataset.push(d);
         document.getElementById("recordCount").textContent = recordedDataset.length;
