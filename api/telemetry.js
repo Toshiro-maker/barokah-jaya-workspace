@@ -1,5 +1,5 @@
 let datasetStore = [];
-const MAX_RECORDS = 5000;
+const MAX_RECORDS = 10000;
 
 const CSV_HEADER =
   "timestamp,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p";
@@ -37,7 +37,7 @@ module.exports = function handler(req, res) {
       project: "Barokah Jaya Workspace",
       date: filterDate || "all",
       count: filtered.length,
-      data: filterDate ? filtered : filtered.slice(-500),
+      data: filterDate ? filtered : filtered.slice(-1000),
     });
   }
 
