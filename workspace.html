@@ -174,7 +174,14 @@
       <header class="h-16 px-6 border-b border-zinc-900 flex items-center justify-between gap-4 shrink-0">
         <h1 id="pageTitle" class="font-semibold text-base text-white transition-opacity duration-200">Live Power Flow</h1>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2">
+          <!-- Status Data Logger Offline MicroSD -->
+          <span id="sdBadge" title="Status Data Logger Offline MicroSD"
+            class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-500">
+            <i data-lucide="hard-drive" class="w-3.5 h-3.5"></i>
+            <span id="sdText">SD: --</span>
+          </span>
+
           <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
             <i data-lucide="clock" class="w-3.5 h-3.5"></i>
             <span id="rtcText">--:--:--</span>
@@ -212,7 +219,6 @@
             <div class="overflow-x-auto pb-2">
               <svg viewBox="0 0 960 440" class="w-full min-w-[780px] h-auto select-none">
                 <defs>
-                  <!-- Definisi Path untuk Partikel & Panah Animasi -->
                   <path id="p-pv-mppt" d="M 236 220 L 306 220" />
                   <path id="p-mppt-bus" d="M 511 220 L 576 220" />
                   <path id="p-bus-batt-chg" d="M 604 195 L 604 124 Q 604 112 616 112 L 706 112" />
@@ -228,13 +234,12 @@
                   </filter>
                 </defs>
 
-                <!-- ================= 1. JALUR PANEL -> MPPT ================= -->
+                <!-- 1. JALUR PANEL -> MPPT -->
                 <path d="M 235 220 L 310 220" class="flow-track" />
                 <path id="railPvMppt" d="M 235 220 L 310 220" class="flow-glow-rail" stroke="#f59e0b" />
                 <path id="flowPvMppt" d="M 235 220 L 310 220" class="flow-pulse" stroke="#fde68a" />
                 <polygon id="arrowPv" points="309,220 299,214 299,226" fill="#3f3f46" />
                 <text id="flowValPv" x="272" y="206" text-anchor="middle" fill="#71717a" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">IDLE</text>
-                <!-- Panah Bergerak Panel -> MPPT -->
                 <g id="particles-pv" class="flow-particles" filter="url(#energyGlow)">
                   <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fbbf24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <animateMotion class="anim-pv" dur="1.1s" repeatCount="indefinite" rotate="auto"><mpath href="#p-pv-mppt" /></animateMotion>
@@ -244,13 +249,12 @@
                   </path>
                 </g>
 
-                <!-- ================= 2. JALUR MPPT -> DC BUS ================= -->
+                <!-- 2. JALUR MPPT -> DC BUS -->
                 <path d="M 510 220 L 580 220" class="flow-track" />
                 <path id="railMpptBus" d="M 510 220 L 580 220" class="flow-glow-rail" stroke="#14b8a6" />
                 <path id="flowMpptBus" d="M 510 220 L 580 220" class="flow-pulse" stroke="#99f6e4" />
                 <polygon id="arrowMppt" points="579,220 569,214 569,226" fill="#3f3f46" />
                 <text id="flowValMppt" x="545" y="206" text-anchor="middle" fill="#71717a" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">IDLE</text>
-                <!-- Panah Bergerak MPPT -> DC Bus -->
                 <g id="particles-mppt" class="flow-particles" filter="url(#energyGlow)">
                   <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#2dd4bf" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <animateMotion class="anim-mppt" dur="1.1s" repeatCount="indefinite" rotate="auto"><mpath href="#p-mppt-bus" /></animateMotion>
@@ -260,7 +264,7 @@
                   </path>
                 </g>
 
-                <!-- ================= 3. JALUR DC BUS <-> BATERAI (DUA ARAH) ================= -->
+                <!-- 3. JALUR DC BUS <-> BATERAI (DUA ARAH) -->
                 <path d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-track" />
                 <path id="railBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-glow-rail" stroke="#10b981" />
                 <path id="flowBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-pulse" stroke="#a7f3d0" />
@@ -268,7 +272,6 @@
                 <polygon id="arrowBattDischarge" points="604,195 598,185 610,185" fill="#3f3f46" opacity="0.25" />
                 <text id="flowBattDir" x="658" y="98" text-anchor="middle" fill="#71717a" font-size="10" font-family="JetBrains Mono, monospace" font-weight="600">STANDBY</text>
 
-                <!-- Panah Bergerak CHARGING (Bus -> Baterai) -->
                 <g id="particles-batt-chg" class="flow-particles" filter="url(#energyGlow)">
                   <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <animateMotion class="anim-batt-chg" dur="1.4s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-batt-chg" /></animateMotion>
@@ -281,7 +284,6 @@
                   </path>
                 </g>
 
-                <!-- Panah Bergerak DISCHARGING (Baterai -> Bus) -->
                 <g id="particles-batt-dis" class="flow-particles" filter="url(#energyGlow)">
                   <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fb923c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <animateMotion class="anim-batt-dis" dur="1.4s" repeatCount="indefinite" rotate="auto"><mpath href="#p-batt-bus-dis" /></animateMotion>
@@ -294,14 +296,13 @@
                   </path>
                 </g>
 
-                <!-- ================= 4. JALUR DC BUS -> BEBAN ================= -->
+                <!-- 4. JALUR DC BUS -> BEBAN -->
                 <path d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-track" />
                 <path id="railBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-glow-rail" stroke="#a855f7" />
                 <path id="flowBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-pulse" stroke="#e9d5ff" />
                 <polygon id="arrowLoad" points="709,328 699,322 699,334" fill="#3f3f46" />
                 <text id="flowValLoad" x="658" y="346" text-anchor="middle" fill="#71717a" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">IDLE</text>
 
-                <!-- Panah Bergerak DC Bus -> Beban -->
                 <g id="particles-load" class="flow-particles" filter="url(#energyGlow)">
                   <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#c084fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <animateMotion class="anim-load" dur="1.4s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-load" /></animateMotion>
@@ -314,7 +315,7 @@
                   </path>
                 </g>
 
-                <!-- ================= SIMPUL DC BUS ================= -->
+                <!-- SIMPUL DC BUS -->
                 <g>
                   <circle id="busOuter" cx="604" cy="220" r="24" fill="#18181b" stroke="#3f3f46" stroke-width="2" />
                   <circle id="busDot" cx="604" cy="220" r="19" fill="none" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.35" />
@@ -322,7 +323,7 @@
                   <text x="604" y="229" text-anchor="middle" fill="#a1a1aa" font-size="9" font-family="JetBrains Mono, monospace">BUS</text>
                 </g>
 
-                <!-- ================= ELEMEN 1: PANEL SURYA ================= -->
+                <!-- ELEMEN 1: PANEL SURYA -->
                 <g>
                   <rect x="20" y="106" width="215" height="228" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect x="20" y="106" width="215" height="4" rx="2" fill="#f59e0b" />
@@ -346,7 +347,7 @@
                   <text id="svgTemp" x="149" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.0 °C</text>
                 </g>
 
-                <!-- ================= ELEMEN 2: MPPT CONTROLLER ================= -->
+                <!-- ELEMEN 2: MPPT CONTROLLER -->
                 <g>
                   <rect x="310" y="130" width="200" height="180" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect x="310" y="130" width="200" height="4" rx="2" fill="#14b8a6" />
@@ -364,7 +365,7 @@
                   <text id="svgEff" x="410" y="292" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">Efisiensi: 0.0%</text>
                 </g>
 
-                <!-- ================= ELEMEN 3: BATERAI LiFePO4 ================= -->
+                <!-- ELEMEN 3: BATERAI LiFePO4 -->
                 <g>
                   <rect x="710" y="24" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect id="battTopBar" x="710" y="24" width="230" height="4" rx="2" fill="#10b981" />
@@ -383,7 +384,7 @@
                   <text id="svgBattState" x="825" y="183" text-anchor="middle" fill="#a1a1aa" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
                 </g>
 
-                <!-- ================= ELEMEN 4: BEBAN & INVERTER ================= -->
+                <!-- ELEMEN 4: BEBAN & INVERTER -->
                 <g>
                   <rect x="710" y="240" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect x="710" y="240" width="230" height="4" rx="2" fill="#a855f7" />
@@ -512,15 +513,15 @@
                 </span>
                 <span id="chartPointCount" class="text-xs font-mono text-zinc-400">0 titik</span>
 
-                <label class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
+                <label title="Buka file CSV hasil rekaman MicroSD atau Export Web"
+                  class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
                   <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                  Muat CSV
+                  Muat CSV SD/Web
                   <input id="csvHistoryInput" type="file" accept=".csv" class="hidden" onchange="importCsvToHistory(event)" />
                 </label>
               </div>
             </div>
 
-            <!-- Daftar Tanggal Histori Tersimpan -->
             <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-zinc-800/70">
               <span class="text-[11px] text-zinc-500 mr-1">Histori tersimpan:</span>
               <div id="savedDateChips" class="flex flex-wrap items-center gap-1.5"></div>
@@ -538,7 +539,6 @@
 
           <!-- Grafik 2 & 3 Terpisah: Intensitas Cahaya (Lux) & Suhu Panel (°C) -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <!-- Grafik 2: Intensitas Cahaya (Lux) -->
             <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
@@ -550,7 +550,6 @@
               <div class="h-64 md:h-72"><canvas id="luxChart"></canvas></div>
             </div>
 
-            <!-- Grafik 3: Suhu Panel Surya (°C) -->
             <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
@@ -600,7 +599,7 @@
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl overflow-hidden">
             <div class="px-5 py-3.5 border-b border-zinc-800/80 flex items-center justify-between">
               <h2 class="text-sm font-medium text-zinc-200">Preview 15 Sampel Terbaru</h2>
-              <span class="text-xs text-zinc-500 font-mono">Format: CSV Training</span>
+              <span class="text-xs text-zinc-500 font-mono">Format Identik dengan MicroSD</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs text-left border-collapse">
@@ -673,11 +672,11 @@
 
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-6 space-y-3">
             <div class="flex items-center justify-between">
-              <h2 class="text-sm font-semibold text-white">Portal Kalibrasi &amp; WiFi ESP32-S3</h2>
+              <h2 class="text-sm font-semibold text-white">Portal AP ESP32-S3 &amp; Unduh Log MicroSD</h2>
               <span class="text-[11px] font-mono text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded">Always-On AP</span>
             </div>
             <p class="text-xs text-zinc-400 leading-relaxed">
-              Untuk mengubah jaringan WiFi alat atau memasukkan koefisien regresi kalibrasi sensor, hubungkan perangkat ke WiFi Access Point ESP32-S3 lalu buka alamat lokal berikut:
+              Sambungkan perangkat ke Access Point ESP32-S3 untuk mengubah WiFi, mengatur kalibrasi sensor, atau mengunduh langsung file CSV harian dari MicroSD tanpa mencabut kartu. File CSV tersebut juga dapat langsung dibuka pada tombol <b>Muat CSV SD/Web</b> di halaman Grafik.
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs font-mono">
               <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
@@ -708,12 +707,10 @@
     let currentPage = null;
     let pageSwitchTimer = null;
 
-    // State Histori Grafik Harian
     const HISTORY_STORAGE_KEY = "barokah_jaya_daily_history_v1";
     let dailyHistory = {};
     let selectedChartDate = getLocalDateStr();
 
-    // State Akumulasi Energi (Wh)
     let energyAcc = { pv: 0, mppt: 0, battCharge: 0, battDischarge: 0, load: 0 };
     let lastEnergyTick = null;
 
@@ -841,7 +838,6 @@
       return `${selectedChartDate} • ${formatHourDecimal(items[0].parsed.x)}`;
     };
 
-    // Grafik 1: Daya 4 Kanal INA219 (Watt)
     const powerChart = new Chart(document.getElementById("powerChart"), {
       type: "line",
       data: {
@@ -883,7 +879,6 @@
       }
     });
 
-    // Grafik 2: Intensitas Cahaya (Lux)
     const luxChart = new Chart(document.getElementById("luxChart"), {
       type: "line",
       data: {
@@ -933,7 +928,6 @@
       }
     });
 
-    // Grafik 3: Suhu Panel Surya (°C)
     const tempChart = new Chart(document.getElementById("tempChart"), {
       type: "line",
       data: {
@@ -983,7 +977,7 @@
       }
     });
 
-    // ===================== RENDER GRAFIK & SKALA DINAMIS PER SATUAN =====================
+    // ===================== RENDER GRAFIK & HISTORI =====================
     function renderSavedDateChips() {
       const container = document.getElementById("savedDateChips");
       const today = getLocalDateStr();
@@ -1027,7 +1021,6 @@
         badge.textContent = `Histori • ${selectedChartDate}`;
       }
 
-      // Sesuaikan rentang Y agar tidak pernah menjadi 0-1 dan tetap proporsional
       if (points.length === 0) {
         powerChart.options.scales.y.min = 0;
         powerChart.options.scales.y.max = 60;
@@ -1036,7 +1029,6 @@
         tempChart.options.scales.y.min = 0;
         tempChart.options.scales.y.max = 80;
       } else {
-        // Skala dinamis sesuai nilai riil dengan batas minimum wajar
         const allPower = points.flatMap((p) => [p.pv, p.mppt, p.batt, p.load]);
         const minP = Math.min(0, ...allPower);
         const maxP = Math.max(10, ...allPower);
@@ -1161,7 +1153,6 @@
           el.classList.remove("page-exiting", "page-entering");
         });
         targetEl.classList.remove("hidden");
-        // Picu reflow agar animasi masuk berjalan mulus
         void targetEl.offsetWidth;
         targetEl.classList.add("page-entering");
 
@@ -1230,7 +1221,6 @@
       el.classList.toggle("active", Boolean(active));
     }
 
-    // ===================== AKUMULASI ENERGI =====================
     function renderEnergyAcc() {
       document.getElementById("accPv").textContent = energyAcc.pv.toFixed(3);
       document.getElementById("accMppt").textContent = energyAcc.mppt.toFixed(3);
@@ -1246,12 +1236,11 @@
       renderEnergyAcc();
     }
 
-    // ===================== INIT & TRANSISI ANTAR FILE =====================
+    // ===================== INIT =====================
     window.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
       loadDailyHistory();
 
-      // Animasi keluar saat klik kembali ke index.html
       document.querySelectorAll("a[data-transition]").forEach((link) => {
         link.addEventListener("click", (e) => {
           const href = link.getAttribute("href");
@@ -1365,6 +1354,19 @@
     // ===================== UPDATE TELEMETRI REAL-TIME =====================
     function updateDashboard(d) {
       document.getElementById("rtcText").textContent = (d.ts || "--:--:--").split(" ")[1] || d.ts;
+
+      // Indikator Status MicroSD Offline Logger
+      const sdBadge = document.getElementById("sdBadge");
+      const sdText = document.getElementById("sdText");
+      if (typeof d.sd === "boolean") {
+        if (d.sd) {
+          sdBadge.className = "hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-300";
+          sdText.textContent = "SD: LOGGING";
+        } else {
+          sdBadge.className = "hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/30 text-xs font-mono text-rose-300";
+          sdText.textContent = "SD: OFF";
+        }
+      }
 
       // 1. Lingkungan
       document.getElementById("svgLux").textContent = `${Number(d.lux || 0).toLocaleString("id-ID")} lx`;
@@ -1489,7 +1491,6 @@
       loadLbl.textContent = loadActive ? `${loadP.toFixed(1)}W →` : "IDLE";
       loadLbl.setAttribute("fill", loadActive ? "#c084fc" : "#71717a");
 
-      // Animasi cincin DC Bus jika ada daya mengalir
       const anyFlow = mpptActive || battActive || loadActive;
       document.getElementById("busDot").classList.toggle("bus-ring-active", anyFlow);
       document.getElementById("busOuter").setAttribute("stroke", anyFlow ? "#14b8a6" : "#3f3f46");
@@ -1513,7 +1514,7 @@
       renderEnergyAcc();
       localStorage.setItem("barokah_jaya_energy_acc", JSON.stringify(energyAcc));
 
-      // 7. Simpan ke Histori Harian 24 Jam & Update Grafik
+      // 7. Simpan ke Histori Harian 24 Jam & Update 3 Grafik
       const pointDate = upsertHistoryPoint(d);
       if (pointDate === selectedChartDate) {
         renderChartsForDate(selectedChartDate);
@@ -1521,7 +1522,7 @@
         renderSavedDateChips();
       }
 
-      // 8. Rekam Dataset Training
+      // 8. Rekam Dataset Training Online
       if (isRecording) {
         recordedDataset.push(d);
         document.getElementById("recordCount").textContent = recordedDataset.length;
