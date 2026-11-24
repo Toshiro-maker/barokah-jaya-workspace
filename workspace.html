@@ -30,7 +30,6 @@
       cursor: pointer;
     }
 
-    /* ==================== ANIMASI PERPINDAHAN PAGE ==================== */
     @keyframes shellEnter {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -59,7 +58,6 @@
       pointer-events: none;
     }
 
-    /* ==================== ANIMASI FLOW ENERGI SVG ==================== */
     @keyframes flowForward {
       from { stroke-dashoffset: 28; }
       to { stroke-dashoffset: 0; }
@@ -159,7 +157,11 @@
         </button>
       </nav>
 
-      <div class="hidden md:block mt-auto p-4 border-t border-zinc-900">
+      <div class="hidden md:block mt-auto p-4 border-t border-zinc-900 space-y-2">
+        <div class="text-[11px] font-mono text-zinc-500 flex items-center gap-1.5">
+          <span id="cloudDot" class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
+          <span id="cloudStatusSide">Memeriksa Supabase...</span>
+        </div>
         <a href="index.html" data-transition class="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-200 transition">
           <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
           Kembali ke Beranda
@@ -175,6 +177,13 @@
         <h1 id="pageTitle" class="font-semibold text-base text-white transition-opacity duration-200">Live Power Flow</h1>
 
         <div class="flex items-center gap-2">
+          <!-- Status Cloud Supabase -->
+          <span id="cloudBadge" title="Status Database Cloud Supabase"
+            class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-500">
+            <i data-lucide="cloud" class="w-3.5 h-3.5"></i>
+            <span id="cloudText">DB: ...</span>
+          </span>
+
           <!-- Status Data Logger Offline MicroSD -->
           <span id="sdBadge" title="Status Data Logger Offline MicroSD"
             class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-500">
@@ -189,8 +198,8 @@
 
           <button onclick="switchPage('pengaturan')"
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 transition">
-            <span id="statusDot" class="w-2 h-2 rounded-full bg-rose-500"></span>
-            <span id="statusText">Terputus</span>
+            <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="statusText">Menghubungkan...</span>
           </button>
         </div>
       </header>
@@ -200,12 +209,11 @@
         <!-- ==================== HALAMAN 1: LIVE POWER FLOW ==================== -->
         <section id="page-monitor" class="page-section space-y-5">
 
-          <!-- Canvas Diagram Aliran Energi -->
           <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 md:p-6">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
                 <h2 class="text-sm font-semibold text-zinc-100">Skema Aliran Daya PLTS 50Wp</h2>
-                <p class="text-xs text-zinc-500">Pemantauan tegangan, arus, daya, dan arah aliran energi per 1 detik</p>
+                <p class="text-xs text-zinc-500">Data terkalibrasi ESP32-S3 • Rekaman otomatis 24/7 (MicroSD + Supabase Cloud)</p>
               </div>
               <div class="flex flex-wrap items-center gap-3 text-[11px] text-zinc-400">
                 <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Panel</span>
@@ -234,7 +242,7 @@
                   </filter>
                 </defs>
 
-                <!-- 1. JALUR PANEL -> MPPT -->
+                <!-- 1. PANEL -> MPPT -->
                 <path d="M 235 220 L 310 220" class="flow-track" />
                 <path id="railPvMppt" d="M 235 220 L 310 220" class="flow-glow-rail" stroke="#f59e0b" />
                 <path id="flowPvMppt" d="M 235 220 L 310 220" class="flow-pulse" stroke="#fde68a" />
@@ -249,7 +257,7 @@
                   </path>
                 </g>
 
-                <!-- 2. JALUR MPPT -> DC BUS -->
+                <!-- 2. MPPT -> DC BUS -->
                 <path d="M 510 220 L 580 220" class="flow-track" />
                 <path id="railMpptBus" d="M 510 220 L 580 220" class="flow-glow-rail" stroke="#14b8a6" />
                 <path id="flowMpptBus" d="M 510 220 L 580 220" class="flow-pulse" stroke="#99f6e4" />
@@ -264,7 +272,7 @@
                   </path>
                 </g>
 
-                <!-- 3. JALUR DC BUS <-> BATERAI (DUA ARAH) -->
+                <!-- 3. DC BUS <-> BATERAI -->
                 <path d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-track" />
                 <path id="railBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-glow-rail" stroke="#10b981" />
                 <path id="flowBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-pulse" stroke="#a7f3d0" />
@@ -296,7 +304,7 @@
                   </path>
                 </g>
 
-                <!-- 4. JALUR DC BUS -> BEBAN -->
+                <!-- 4. DC BUS -> BEBAN -->
                 <path d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-track" />
                 <path id="railBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-glow-rail" stroke="#a855f7" />
                 <path id="flowBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-pulse" stroke="#e9d5ff" />
@@ -323,7 +331,7 @@
                   <text x="604" y="229" text-anchor="middle" fill="#a1a1aa" font-size="9" font-family="JetBrains Mono, monospace">BUS</text>
                 </g>
 
-                <!-- ELEMEN 1: PANEL SURYA -->
+                <!-- PANEL SURYA -->
                 <g>
                   <rect x="20" y="106" width="215" height="228" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect x="20" y="106" width="215" height="4" rx="2" fill="#f59e0b" />
@@ -341,13 +349,13 @@
                   <text id="svgPvI" x="132" y="247" fill="#e4e4e7" font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
                   <rect x="36" y="266" width="183" height="52" rx="9" fill="#09090b" stroke="#27272a" stroke-width="1" />
                   <text x="48" y="284" fill="#fbbf24" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Cahaya</text>
-                  <text id="svgLux" x="48" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0 lx</text>
+                  <text id="svgLux" x="48" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.0 lx</text>
                   <line x1="138" y1="274" x2="138" y2="310" stroke="#27272a" stroke-width="1" />
                   <text x="149" y="284" fill="#fb7185" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Suhu</text>
-                  <text id="svgTemp" x="149" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.0 °C</text>
+                  <text id="svgTemp" x="149" y="303" fill="#f4f4f5" font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.00 °C</text>
                 </g>
 
-                <!-- ELEMEN 2: MPPT CONTROLLER -->
+                <!-- MPPT -->
                 <g>
                   <rect x="310" y="130" width="200" height="180" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect x="310" y="130" width="200" height="4" rx="2" fill="#14b8a6" />
@@ -365,7 +373,7 @@
                   <text id="svgEff" x="410" y="292" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">Efisiensi: 0.0%</text>
                 </g>
 
-                <!-- ELEMEN 3: BATERAI LiFePO4 -->
+                <!-- BATERAI -->
                 <g>
                   <rect x="710" y="24" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect id="battTopBar" x="710" y="24" width="230" height="4" rx="2" fill="#10b981" />
@@ -379,12 +387,12 @@
                   <text x="726" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
                   <text id="svgBattV" x="726" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
                   <text x="826" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
-                  <text id="svgBattI" x="826" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
+                  <text id="svgBattI" x="826" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">+0.000 A</text>
                   <rect id="svgBattBadgeBg" x="726" y="168" width="198" height="22" rx="6" fill="#27272a" />
                   <text id="svgBattState" x="825" y="183" text-anchor="middle" fill="#a1a1aa" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
                 </g>
 
-                <!-- ELEMEN 4: BEBAN & INVERTER -->
+                <!-- BEBAN -->
                 <g>
                   <rect x="710" y="240" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
                   <rect x="710" y="240" width="230" height="4" rx="2" fill="#a855f7" />
@@ -481,7 +489,6 @@
         <!-- ==================== HALAMAN 2: GRAFIK 24 JAM (3 GRAFIK TERPISAH) ==================== -->
         <section id="page-grafik" class="page-section hidden space-y-5">
 
-          <!-- Kontrol Tanggal & Histori Harian -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 space-y-3">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div class="flex flex-wrap items-center gap-2">
@@ -511,13 +518,13 @@
                 <span id="chartModeBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                   ● Live 24 Jam
                 </span>
-                <span id="chartPointCount" class="text-xs font-mono text-zinc-400">0 titik</span>
+                <span id="chartPointCount" class="text-xs font-mono text-zinc-400">0 titik/menit</span>
 
-                <label title="Buka file CSV hasil rekaman MicroSD atau Export Web"
+                <label title="Gabungkan file CSV dari MicroSD atau Export Web"
                   class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
                   <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                   Muat CSV SD/Web
-                  <input id="csvHistoryInput" type="file" accept=".csv" class="hidden" onchange="importCsvToHistory(event)" />
+                  <input type="file" accept=".csv" class="hidden" onchange="importCsvFile(event)" />
                 </label>
               </div>
             </div>
@@ -528,7 +535,7 @@
             </div>
           </div>
 
-          <!-- Grafik 1: Daya 4 Kanal INA219 (Watt) -->
+          <!-- Grafik 1: Daya 4 Kanal -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-sm font-semibold text-zinc-200">Grafik Daya 4 Kanal INA219 (Watt)</h2>
@@ -537,7 +544,7 @@
             <div class="h-72 md:h-80"><canvas id="powerChart"></canvas></div>
           </div>
 
-          <!-- Grafik 2 & 3 Terpisah: Intensitas Cahaya (Lux) & Suhu Panel (°C) -->
+          <!-- Grafik 2 & 3 Terpisah: Cahaya & Suhu -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5">
               <div class="flex items-center justify-between mb-4">
@@ -563,61 +570,110 @@
           </div>
         </section>
 
-        <!-- ==================== HALAMAN 3: DATASET ==================== -->
-        <section id="page-dataset" class="page-section hidden space-y-6">
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex flex-wrap items-center gap-3">
-              <button id="btnRecord" onclick="toggleRecord()"
-                class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs px-4 py-2 rounded-lg transition">
-                <i data-lucide="pause" class="w-3.5 h-3.5"></i>
-                Jeda Rekam
-              </button>
+        <!-- ==================== HALAMAN 3: DATASET (CLOUD SUPABASE + INDEXEDDB) ==================== -->
+        <section id="page-dataset" class="page-section hidden space-y-5">
+          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div class="flex flex-wrap items-center gap-2.5">
+                <button id="btnRecord" onclick="toggleRecord()"
+                  class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs px-4 py-2 rounded-lg transition">
+                  <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+                  Jeda Rekam Web
+                </button>
 
-              <label class="inline-flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none">
-                <input id="chkSyncApi" type="checkbox" class="accent-teal-500 rounded" />
-                Kirim ke API Server
-              </label>
+                <label class="inline-flex items-center gap-2 text-xs text-zinc-300 cursor-pointer select-none">
+                  <input id="chkSyncApi" type="checkbox" checked onchange="saveSyncPref()" class="accent-teal-500 rounded" />
+                  Auto-Sync Supabase
+                </label>
+
+                <label title="Unggah & gabungkan CSV dari MicroSD ke Cloud & Browser"
+                  class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-3 py-2 rounded-lg cursor-pointer transition">
+                  <i data-lucide="hard-drive-upload" class="w-3.5 h-3.5"></i>
+                  Gabung CSV MicroSD
+                  <input type="file" accept=".csv" class="hidden" onchange="importCsvFile(event)" />
+                </label>
+
+                <button onclick="loadCloudSummary(true)"
+                  class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-3 py-2 rounded-lg transition">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  Sinkron Cloud
+                </button>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="datasetDateFilter" onchange="renderTable()"
+                  class="bg-zinc-950 border border-zinc-800 text-zinc-200 text-xs font-mono px-2.5 py-2 rounded-lg focus:outline-none focus:border-teal-500">
+                  <option value="ALL">Semua Tanggal</option>
+                </select>
+
+                <button onclick="resetDataset()"
+                  class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs px-3 py-2 rounded-lg transition">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  Reset
+                </button>
+
+                <button id="btnExport" onclick="exportCSV()" disabled
+                  class="inline-flex items-center gap-1.5 bg-teal-500 hover:bg-teal-400 disabled:opacity-40 text-zinc-950 font-semibold text-xs px-4 py-2 rounded-lg transition">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  Export CSV
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center gap-2.5">
-              <span class="text-xs text-zinc-400 mr-1">
-                Total: <b id="recordCount" class="text-white font-mono">0</b> baris
-              </span>
-              <button onclick="resetDataset()"
-                class="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs px-3 py-2 rounded-lg transition">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                Reset
-              </button>
-              <button id="btnExport" onclick="exportCSV()" disabled
-                class="inline-flex items-center gap-1.5 bg-teal-500 hover:bg-teal-400 disabled:opacity-40 text-zinc-950 font-semibold text-xs px-4 py-2 rounded-lg transition">
-                <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                Export CSV
-              </button>
+            <!-- Ringkasan Akumulasi Cloud & Lokal -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-zinc-800/70 text-xs">
+              <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-lg p-3">
+                <span class="text-zinc-500 block text-[11px]">Total Akumulasi</span>
+                <b id="recordCount" class="text-base font-mono text-white tabular-nums">0</b>
+                <span class="text-zinc-500 font-mono text-[10px]"> baris</span>
+              </div>
+              <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-lg p-3">
+                <span class="text-zinc-500 block text-[11px]">Baris Hari Ini</span>
+                <b id="todayRecordCount" class="text-base font-mono text-teal-400 tabular-nums">0</b>
+                <span class="text-zinc-500 font-mono text-[10px]"> baris</span>
+              </div>
+              <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-lg p-3">
+                <span class="text-zinc-500 block text-[11px]">Database Cloud 24/7</span>
+                <b id="dbModeLabel" class="text-xs font-mono text-emerald-400">Memeriksa...</b>
+              </div>
+              <div class="bg-zinc-950/70 border border-zinc-800/80 rounded-lg p-3">
+                <span class="text-zinc-500 block text-[11px]">Format Datasheet</span>
+                <b class="text-xs font-mono text-amber-300">15 Kolom Arduino CSV</b>
+              </div>
             </div>
           </div>
 
+          <!-- Tabel 15 Kolom Persis Header Arduino -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-zinc-800/80 flex items-center justify-between">
-              <h2 class="text-sm font-medium text-zinc-200">Preview 15 Sampel Terbaru</h2>
-              <span class="text-xs text-zinc-500 font-mono">Sync 1 Detik • Format Identik MicroSD</span>
+            <div class="px-5 py-3.5 border-b border-zinc-800/80 flex flex-wrap items-center justify-between gap-2">
+              <h2 class="text-sm font-medium text-zinc-200">Preview 20 Sampel Terbaru (15 Kolom Persis Arduino)</h2>
+              <span class="text-[11px] text-zinc-500 font-mono">Data hasil setelah kalibrasi (y = m*x + c)</span>
             </div>
             <div class="overflow-x-auto">
-              <table class="w-full text-xs text-left border-collapse">
+              <table class="w-full text-[11px] text-left border-collapse whitespace-nowrap">
                 <thead>
-                  <tr class="border-b border-zinc-800/80 text-zinc-400 bg-zinc-900/40">
-                    <th class="py-3 px-4 font-medium">Waktu</th>
-                    <th class="py-3 px-3 font-medium">Lux</th>
-                    <th class="py-3 px-3 font-medium">Suhu</th>
-                    <th class="py-3 px-3 font-medium text-amber-400">Panel</th>
-                    <th class="py-3 px-3 font-medium text-teal-400">MPPT</th>
-                    <th class="py-3 px-3 font-medium text-emerald-400">Baterai</th>
-                    <th class="py-3 px-4 font-medium text-purple-400">Beban</th>
+                  <tr class="border-b border-zinc-800/80 text-zinc-400 bg-zinc-900/40 font-mono">
+                    <th class="py-2.5 px-3 font-medium">timestamp</th>
+                    <th class="py-2.5 px-2.5 font-medium text-amber-300">lux</th>
+                    <th class="py-2.5 px-2.5 font-medium text-rose-300">temp_c</th>
+                    <th class="py-2.5 px-2.5 font-medium text-amber-400">pv_v</th>
+                    <th class="py-2.5 px-2.5 font-medium text-amber-400">pv_i</th>
+                    <th class="py-2.5 px-2.5 font-medium text-amber-400">pv_p</th>
+                    <th class="py-2.5 px-2.5 font-medium text-teal-400">mppt_v</th>
+                    <th class="py-2.5 px-2.5 font-medium text-teal-400">mppt_i</th>
+                    <th class="py-2.5 px-2.5 font-medium text-teal-400">mppt_p</th>
+                    <th class="py-2.5 px-2.5 font-medium text-emerald-400">batt_v</th>
+                    <th class="py-2.5 px-2.5 font-medium text-emerald-400">batt_i</th>
+                    <th class="py-2.5 px-2.5 font-medium text-emerald-400">batt_p</th>
+                    <th class="py-2.5 px-2.5 font-medium text-purple-400">load_v</th>
+                    <th class="py-2.5 px-2.5 font-medium text-purple-400">load_i</th>
+                    <th class="py-2.5 px-3 font-medium text-purple-400">load_p</th>
                   </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-zinc-800/60 font-mono tabular-nums">
                   <tr>
-                    <td colspan="7" class="py-10 text-center text-zinc-500 font-sans">
-                      Belum ada data terekam. Hubungkan MQTT di halaman Pengaturan untuk memulai.
+                    <td colspan="15" class="py-10 text-center text-zinc-500 font-sans text-xs">
+                      Menyambungkan MQTT &amp; mengambil dataset dari Supabase Cloud...
                     </td>
                   </tr>
                 </tbody>
@@ -629,9 +685,12 @@
         <!-- ==================== HALAMAN 4: PENGATURAN ==================== -->
         <section id="page-pengaturan" class="page-section hidden max-w-2xl space-y-6">
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-6 space-y-4">
-            <div>
-              <h2 class="text-sm font-semibold text-white">Koneksi MQTT (HiveMQ Cloud)</h2>
-              <p class="text-xs text-zinc-400 mt-0.5">Gunakan port WebSocket Secure (WSS :8884). Kredensial otomatis tersimpan di browser.</p>
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-semibold text-white">Koneksi MQTT (HiveMQ Cloud)</h2>
+                <p class="text-xs text-zinc-400 mt-0.5">Otomatis tersambung saat halaman dibuka atau di-refresh (WSS :8884).</p>
+              </div>
+              <span class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">Auto-Connect</span>
             </div>
 
             <div class="space-y-3 pt-2">
@@ -666,18 +725,18 @@
               <button id="btnConnect" onclick="toggleMqtt()"
                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-semibold text-xs px-5 py-2.5 rounded-lg transition">
                 <i data-lucide="plug" class="w-4 h-4"></i>
-                Hubungkan MQTT
+                Hubungkan Ulang MQTT
               </button>
             </div>
           </div>
 
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-6 space-y-3">
             <div class="flex items-center justify-between">
-              <h2 class="text-sm font-semibold text-white">Portal AP ESP32-S3 &amp; Unduh Log MicroSD</h2>
+              <h2 class="text-sm font-semibold text-white">Portal AP ESP32-S3 (Kalibrasi, Cloud URL &amp; MicroSD)</h2>
               <span class="text-[11px] font-mono text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded">Always-On AP</span>
             </div>
             <p class="text-xs text-zinc-400 leading-relaxed">
-              Sambungkan perangkat ke Access Point ESP32-S3 untuk mengubah WiFi, mengatur kalibrasi sensor, atau mengunduh langsung file CSV harian dari MicroSD tanpa mencabut kartu. File CSV tersebut juga dapat langsung dibuka pada tombol <b>Muat CSV SD/Web</b> di halaman Grafik.
+              Buka portal AP ESP32-S3 untuk kalibrasi multi-titik otomatis, mengunduh file CSV MicroSD, dan memastikan kolom <b>Cloud API URL</b> sudah diisi dengan alamat API website ini (<code id="apiEndpointHint" class="text-teal-300"></code>) agar data terekam 24/7 ke Supabase walau browser ditutup.
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs font-mono">
               <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
@@ -700,21 +759,55 @@
     </div>
   </div>
 
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-zinc-900 border border-teal-500/40 text-teal-200 text-xs font-medium px-4 py-2.5 rounded-lg shadow-xl"></div>
+
   <script>
+    const CSV_HEADER =
+      "timestamp,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p";
+
+    const DEFAULT_MQTT = {
+      brokerUrl: "wss://f527a41d52b54f44830fb3891c8fb006.s1.eu.hivemq.cloud:8884/mqtt",
+      username: "Barokah Jaya Workspace",
+      password: "OPPO R831K",
+      topic: "barokahjaya/plts/telemetry",
+    };
+
+    const KEY_MQTT_CFG    = "barokah_jaya_mqtt_cfg_v3";
+    const KEY_ENERGY_ACC  = "barokah_jaya_energy_acc_v2";
+    const KEY_LAST_TELEM  = "barokah_jaya_last_telem_v1";
+    const KEY_RECORD_PREF = "barokah_jaya_record_pref_v1";
+    const KEY_SYNC_PREF   = "barokah_jaya_sync_pref_v1";
+
+    const IDB_NAME  = "BarokahJayaPLTS_DB";
+    const IDB_VER   = 1;
+    const IDB_STORE = "telemetry";
+
+    let db = null;
     let client = null;
     let isConnected = false;
+    let manualDisconnect = false;
     let isRecording = true;
-    let recordedDataset = [];
-    let currentPage = null;
-    let pageSwitchTimer = null;
+    let cloudAvailable = false;
 
-    const MQTT_CFG_STORAGE_KEY = "barokah_jaya_mqtt_cfg_v2";
-    const HISTORY_STORAGE_KEY = "barokah_jaya_daily_history_v1";
-    let dailyHistory = {};
+    let recordedDataset = [];
+    let seenTimestamps = new Set();
+    let pendingApiQueue = [];
+
+    // Metadata ringkasan langsung dari Supabase Cloud
+    let cloudDatesMap = new Map(); // date -> rowCount
+    let cloudBaseTotal = 0;
+    let cloudBaseToday = 0;
+    let liveAddedSinceSummary = 0;
+    let liveTodaySinceSummary = 0;
+
+    let dailyHistory = {}; // { "YYYY-MM-DD": Map(minuteIndex -> point) }
     let selectedChartDate = getLocalDateStr();
 
     let energyAcc = { pv: 0, mppt: 0, battCharge: 0, battDischarge: 0, load: 0 };
-    let lastEnergyTick = null;
+    let lastEnergyTsMs = null;
+
+    let currentPage = null;
+    let pageSwitchTimer = null;
 
     const PAGE_TITLES = {
       monitor: "Live Power Flow",
@@ -723,7 +816,64 @@
       pengaturan: "Pengaturan Koneksi",
     };
 
-    // ===================== HELPER WAKTU 24 JAM =====================
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.add("hidden"), 3200);
+    }
+
+    function normalizeTelemetry(d) {
+      if (!d || typeof d.ts !== "string" || !d.pv || !d.mppt || !d.batt || !d.load) return null;
+      return {
+        ts: d.ts.trim(),
+        sd: Boolean(d.sd),
+        lux: Number(Number(d.lux || 0).toFixed(1)),
+        temp: Number(Number(d.temp || 0).toFixed(2)),
+        pv: {
+          v: Number(Number(d.pv.v || 0).toFixed(2)),
+          i: Number(Number(d.pv.i || 0).toFixed(3)),
+          p: Number(Number(d.pv.p || 0).toFixed(2)),
+        },
+        mppt: {
+          v: Number(Number(d.mppt.v || 0).toFixed(2)),
+          i: Number(Number(d.mppt.i || 0).toFixed(3)),
+          p: Number(Number(d.mppt.p || 0).toFixed(2)),
+        },
+        batt: {
+          v: Number(Number(d.batt.v || 0).toFixed(2)),
+          i: Number(Number(d.batt.i || 0).toFixed(3)),
+          p: Number(Number(d.batt.p || 0).toFixed(2)),
+        },
+        load: {
+          v: Number(Number(d.load.v || 0).toFixed(2)),
+          i: Number(Number(d.load.i || 0).toFixed(3)),
+          p: Number(Number(d.load.p || 0).toFixed(2)),
+        },
+      };
+    }
+
+    function formatRowToCsv(d) {
+      return [
+        d.ts,
+        d.lux.toFixed(1),
+        d.temp.toFixed(2),
+        d.pv.v.toFixed(2),
+        d.pv.i.toFixed(3),
+        d.pv.p.toFixed(2),
+        d.mppt.v.toFixed(2),
+        d.mppt.i.toFixed(3),
+        d.mppt.p.toFixed(2),
+        d.batt.v.toFixed(2),
+        d.batt.i.toFixed(3),
+        d.batt.p.toFixed(2),
+        d.load.v.toFixed(2),
+        d.load.i.toFixed(3),
+        d.load.p.toFixed(2),
+      ].join(",");
+    }
+
     function getLocalDateStr(dateObj = new Date()) {
       const y = dateObj.getFullYear();
       const m = String(dateObj.getMonth() + 1).padStart(2, "0");
@@ -738,7 +888,8 @@
         if (/^\d{4}-\d{2}-\d{2}$/.test(datePart) && !isNaN(hh) && !isNaN(mm)) {
           const sec = isNaN(ss) ? 0 : ss;
           const x = Number((hh + mm / 60 + sec / 3600).toFixed(4));
-          return { dateStr: datePart, x, m: hh * 60 + mm };
+          const ms = Date.parse(`${datePart}T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(sec).padStart(2, "0")}`);
+          return { dateStr: datePart, x, m: hh * 60 + mm, ms: isNaN(ms) ? Date.now() : ms };
         }
       }
       const now = new Date();
@@ -746,7 +897,8 @@
       return {
         dateStr: getLocalDateStr(now),
         x: Number((hh + mm / 60 + ss / 3600).toFixed(4)),
-        m: hh * 60 + mm
+        m: hh * 60 + mm,
+        ms: now.getTime(),
       };
     }
 
@@ -759,54 +911,152 @@
       return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
     }
 
-    // ===================== PENYIMPANAN HISTORI HARIAN =====================
-    function loadDailyHistory() {
-      const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
-      if (!raw) return;
+    // ===================== INDEXEDDB =====================
+    function openIDB() {
+      return new Promise((resolve) => {
+        if (!window.indexedDB) return resolve(null);
+        const req = indexedDB.open(IDB_NAME, IDB_VER);
+        req.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains(IDB_STORE)) {
+            database.createObjectStore(IDB_STORE, { keyPath: "ts" });
+          }
+        };
+        req.onsuccess = (e) => resolve(e.target.result);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function idbPutOne(row) {
+      if (!db || !row) return;
       try {
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed === "object") dailyHistory = parsed;
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(row);
       } catch {}
     }
 
-    function saveDailyHistory() {
-      try {
-        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(dailyHistory));
-      } catch {
-        const dates = Object.keys(dailyHistory).sort();
-        if (dates.length > 1) {
-          delete dailyHistory[dates[0]];
-          try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(dailyHistory)); } catch {}
-        }
+    function idbPutMany(rows) {
+      return new Promise((resolve) => {
+        if (!db || !rows.length) return resolve();
+        try {
+          const tx = db.transaction(IDB_STORE, "readwrite");
+          const store = tx.objectStore(IDB_STORE);
+          for (const r of rows) store.put(r);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        } catch { resolve(); }
+      });
+    }
+
+    function idbGetAll() {
+      return new Promise((resolve) => {
+        if (!db) return resolve([]);
+        try {
+          const tx = db.transaction(IDB_STORE, "readonly");
+          const req = tx.objectStore(IDB_STORE).getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        } catch { resolve([]); }
+      });
+    }
+
+    function idbClear() {
+      return new Promise((resolve) => {
+        if (!db) return resolve();
+        try {
+          const tx = db.transaction(IDB_STORE, "readwrite");
+          tx.objectStore(IDB_STORE).clear();
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        } catch { resolve(); }
+      });
+    }
+
+    // ===================== CLOUD SUPABASE STATUS & SYNC =====================
+    function setCloudUI(ok, label) {
+      cloudAvailable = ok;
+      const badge = document.getElementById("cloudBadge");
+      const txt = document.getElementById("cloudText");
+      const dot = document.getElementById("cloudDot");
+      const side = document.getElementById("cloudStatusSide");
+      const dbLbl = document.getElementById("dbModeLabel");
+
+      if (ok) {
+        badge.className = "hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-500/10 border border-teal-500/30 text-xs font-mono text-teal-300";
+        txt.textContent = "DB: SUPABASE";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
+        side.textContent = "Supabase 24/7 Aktif";
+        dbLbl.textContent = "Supabase PostgreSQL (Aktif)";
+        dbLbl.className = "text-xs font-mono text-emerald-400";
+      } else {
+        badge.className = "hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-500";
+        txt.textContent = "DB: LOKAL";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+        side.textContent = label || "Mode IndexedDB Lokal";
+        dbLbl.textContent = label || "IndexedDB Lokal (Cloud Off)";
+        dbLbl.className = "text-xs font-mono text-amber-300";
       }
     }
 
+    async function loadCloudSummary(showNotify = false) {
+      const today = getLocalDateStr();
+      try {
+        const res = await fetch(`/api/telemetry?mode=summary&date=${encodeURIComponent(today)}`, {
+          cache: "no-store",
+        });
+        const json = await res.json();
+        if (!res.ok || !json.ok) {
+          setCloudUI(false, "Env Supabase Belum Diisi");
+          return;
+        }
+
+        setCloudUI(true);
+        cloudDatesMap.clear();
+        if (Array.isArray(json.dates)) {
+          for (const d of json.dates) cloudDatesMap.set(d.date, Number(d.count || 0));
+        }
+        cloudBaseTotal = Number(json.totalCount || 0);
+        cloudBaseToday = Number(json.todayCount || 0);
+        liveAddedSinceSummary = 0;
+        liveTodaySinceSummary = 0;
+
+        if (Array.isArray(json.chartToday)) {
+          for (const pt of json.chartToday) {
+            const clean = normalizeTelemetry(pt);
+            if (clean) upsertHistoryPoint(clean);
+          }
+        }
+        if (Array.isArray(json.latest) && json.latest.length > 0) {
+          await mergeIncomingBatch(json.latest, false);
+          const newest = normalizeTelemetry(json.latest[json.latest.length - 1]);
+          if (newest && !isConnected) renderPowerFlowUI(newest);
+        }
+
+        updateDatasetStatsUI();
+        renderTable();
+        renderChartsForDate(selectedChartDate);
+        if (showNotify) showToast(`Sinkron Supabase OK (${cloudBaseTotal.toLocaleString("id-ID")} baris)`);
+      } catch {
+        setCloudUI(false, "Mode Offline / Lokal");
+      }
+    }
+
+    // ===================== HISTORI 24 JAM =====================
     function upsertHistoryPoint(d) {
       const { dateStr, x, m } = parseTimestamp(d.ts);
-      if (!dailyHistory[dateStr]) dailyHistory[dateStr] = [];
-
-      const pt = {
-        m,
-        x,
-        lux: Number(d.lux || 0),
-        temp: Number(d.temp || 0),
-        pv: Number(d.pv?.p || 0),
-        mppt: Number(d.mppt?.p || 0),
-        batt: Number(d.batt?.p || 0),
-        load: Number(d.load?.p || 0),
-      };
-
-      const arr = dailyHistory[dateStr];
-      const existingIdx = arr.findIndex((item) => item.m === m);
-      if (existingIdx >= 0) {
-        arr[existingIdx] = pt;
-      } else {
-        arr.push(pt);
-        arr.sort((a, b) => a.x - b.x);
-      }
-
-      saveDailyHistory();
+      if (!dailyHistory[dateStr]) dailyHistory[dateStr] = new Map();
+      dailyHistory[dateStr].set(m, {
+        m, x,
+        lux: d.lux, temp: d.temp,
+        pv: d.pv.p, mppt: d.mppt.p, batt: d.batt.p, load: d.load.p,
+      });
       return dateStr;
+    }
+
+    function getPointsForDate(dateStr) {
+      const map = dailyHistory[dateStr];
+      if (!map) return [];
+      return Array.from(map.values()).sort((a, b) => a.x - b.x);
     }
 
     function buildSeriesWithGaps(points, field) {
@@ -820,7 +1070,7 @@
       return out;
     }
 
-    // ===================== KONFIGURASI 3 GRAFIK (SKALA SESUAI SATUAN) =====================
+    // ===================== 3 GRAFIK 24 JAM =====================
     const makeXAxis24h = (step = 2) => ({
       type: "linear",
       min: 0,
@@ -922,7 +1172,7 @@
           tooltip: {
             callbacks: {
               title: tooltipTitle24h,
-              label: (ctx) => `Cahaya: ${Number(ctx.parsed.y).toLocaleString("id-ID")} lx`,
+              label: (ctx) => `Cahaya: ${Number(ctx.parsed.y).toLocaleString("id-ID", { maximumFractionDigits: 1 })} lx`,
             },
           },
           legend: { display: false }
@@ -979,16 +1229,21 @@
       }
     });
 
-    // ===================== RENDER GRAFIK & HISTORI =====================
     function renderSavedDateChips() {
       const container = document.getElementById("savedDateChips");
       const today = getLocalDateStr();
-      const dates = Array.from(new Set([today, ...Object.keys(dailyHistory)])).sort().reverse().slice(0, 10);
+      const dates = Array.from(new Set([
+        today,
+        ...Object.keys(dailyHistory),
+        ...Array.from(cloudDatesMap.keys()),
+      ])).sort().reverse().slice(0, 12);
 
       container.innerHTML = dates.map((dt) => {
-        const count = (dailyHistory[dt] || []).length;
+        const cloudCnt = cloudDatesMap.get(dt) || 0;
+        const localMin = dailyHistory[dt] ? dailyHistory[dt].size : 0;
         const active = dt === selectedChartDate;
         const label = dt === today ? `${dt} (Hari Ini)` : dt;
+        const countLabel = cloudCnt > 0 ? `${cloudCnt.toLocaleString("id-ID")}` : `${localMin}m`;
         return `
           <button onclick="selectChartDate('${dt}')"
             class="px-2.5 py-1 rounded-md text-[11px] font-mono border transition ${
@@ -996,7 +1251,7 @@
                 ? "bg-teal-500/20 border-teal-500/50 text-teal-300"
                 : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
             }">
-            ${label} <span class="opacity-60">(${count})</span>
+            ${label} <span class="opacity-60">(${countLabel})</span>
           </button>
         `;
       }).join("");
@@ -1005,14 +1260,14 @@
     function renderChartsForDate(dateStr) {
       selectedChartDate = dateStr || getLocalDateStr();
       const today = getLocalDateStr();
-      const points = (dailyHistory[selectedChartDate] || []).slice().sort((a, b) => a.x - b.x);
+      const points = getPointsForDate(selectedChartDate);
 
       document.getElementById("chartDatePicker").value = selectedChartDate;
       const dateLbl = `${selectedChartDate} • 00:00 – 24:00`;
       document.getElementById("powerChartDateLabel").textContent = dateLbl;
       document.getElementById("luxChartDateLabel").textContent = dateLbl;
       document.getElementById("tempChartDateLabel").textContent = dateLbl;
-      document.getElementById("chartPointCount").textContent = `${points.length} titik`;
+      document.getElementById("chartPointCount").textContent = `${points.length} titik/menit`;
 
       const badge = document.getElementById("chartModeBadge");
       if (selectedChartDate === today) {
@@ -1068,19 +1323,25 @@
     async function selectChartDate(dateStr) {
       if (!dateStr) return;
       selectedChartDate = dateStr;
+      renderChartsForDate(dateStr);
 
-      if (!dailyHistory[dateStr] || dailyHistory[dateStr].length === 0) {
+      if (cloudAvailable) {
         try {
-          const res = await fetch(`/api/telemetry?date=${encodeURIComponent(dateStr)}`);
+          const res = await fetch(`/api/telemetry?mode=chart&date=${encodeURIComponent(dateStr)}`, {
+            cache: "no-store",
+          });
           if (res.ok) {
             const json = await res.json();
-            if (Array.isArray(json.data) && json.data.length > 0) {
-              json.data.forEach((d) => upsertHistoryPoint(d));
+            if (Array.isArray(json.data)) {
+              for (const pt of json.data) {
+                const clean = normalizeTelemetry(pt);
+                if (clean) upsertHistoryPoint(clean);
+              }
+              renderChartsForDate(dateStr);
             }
           }
         } catch {}
       }
-      renderChartsForDate(dateStr);
     }
 
     function shiftChartDate(deltaDays) {
@@ -1093,32 +1354,72 @@
       selectChartDate(getLocalDateStr());
     }
 
-    function importCsvToHistory(event) {
+    // ===================== MERGE BATCH & IMPOR CSV MICROSD =====================
+    async function mergeIncomingBatch(rawRows, pushToCloud = false) {
+      const newRows = [];
+      let lastDate = null;
+
+      for (const raw of rawRows) {
+        const d = normalizeTelemetry(raw);
+        if (!d) continue;
+        lastDate = upsertHistoryPoint(d);
+        if (!seenTimestamps.has(d.ts)) {
+          seenTimestamps.add(d.ts);
+          recordedDataset.push(d);
+          newRows.push(d);
+        }
+      }
+
+      if (newRows.length > 0) {
+        recordedDataset.sort((a, b) => a.ts.localeCompare(b.ts));
+        await idbPutMany(newRows);
+        updateDatasetStatsUI();
+        renderTable();
+
+        if (pushToCloud && cloudAvailable && document.getElementById("chkSyncApi").checked) {
+          for (let i = 0; i < newRows.length; i += 300) {
+            const chunk = newRows.slice(i, i + 300);
+            await fetch("/api/telemetry", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ batch: chunk }),
+            }).catch(() => {});
+          }
+          await loadCloudSummary(false);
+        }
+      }
+      return { added: newRows.length, lastDate };
+    }
+
+    function importCsvFile(event) {
       const file = event.target.files?.[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const text = String(e.target?.result || "");
         const lines = text.trim().split(/\r?\n/);
-        let lastImportedDate = null;
+        const parsed = [];
 
         for (let i = 1; i < lines.length; i++) {
           const cols = lines[i].split(",");
           if (cols.length < 15) continue;
-          const d = {
+          parsed.push({
             ts: cols[0].trim(),
+            sd: true,
             lux: parseFloat(cols[1]) || 0,
             temp: parseFloat(cols[2]) || 0,
             pv: { v: parseFloat(cols[3]) || 0, i: parseFloat(cols[4]) || 0, p: parseFloat(cols[5]) || 0 },
             mppt: { v: parseFloat(cols[6]) || 0, i: parseFloat(cols[7]) || 0, p: parseFloat(cols[8]) || 0 },
             batt: { v: parseFloat(cols[9]) || 0, i: parseFloat(cols[10]) || 0, p: parseFloat(cols[11]) || 0 },
             load: { v: parseFloat(cols[12]) || 0, i: parseFloat(cols[13]) || 0, p: parseFloat(cols[14]) || 0 },
-          };
-          lastImportedDate = upsertHistoryPoint(d);
+          });
         }
 
-        if (lastImportedDate) renderChartsForDate(lastImportedDate);
+        showToast("Menggabungkan CSV & mengunggah ke Supabase...");
+        const { added, lastDate } = await mergeIncomingBatch(parsed, true);
+        if (lastDate) renderChartsForDate(lastDate);
+        showToast(`CSV digabung: +${added} baris baru`);
         event.target.value = "";
       };
       reader.readAsText(file);
@@ -1167,6 +1468,8 @@
           powerChart.resize();
           luxChart.resize();
           tempChart.resize();
+        } else if (page === "dataset") {
+          renderTable();
         }
       };
 
@@ -1181,7 +1484,7 @@
       pageSwitchTimer = setTimeout(showTarget, 140);
     }
 
-    // ===================== ANIMASI FLOW ENERGI & ARAH =====================
+    // ===================== ANIMASI FLOW ENERGI =====================
     function updateParticleSpeed(animClass, watts, baseDur) {
       const absW = Math.abs(watts);
       const tier = absW > 25 ? "fast" : absW > 8 ? "med" : "slow";
@@ -1219,8 +1522,7 @@
 
     function setParticleGroup(groupId, active) {
       const el = document.getElementById(groupId);
-      if (!el) return;
-      el.classList.toggle("active", Boolean(active));
+      if (el) el.classList.toggle("active", Boolean(active));
     }
 
     function renderEnergyAcc() {
@@ -1232,62 +1534,45 @@
     }
 
     function resetEnergyAcc() {
+      if (!confirm("Reset semua nilai Akumulasi Energi (Wh) ke 0?")) return;
       energyAcc = { pv: 0, mppt: 0, battCharge: 0, battDischarge: 0, load: 0 };
-      lastEnergyTick = null;
-      localStorage.removeItem("barokah_jaya_energy_acc");
+      lastEnergyTsMs = null;
+      localStorage.removeItem(KEY_ENERGY_ACC);
       renderEnergyAcc();
+      showToast("Akumulasi energi Wh direset");
     }
 
-    // ===================== INIT =====================
-    window.addEventListener("DOMContentLoaded", () => {
-      lucide.createIcons();
-      loadDailyHistory();
+    // ===================== BATCH SYNC KE SUPABASE =====================
+    function saveSyncPref() {
+      localStorage.setItem(KEY_SYNC_PREF, document.getElementById("chkSyncApi").checked ? "1" : "0");
+    }
 
-      document.querySelectorAll("a[data-transition]").forEach((link) => {
-        link.addEventListener("click", (e) => {
-          const href = link.getAttribute("href");
-          if (!href) return;
-          e.preventDefault();
-          document.getElementById("appShell").classList.add("shell-leaving");
-          setTimeout(() => { window.location.href = href; }, 170);
+    async function flushApiQueue(useBeacon = false) {
+      if (!cloudAvailable || !document.getElementById("chkSyncApi").checked) return;
+      if (pendingApiQueue.length === 0) return;
+
+      const batch = pendingApiQueue.splice(0, 120);
+      const bodyStr = JSON.stringify({ batch });
+
+      if (useBeacon && navigator.sendBeacon) {
+        navigator.sendBeacon("/api/telemetry", new Blob([bodyStr], { type: "application/json" }));
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/telemetry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: bodyStr,
         });
-      });
-
-      const saved = localStorage.getItem(MQTT_CFG_STORAGE_KEY);
-      if (saved) {
-        try {
-          const cfg = JSON.parse(saved);
-          if (cfg.brokerUrl) document.getElementById("brokerUrl").value = cfg.brokerUrl;
-          if (cfg.username) document.getElementById("mqttUser").value = cfg.username;
-          if (cfg.topic) document.getElementById("mqttTopic").value = cfg.topic;
-        } catch {}
+        if (!res.ok) pendingApiQueue.unshift(...batch);
+      } catch {
+        pendingApiQueue.unshift(...batch);
+        if (pendingApiQueue.length > 600) pendingApiQueue.splice(0, pendingApiQueue.length - 600);
       }
+    }
 
-      const savedEnergy = localStorage.getItem("barokah_jaya_energy_acc");
-      if (savedEnergy) {
-        try {
-          const parsed = JSON.parse(savedEnergy);
-          energyAcc = {
-            pv: Number(parsed.pv) || 0,
-            mppt: Number(parsed.mppt) || 0,
-            battCharge: Number(parsed.battCharge) || 0,
-            battDischarge: Number(parsed.battDischarge) || 0,
-            load: Number(parsed.load) || 0,
-          };
-        } catch {}
-      }
-      renderEnergyAcc();
-      renderChartsForDate(selectedChartDate);
-
-      const initialPage = window.location.hash.replace("#", "") || "monitor";
-      switchPage(initialPage, true);
-    });
-
-    window.addEventListener("pageshow", () => {
-      document.getElementById("appShell").classList.remove("shell-leaving");
-    });
-
-    // ===================== KONEKSI MQTT =====================
+    // ===================== KONEKSI MQTT OTOMATIS =====================
     function setStatusUI(state) {
       const dot = document.getElementById("statusDot");
       const text = document.getElementById("statusText");
@@ -1304,7 +1589,6 @@
         text.textContent = "Menghubungkan...";
       } else {
         isConnected = false;
-        lastEnergyTick = null;
         dot.className = "w-2 h-2 rounded-full bg-rose-500";
         text.textContent = "Terputus";
         btn.className = "w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-semibold text-xs px-5 py-2.5 rounded-lg transition";
@@ -1312,52 +1596,72 @@
       }
     }
 
-    function toggleMqtt() {
-      if (isConnected && client) {
-        client.end();
+    function connectMqtt(isAuto = false) {
+      if (client) {
+        try { client.end(true); } catch {}
         client = null;
-        setStatusUI("Disconnected");
-        return;
       }
 
-      const brokerUrl = document.getElementById("brokerUrl").value.trim();
-      const username = document.getElementById("mqttUser").value.trim();
-      const password = document.getElementById("mqttPass").value;
-      const topic = document.getElementById("mqttTopic").value.trim();
+      manualDisconnect = false;
+      const brokerUrl = document.getElementById("brokerUrl").value.trim() || DEFAULT_MQTT.brokerUrl;
+      const username  = document.getElementById("mqttUser").value.trim() || DEFAULT_MQTT.username;
+      const password  = document.getElementById("mqttPass").value || DEFAULT_MQTT.password;
+      const topic     = document.getElementById("mqttTopic").value.trim() || DEFAULT_MQTT.topic;
 
-      localStorage.setItem(MQTT_CFG_STORAGE_KEY, JSON.stringify({ brokerUrl, username, topic }));
+      localStorage.setItem(KEY_MQTT_CFG, JSON.stringify({ brokerUrl, username, password, topic }));
       setStatusUI("Connecting");
 
       client = mqtt.connect(brokerUrl, {
         username,
         password,
-        reconnectPeriod: 3000
+        keepalive: 30,
+        reconnectPeriod: 2500,
+        connectTimeout: 10000,
+        clean: true,
       });
 
       client.on("connect", () => {
         setStatusUI("Connected");
         client.subscribe(topic);
-        switchPage("monitor");
+        if (!isAuto) showToast("Terhubung ke HiveMQ Cloud");
+      });
+
+      client.on("reconnect", () => {
+        if (!manualDisconnect) setStatusUI("Connecting");
       });
 
       client.on("message", (_t, payload) => {
         try {
-          const d = JSON.parse(payload.toString());
-          updateDashboard(d);
+          handleIncomingTelemetry(JSON.parse(payload.toString()));
         } catch (err) {
           console.error("JSON Parse Error:", err);
         }
       });
 
-      client.on("close", () => setStatusUI("Disconnected"));
-      client.on("error", () => setStatusUI("Disconnected"));
+      client.on("close", () => {
+        setStatusUI(manualDisconnect ? "Disconnected" : "Connecting");
+      });
+
+      client.on("error", () => {
+        if (manualDisconnect) setStatusUI("Disconnected");
+      });
     }
 
-    // ===================== UPDATE TELEMETRI REAL-TIME (1 DETIK) =====================
-    function updateDashboard(d) {
+    function toggleMqtt() {
+      if (isConnected && client) {
+        manualDisconnect = true;
+        client.end(true);
+        client = null;
+        setStatusUI("Disconnected");
+        return;
+      }
+      connectMqtt(false);
+    }
+
+    // ===================== RENDER LIVE POWER FLOW =====================
+    function renderPowerFlowUI(d) {
       document.getElementById("rtcText").textContent = (d.ts || "--:--:--").split(" ")[1] || d.ts;
 
-      // Indikator Status MicroSD Offline Logger
       const sdBadge = document.getElementById("sdBadge");
       const sdText = document.getElementById("sdText");
       if (typeof d.sd === "boolean") {
@@ -1370,14 +1674,10 @@
         }
       }
 
-      // 1. Lingkungan
-      document.getElementById("svgLux").textContent = `${Number(d.lux || 0).toLocaleString("id-ID")} lx`;
-      document.getElementById("svgTemp").textContent = `${Number(d.temp || 0).toFixed(1)} °C`;
+      document.getElementById("svgLux").textContent = `${d.lux.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} lx`;
+      document.getElementById("svgTemp").textContent = `${d.temp.toFixed(2)} °C`;
 
-      // 2. Panel Surya (INA1)
-      const pvV = Number(d.pv?.v || 0);
-      const pvI = Number(d.pv?.i || 0);
-      const pvP = Number(d.pv?.p || 0);
+      const pvV = d.pv.v, pvI = d.pv.i, pvP = d.pv.p;
       document.getElementById("svgPvP").textContent = `${pvP.toFixed(2)} W`;
       document.getElementById("svgPvV").textContent = `${pvV.toFixed(2)} V`;
       document.getElementById("svgPvI").textContent = `${pvI.toFixed(3)} A`;
@@ -1391,10 +1691,7 @@
       pvLbl.textContent = pvActive ? `${pvP.toFixed(1)}W →` : "IDLE";
       pvLbl.setAttribute("fill", pvActive ? "#fbbf24" : "#71717a");
 
-      // 3. MPPT (INA2)
-      const mpptV = Number(d.mppt?.v || 0);
-      const mpptI = Number(d.mppt?.i || 0);
-      const mpptP = Number(d.mppt?.p || 0);
+      const mpptV = d.mppt.v, mpptI = d.mppt.i, mpptP = d.mppt.p;
       const eff = pvP > 0.3 ? Math.min(100, (mpptP / pvP) * 100) : 0;
       document.getElementById("svgMpptP").textContent = `${mpptP.toFixed(2)} W`;
       document.getElementById("svgMpptV").textContent = `${mpptV.toFixed(2)} V`;
@@ -1410,10 +1707,7 @@
       mpptLbl.textContent = mpptActive ? `${mpptP.toFixed(1)}W →` : "IDLE";
       mpptLbl.setAttribute("fill", mpptActive ? "#2dd4bf" : "#71717a");
 
-      // 4. Baterai LiFePO4 (INA3 — Dua Arah)
-      const battV = Number(d.batt?.v || 0);
-      const battI = Number(d.batt?.i || 0);
-      const battP = Number(d.batt?.p || 0);
+      const battV = d.batt.v, battI = d.batt.i, battP = d.batt.p;
       const absBattP = Math.abs(battP);
       document.getElementById("svgBattP").textContent = `${absBattP.toFixed(2)} W`;
       document.getElementById("svgBattV").textContent = `${battV.toFixed(2)} V`;
@@ -1476,10 +1770,7 @@
         arrDischarge.setAttribute("opacity", "0.25");
       }
 
-      // 5. Beban & Inverter (INA4)
-      const loadV = Number(d.load?.v || 0);
-      const loadI = Number(d.load?.i || 0);
-      const loadP = Number(d.load?.p || 0);
+      const loadV = d.load.v, loadI = d.load.i, loadP = d.load.p;
       document.getElementById("svgLoadP").textContent = `${loadP.toFixed(2)} W`;
       document.getElementById("svgLoadV").textContent = `${loadV.toFixed(2)} V`;
       document.getElementById("svgLoadI").textContent = `${loadI.toFixed(3)} A`;
@@ -1496,110 +1787,332 @@
       const anyFlow = mpptActive || battActive || loadActive;
       document.getElementById("busDot").classList.toggle("bus-ring-active", anyFlow);
       document.getElementById("busOuter").setAttribute("stroke", anyFlow ? "#14b8a6" : "#3f3f46");
+    }
 
-      // 6. Integrasi Akumulasi Energi (Wh — Basis 1 Detik)
-      const nowMs = Date.now();
-      let dtMs = 1000;
-      if (lastEnergyTick !== null) {
-        const rawDt = nowMs - lastEnergyTick;
-        dtMs = rawDt > 10000 ? 1000 : Math.max(0, rawDt);
-      }
-      lastEnergyTick = nowMs;
+    // ===================== PEMROSESAN DATA REAL-TIME =====================
+    function handleIncomingTelemetry(rawD) {
+      const d = normalizeTelemetry(rawD);
+      if (!d) return;
 
-      const dtHours = dtMs / 3600000;
-      energyAcc.pv += Math.max(0, pvP) * dtHours;
-      energyAcc.mppt += Math.max(0, mpptP) * dtHours;
-      if (battI < -0.015) energyAcc.battCharge += absBattP * dtHours;
-      else if (battI > 0.015) energyAcc.battDischarge += absBattP * dtHours;
-      energyAcc.load += Math.max(0, loadP) * dtHours;
+      renderPowerFlowUI(d);
+      try { localStorage.setItem(KEY_LAST_TELEM, JSON.stringify(d)); } catch {}
 
-      renderEnergyAcc();
-      localStorage.setItem("barokah_jaya_energy_acc", JSON.stringify(energyAcc));
+      const isNewTimestamp = !seenTimestamps.has(d.ts);
 
-      // 7. Simpan ke Histori Harian 24 Jam & Update 3 Grafik
-      const pointDate = upsertHistoryPoint(d);
-      if (pointDate === selectedChartDate) {
-        renderChartsForDate(selectedChartDate);
-      } else {
-        renderSavedDateChips();
-      }
-
-      // 8. Rekam Dataset Training Online
-      if (isRecording) {
-        recordedDataset.push(d);
-        document.getElementById("recordCount").textContent = recordedDataset.length;
-        document.getElementById("navCount").textContent = recordedDataset.length;
-        document.getElementById("btnExport").disabled = false;
-        renderTable();
-
-        if (document.getElementById("chkSyncApi").checked) {
-          fetch("/api/telemetry", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(d)
-          }).catch(() => {});
+      if (isNewTimestamp) {
+        const parsedTs = parseTimestamp(d.ts);
+        let dtMs = 1000;
+        if (lastEnergyTsMs !== null) {
+          const diff = parsedTs.ms - lastEnergyTsMs;
+          dtMs = (diff > 0 && diff <= 5000) ? diff : 1000;
         }
+        lastEnergyTsMs = parsedTs.ms;
+
+        const dtHours = dtMs / 3600000;
+        energyAcc.pv += Math.max(0, d.pv.p) * dtHours;
+        energyAcc.mppt += Math.max(0, d.mppt.p) * dtHours;
+        if (d.batt.i < -0.015) energyAcc.battCharge += Math.abs(d.batt.p) * dtHours;
+        else if (d.batt.i > 0.015) energyAcc.battDischarge += Math.abs(d.batt.p) * dtHours;
+        energyAcc.load += Math.max(0, d.load.p) * dtHours;
+
+        renderEnergyAcc();
+        try { localStorage.setItem(KEY_ENERGY_ACC, JSON.stringify(energyAcc)); } catch {}
       }
+
+      const pointDate = upsertHistoryPoint(d);
+      if (currentPage === "grafik") {
+        if (pointDate === selectedChartDate) renderChartsForDate(selectedChartDate);
+        else renderSavedDateChips();
+      }
+
+      if (isRecording && isNewTimestamp) {
+        seenTimestamps.add(d.ts);
+        recordedDataset.push(d);
+        idbPutOne(d);
+
+        liveAddedSinceSummary++;
+        if (d.ts.startsWith(getLocalDateStr())) liveTodaySinceSummary++;
+
+        if (cloudAvailable && document.getElementById("chkSyncApi").checked) {
+          pendingApiQueue.push(d);
+        }
+
+        updateDatasetStatsUI();
+        if (currentPage === "dataset") renderTable();
+      }
+    }
+
+    // ===================== UI DATASET =====================
+    function updateDatasetStatsUI() {
+      const today = getLocalDateStr();
+      let localToday = 0;
+      const dateSet = new Set(cloudDatesMap.keys());
+
+      for (let i = 0; i < recordedDataset.length; i++) {
+        const dt = recordedDataset[i].ts.slice(0, 10);
+        dateSet.add(dt);
+        if (dt === today) localToday++;
+      }
+
+      const displayTotal = cloudAvailable
+        ? Math.max(recordedDataset.length, cloudBaseTotal + liveAddedSinceSummary)
+        : recordedDataset.length;
+
+      const displayToday = cloudAvailable
+        ? Math.max(localToday, cloudBaseToday + liveTodaySinceSummary)
+        : localToday;
+
+      document.getElementById("recordCount").textContent = displayTotal.toLocaleString("id-ID");
+      document.getElementById("todayRecordCount").textContent = displayToday.toLocaleString("id-ID");
+      document.getElementById("navCount").textContent = displayTotal;
+      document.getElementById("btnExport").disabled = displayTotal === 0;
+
+      const filterEl = document.getElementById("datasetDateFilter");
+      const prevVal = filterEl.value;
+      const sortedDates = Array.from(dateSet).sort().reverse();
+      const optionsHtml = `<option value="ALL">Semua Tanggal (${displayTotal.toLocaleString("id-ID")})</option>` +
+        sortedDates.map((dt) => {
+          const cnt = cloudDatesMap.get(dt);
+          return `<option value="${dt}">${dt}${cnt ? ` (${cnt.toLocaleString("id-ID")})` : ""}</option>`;
+        }).join("");
+
+      if (filterEl.innerHTML !== optionsHtml) {
+        filterEl.innerHTML = optionsHtml;
+        filterEl.value = sortedDates.includes(prevVal) ? prevVal : "ALL";
+      }
+    }
+
+    function getFilteredLocalDataset() {
+      const filterDate = document.getElementById("datasetDateFilter").value;
+      if (!filterDate || filterDate === "ALL") return recordedDataset;
+      return recordedDataset.filter((r) => r.ts.startsWith(filterDate));
     }
 
     function renderTable() {
       const tbody = document.getElementById("tableBody");
-      const latestRows = recordedDataset.slice(-15).reverse();
+      const list = getFilteredLocalDataset();
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="15" class="py-10 text-center text-zinc-500 font-sans text-xs">
+            ${cloudAvailable ? "Gunakan tombol Export CSV untuk mengunduh histori tanggal ini dari Supabase Cloud." : "Belum ada data terekam untuk filter ini."}
+          </td></tr>`;
+        return;
+      }
+
+      const latestRows = list.slice(-20).reverse();
       tbody.innerHTML = latestRows.map((r) => `
         <tr class="hover:bg-zinc-900/50">
-          <td class="py-2.5 px-4 text-zinc-400">${r.ts}</td>
-          <td class="py-2.5 px-3">${r.lux}</td>
-          <td class="py-2.5 px-3">${r.temp}°</td>
-          <td class="py-2.5 px-3 text-zinc-200">${r.pv.p}W <span class="text-zinc-500">(${r.pv.v}V)</span></td>
-          <td class="py-2.5 px-3 text-zinc-200">${r.mppt.p}W <span class="text-zinc-500">(${r.mppt.v}V)</span></td>
-          <td class="py-2.5 px-3 text-zinc-200">${r.batt.p}W <span class="text-zinc-500">(${r.batt.v}V)</span></td>
-          <td class="py-2.5 px-4 text-zinc-200">${r.load.p}W <span class="text-zinc-500">(${r.load.v}V)</span></td>
+          <td class="py-2 px-3 text-zinc-400">${r.ts}</td>
+          <td class="py-2 px-2.5 text-amber-200">${r.lux.toFixed(1)}</td>
+          <td class="py-2 px-2.5 text-rose-200">${r.temp.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.pv.v.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.pv.i.toFixed(3)}</td>
+          <td class="py-2 px-2.5 text-amber-300">${r.pv.p.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.mppt.v.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.mppt.i.toFixed(3)}</td>
+          <td class="py-2 px-2.5 text-teal-300">${r.mppt.p.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.batt.v.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.batt.i.toFixed(3)}</td>
+          <td class="py-2 px-2.5 text-emerald-300">${r.batt.p.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.load.v.toFixed(2)}</td>
+          <td class="py-2 px-2.5">${r.load.i.toFixed(3)}</td>
+          <td class="py-2 px-3 text-purple-300">${r.load.p.toFixed(2)}</td>
         </tr>
       `).join("");
     }
 
-    function toggleRecord() {
-      isRecording = !isRecording;
+    function updateRecordBtnUI() {
       const btn = document.getElementById("btnRecord");
       if (isRecording) {
         btn.className = "inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs px-4 py-2 rounded-lg transition";
-        btn.innerHTML = '<i data-lucide="pause" class="w-3.5 h-3.5"></i> Jeda Rekam';
+        btn.innerHTML = '<i data-lucide="pause" class="w-3.5 h-3.5"></i> Jeda Rekam Web';
       } else {
         btn.className = "inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs px-4 py-2 rounded-lg transition";
-        btn.innerHTML = '<i data-lucide="play" class="w-3.5 h-3.5"></i> Lanjut Rekam';
+        btn.innerHTML = '<i data-lucide="play" class="w-3.5 h-3.5"></i> Lanjut Rekam Web';
       }
       lucide.createIcons();
     }
 
-    async function resetDataset() {
-      recordedDataset = [];
-      document.getElementById("recordCount").textContent = "0";
-      document.getElementById("navCount").textContent = "0";
-      document.getElementById("btnExport").disabled = true;
-      document.getElementById("tableBody").innerHTML = `
-        <tr><td colspan="7" class="py-10 text-center text-zinc-500 font-sans">
-          Dataset telah dikosongkan.
-        </td></tr>`;
-      if (document.getElementById("chkSyncApi").checked) {
-        await fetch("/api/telemetry", { method: "DELETE" }).catch(() => {});
-      }
+    function toggleRecord() {
+      isRecording = !isRecording;
+      localStorage.setItem(KEY_RECORD_PREF, isRecording ? "1" : "0");
+      updateRecordBtnUI();
     }
 
-    function exportCSV() {
-      if (recordedDataset.length === 0) return;
-      const header = "timestamp,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p\n";
-      const rows = recordedDataset.map((d) =>
-        `${d.ts},${d.lux},${d.temp},${d.pv.v},${d.pv.i},${d.pv.p},${d.mppt.v},${d.mppt.i},${d.mppt.p},${d.batt.v},${d.batt.i},${d.batt.p},${d.load.v},${d.load.i},${d.load.p}`
-      ).join("\n");
+    async function resetDataset() {
+      const filterDate = document.getElementById("datasetDateFilter").value;
+      const scope = filterDate && filterDate !== "ALL" ? `tanggal ${filterDate}` : "SEMUA tanggal";
+      if (!confirm(`Hapus dataset untuk ${scope} di browser dan Supabase Cloud?`)) return;
 
-      const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+      if (filterDate && filterDate !== "ALL") {
+        recordedDataset = recordedDataset.filter((r) => !r.ts.startsWith(filterDate));
+        seenTimestamps = new Set(recordedDataset.map((r) => r.ts));
+        delete dailyHistory[filterDate];
+        cloudDatesMap.delete(filterDate);
+        await idbClear();
+        await idbPutMany(recordedDataset);
+      } else {
+        recordedDataset = [];
+        seenTimestamps.clear();
+        pendingApiQueue = [];
+        dailyHistory = {};
+        cloudDatesMap.clear();
+        cloudBaseTotal = 0;
+        cloudBaseToday = 0;
+        liveAddedSinceSummary = 0;
+        liveTodaySinceSummary = 0;
+        await idbClear();
+      }
+
+      if (cloudAvailable) {
+        const q = filterDate && filterDate !== "ALL" ? `?date=${encodeURIComponent(filterDate)}` : "";
+        await fetch(`/api/telemetry${q}`, { method: "DELETE" }).catch(() => {});
+        await loadCloudSummary(false);
+      }
+
+      updateDatasetStatsUI();
+      renderTable();
+      renderChartsForDate(selectedChartDate);
+      showToast(`Dataset ${scope} telah dihapus`);
+    }
+
+    async function exportCSV() {
+      const filterDate = document.getElementById("datasetDateFilter").value || "ALL";
+
+      // Jika Cloud Supabase aktif, langsung unduh dataset 24/7 lengkap dari Supabase
+      if (cloudAvailable) {
+        await flushApiQueue(false);
+        const url = `/api/telemetry?format=csv&date=${encodeURIComponent(filterDate)}`;
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filterDate !== "ALL" ? `${filterDate}.csv` : `barokah_jaya_plts_cloud_all.csv`;
+        a.click();
+        showToast("Mengunduh CSV lengkap dari Supabase Cloud...");
+        return;
+      }
+
+      // Fallback offline dari IndexedDB
+      const list = getFilteredLocalDataset();
+      if (list.length === 0) return;
+      const rows = list.map(formatRowToCsv).join("\n");
+      const blob = new Blob([CSV_HEADER + "\n" + rows], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `barokah_jaya_plts_dataset_${Date.now()}.csv`;
+      a.download = filterDate !== "ALL" ? `${filterDate}.csv` : `barokah_jaya_plts_local_${getLocalDateStr()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
+
+    // ===================== STARTUP OTOMATIS =====================
+    window.addEventListener("DOMContentLoaded", async () => {
+      lucide.createIcons();
+
+      const hintEl = document.getElementById("apiEndpointHint");
+      if (hintEl) hintEl.textContent = `${window.location.origin}/api/telemetry`;
+
+      document.querySelectorAll("a[data-transition]").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          const href = link.getAttribute("href");
+          if (!href) return;
+          e.preventDefault();
+          flushApiQueue(true);
+          document.getElementById("appShell").classList.add("shell-leaving");
+          setTimeout(() => { window.location.href = href; }, 170);
+        });
+      });
+
+      const savedCfg = localStorage.getItem(KEY_MQTT_CFG);
+      if (savedCfg) {
+        try {
+          const c = JSON.parse(savedCfg);
+          if (c.brokerUrl) document.getElementById("brokerUrl").value = c.brokerUrl;
+          if (c.username)  document.getElementById("mqttUser").value  = c.username;
+          if (c.password)  document.getElementById("mqttPass").value  = c.password;
+          if (c.topic)     document.getElementById("mqttTopic").value = c.topic;
+        } catch {}
+      }
+
+      const recPref = localStorage.getItem(KEY_RECORD_PREF);
+      isRecording = recPref === null ? true : recPref === "1";
+      updateRecordBtnUI();
+
+      const syncPref = localStorage.getItem(KEY_SYNC_PREF);
+      document.getElementById("chkSyncApi").checked = syncPref === null ? true : syncPref === "1";
+
+      const savedEnergy = localStorage.getItem(KEY_ENERGY_ACC);
+      if (savedEnergy) {
+        try {
+          const p = JSON.parse(savedEnergy);
+          energyAcc = {
+            pv: Number(p.pv) || 0,
+            mppt: Number(p.mppt) || 0,
+            battCharge: Number(p.battCharge) || 0,
+            battDischarge: Number(p.battDischarge) || 0,
+            load: Number(p.load) || 0,
+          };
+        } catch {}
+      }
+      renderEnergyAcc();
+
+      const lastTelem = localStorage.getItem(KEY_LAST_TELEM);
+      if (lastTelem) {
+        try {
+          const parsedLast = normalizeTelemetry(JSON.parse(lastTelem));
+          if (parsedLast) {
+            renderPowerFlowUI(parsedLast);
+            lastEnergyTsMs = parseTimestamp(parsedLast.ts).ms;
+          }
+        } catch {}
+      }
+
+      // Pulihkan IndexedDB lokal terlebih dahulu (instan)
+      db = await openIDB();
+      const storedRows = await idbGetAll();
+      if (storedRows.length > 0) {
+        storedRows.sort((a, b) => a.ts.localeCompare(b.ts));
+        for (const row of storedRows) {
+          const clean = normalizeTelemetry(row);
+          if (!clean || seenTimestamps.has(clean.ts)) continue;
+          seenTimestamps.add(clean.ts);
+          recordedDataset.push(clean);
+          upsertHistoryPoint(clean);
+        }
+      }
+      updateDatasetStatsUI();
+      renderTable();
+      renderChartsForDate(selectedChartDate);
+
+      const initialPage = window.location.hash.replace("#", "") || "monitor";
+      switchPage(initialPage, true);
+
+      // Auto-Connect MQTT + Tarik data Cloud Supabase secara paralel
+      connectMqtt(true);
+      await loadCloudSummary(false);
+
+      // Flush batch browser setiap 15 detik & refresh hitungan Cloud tiap 60 detik
+      setInterval(() => flushApiQueue(false), 15000);
+      setInterval(() => { if (cloudAvailable) loadCloudSummary(false); }, 60000);
+    });
+
+    window.addEventListener("pagehide", () => flushApiQueue(true));
+    window.addEventListener("pageshow", () => {
+      document.getElementById("appShell").classList.remove("shell-leaving");
+    });
+    window.addEventListener("online", () => {
+      if (!isConnected && !manualDisconnect) connectMqtt(true);
+      flushApiQueue(false);
+      loadCloudSummary(false);
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        flushApiQueue(true);
+      } else {
+        if (!isConnected && !manualDisconnect) connectMqtt(true);
+        loadCloudSummary(false);
+      }
+    });
   </script>
 </body>
 </html>
