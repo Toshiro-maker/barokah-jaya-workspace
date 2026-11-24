@@ -1,4 +1,3 @@
-// Buffer sementara di server (siap ditingkatkan ke Supabase PostgreSQL untuk simpan permanen multi-hari)
 let datasetStore = [];
 const MAX_RECORDS = 5000;
 
@@ -14,10 +13,14 @@ module.exports = function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Ambil data JSON atau unduh CSV langsung via /api/telemetry?format=csv
   if (req.method === "GET") {
+    const filterDate = req.query && req.query.date ? String(req.query.date).trim() : null;
+    const filtered = filterDate
+      ? datasetStore.filter((d) => typeof d.ts === "string" && d.ts.startsWith(filterDate))
+      : datasetStore;
+
     if (req.query && req.query.format === "csv") {
-      const rows = datasetStore.map(
+      const rows = filtered.map(
         (d) =>
           `${d.ts},${d.lux},${d.temp},${d.pv.v},${d.pv.i},${d.pv.p},${d.mppt.v},${d.mppt.i},${d.mppt.p},${d.batt.v},${d.batt.i},${d.batt.p},${d.load.v},${d.load.i},${d.load.p}`
       );
@@ -25,19 +28,19 @@ module.exports = function handler(req, res) {
       res.setHeader("Content-Type", "text/csv; charset=utf-8");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="barokah_jaya_plts_${Date.now()}.csv"`
+        `attachment; filename="barokah_jaya_plts_${filterDate || Date.now()}.csv"`
       );
       return res.status(200).send(csv);
     }
 
     return res.status(200).json({
       project: "Barokah Jaya Workspace",
-      count: datasetStore.length,
-      data: datasetStore.slice(-200),
+      date: filterDate || "all",
+      count: filtered.length,
+      data: filterDate ? filtered : filtered.slice(-500),
     });
   }
 
-  // Simpan sampel baru dari dashboard
   if (req.method === "POST") {
     try {
       const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
@@ -51,12 +54,11 @@ module.exports = function handler(req, res) {
       }
 
       return res.status(200).json({ ok: true, count: datasetStore.length });
-    } catch (err) {
+    } catch {
       return res.status(500).json({ error: "Gagal memproses JSON" });
     }
   }
 
-  // Kosongkan buffer di server
   if (req.method === "DELETE") {
     datasetStore = [];
     return res.status(200).json({ ok: true, count: 0 });
