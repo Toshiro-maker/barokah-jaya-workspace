@@ -6,7 +6,7 @@
   <title>Barokah Jaya Workspace — PLTS 50Wp</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -22,134 +22,476 @@
     };
   </script>
   <style>
+    /* ── PAGE ENTER ── */
     @keyframes pageEnter {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     .page-wrapper {
-      animation: pageEnter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: pageEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
-    .page-leaving {
-      opacity: 0 !important;
-      transform: translateY(-8px) !important;
+    .page-leaving { opacity: 0 !important; transform: translateY(-10px) !important; }
+
+    /* ── BACKGROUND GRID + GLOW ── */
+    .bg-grid {
+      background-image:
+        linear-gradient(rgba(20,184,166,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20,184,166,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ── AURORA GLOW ── */
+    @keyframes auroraMove {
+      0%   { transform: translate(0%, 0%) scale(1); }
+      33%  { transform: translate(5%, -8%) scale(1.08); }
+      66%  { transform: translate(-4%, 6%) scale(0.95); }
+      100% { transform: translate(0%, 0%) scale(1); }
+    }
+    .aurora-1 {
+      position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
+      width: 480px; height: 480px; top: -120px; left: -80px;
+      background: radial-gradient(circle, rgba(20,184,166,0.18) 0%, transparent 70%);
+      animation: auroraMove 12s ease-in-out infinite;
+    }
+    .aurora-2 {
+      position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none;
+      width: 400px; height: 400px; top: 100px; right: -60px;
+      background: radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%);
+      animation: auroraMove 16s ease-in-out infinite reverse;
+    }
+    .aurora-3 {
+      position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
+      width: 300px; height: 300px; bottom: 60px; left: 30%;
+      background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%);
+      animation: auroraMove 20s ease-in-out infinite 4s;
+    }
+
+    /* ── BADGE PULSE ── */
+    @keyframes badgePulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .live-dot { animation: badgePulse 1.8s ease-in-out infinite; }
+
+    /* ── FLOAT UP (stagger) ── */
+    @keyframes floatUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .float-1 { animation: floatUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
+    .float-2 { animation: floatUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.22s both; }
+    .float-3 { animation: floatUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.34s both; }
+    .float-4 { animation: floatUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.46s both; }
+    .float-5 { animation: floatUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.58s both; }
+    .float-6 { animation: floatUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.70s both; }
+
+    /* ── CARD HOVER GLOW ── */
+    .card-glow {
+      position: relative;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card-glow:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 32px rgba(20,184,166,0.12), 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .card-glow.amber:hover  { box-shadow: 0 0 32px rgba(245,158,11,0.15), 0 8px 32px rgba(0,0,0,0.5); }
+    .card-glow.teal:hover   { box-shadow: 0 0 32px rgba(20,184,166,0.15), 0 8px 32px rgba(0,0,0,0.5); }
+    .card-glow.indigo:hover { box-shadow: 0 0 32px rgba(99,102,241,0.15), 0 8px 32px rgba(0,0,0,0.5); }
+    .card-glow.gray:hover   { box-shadow: 0 0 32px rgba(161,161,170,0.1), 0 8px 32px rgba(0,0,0,0.5); }
+
+    /* ── ICON SPIN ── */
+    @keyframes iconSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    .card-glow:hover .icon-spin { animation: iconSpin 1.8s linear infinite; }
+
+    /* ── STAT COUNTER ── */
+    @keyframes countUp {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .stat-num { animation: countUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.8s both; }
+
+    /* ── NAVBAR SCROLL BLUR ── */
+    .nav-scrolled {
+      border-bottom-color: rgba(39,39,42,0.9) !important;
+      background: rgba(9,9,11,0.95) !important;
+    }
+
+    /* ── ENERGY FLOW MINIMAP ── */
+    @keyframes flowDash {
+      from { stroke-dashoffset: 48; }
+      to   { stroke-dashoffset: 0; }
+    }
+    .mini-flow { animation: flowDash 1.2s linear infinite; }
+    .mini-flow-slow { animation: flowDash 2.0s linear infinite; }
+
+    /* ── HERO GRADIENT TEXT ── */
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 40%, #14b8a6 80%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── BUTTON SHIMMER ── */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .btn-shimmer {
+      background: linear-gradient(90deg, #0d9488 0%, #14b8a6 40%, #5eead4 50%, #14b8a6 60%, #0d9488 100%);
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+    }
+    .btn-shimmer:hover { animation-duration: 1.5s; }
+
+    /* ── SCROLL INDICATOR ── */
+    @keyframes bounceDown {
+      0%, 100% { transform: translateY(0); opacity: 0.6; }
+      50%       { transform: translateY(6px); opacity: 1; }
+    }
+    .bounce-down { animation: bounceDown 1.6s ease-in-out infinite; }
+
+    /* ── SPEC TAG ── */
+    .spec-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      border: 1px solid rgba(39,39,42,0.9);
+      background: rgba(24,24,27,0.8);
+      font-size: 11px; color: #a1a1aa;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .spec-tag:hover {
+      border-color: rgba(20,184,166,0.4); color: #5eead4;
+      background: rgba(20,184,166,0.08);
     }
   </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen antialiased selection:bg-teal-500/30">
-  <div id="appShell" class="page-wrapper min-h-screen flex flex-col">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen antialiased selection:bg-teal-500/30 overflow-x-hidden">
 
-    <!-- Navbar Minimalis -->
-    <nav class="border-b border-zinc-900 bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
-      <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400">
-            <i data-lucide="sun" class="w-4 h-4"></i>
+  <!-- AURORA BACKGROUND -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="aurora-1"></div>
+    <div class="aurora-2"></div>
+    <div class="aurora-3"></div>
+  </div>
+
+  <!-- GRID OVERLAY -->
+  <div class="fixed inset-0 bg-grid pointer-events-none z-0 opacity-60"></div>
+
+  <div id="appShell" class="page-wrapper relative z-10 min-h-screen flex flex-col">
+
+    <!-- ═══════════ NAVBAR ═══════════ -->
+    <nav id="mainNav" class="border-b border-zinc-900/60 bg-zinc-950/70 backdrop-blur-xl sticky top-0 z-30 transition-all duration-300">
+      <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-lg shadow-teal-500/10">
+            <i data-lucide="sun" class="w-4.5 h-4.5"></i>
           </div>
-          <span class="font-semibold tracking-tight text-sm md:text-base">Barokah Jaya Workspace</span>
+          <div>
+            <span class="font-bold tracking-tight text-sm text-white">Barokah Jaya Workspace</span>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="live-dot w-1.5 h-1.5 rounded-full bg-teal-400 inline-block"></span>
+              <span class="text-[10px] font-mono text-teal-400/80">PLTS 50Wp • ESP32-S3</span>
+            </div>
+          </div>
         </div>
-        <a href="workspace.html#monitor" data-transition
-          class="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-semibold text-xs md:text-sm px-4 py-2 rounded-lg transition">
-          Buka Workspace
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </a>
+        <div class="flex items-center gap-3">
+          <span class="hidden sm:flex items-center gap-2 text-xs text-zinc-400 font-mono">
+            <span id="navClock" class="tabular-nums">--:--:--</span>
+          </span>
+          <a href="workspace.html#monitor" data-transition
+            class="btn-shimmer inline-flex items-center gap-2 text-zinc-950 font-bold text-xs md:text-sm px-5 py-2 rounded-xl shadow-lg shadow-teal-500/20 transition-all hover:scale-105 hover:shadow-teal-500/30">
+            Buka Workspace
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+        </div>
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <main class="flex-1 flex flex-col justify-center max-w-5xl mx-auto px-6 py-16 md:py-24 w-full">
-      <div class="max-w-2xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 mb-6">
-          <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-          ESP32-S3 • 4x INA219 • SEN0390 • DS18B20 • MicroSD Sync 1s
+    <!-- ═══════════ HERO ═══════════ -->
+    <main class="flex-1 flex flex-col max-w-6xl mx-auto px-6 pt-16 pb-10 w-full">
+
+      <!-- HERO TOP SECTION -->
+      <div class="flex flex-col lg:flex-row gap-12 items-start lg:items-center mb-20">
+
+        <!-- LEFT: TEXT -->
+        <div class="flex-1 max-w-2xl">
+
+          <!-- Badge -->
+          <div class="float-1 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-400 mb-6 backdrop-blur">
+            <span class="live-dot w-2 h-2 rounded-full bg-teal-400"></span>
+            <span class="font-mono">ESP32-S3 • 4× INA219 • SEN0390 • DS18B20</span>
+            <span class="w-px h-3 bg-zinc-700"></span>
+            <span class="text-teal-400 font-medium">Sync 1s</span>
+          </div>
+
+          <!-- Heading -->
+          <h1 class="float-2 text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5">
+            <span class="gradient-text">Monitoring Daya</span><br/>
+            <span class="text-white">PLTS 50Wp &</span><br/>
+            <span class="text-zinc-300">Akuisisi Dataset</span>
+          </h1>
+
+          <!-- Desc -->
+          <p class="float-3 text-zinc-400 text-sm md:text-base leading-relaxed mb-8 max-w-xl">
+            Pantau aliran energi panel surya, MPPT, baterai LiFePO4, dan beban per detik melalui <span class="text-teal-400 font-medium">MQTT/HiveMQ Cloud</span>. Rekam otomatis ke <span class="text-amber-400 font-medium">MicroSD + Supabase</span> untuk dataset training offline &amp; online.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="float-4 flex flex-wrap items-center gap-3 mb-8">
+            <a href="workspace.html#monitor" data-transition
+              class="btn-shimmer inline-flex items-center gap-2 text-zinc-950 font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-teal-500/20 transition-all hover:scale-105">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              Mulai Monitoring
+            </a>
+            <a href="workspace.html#pengaturan" data-transition
+              class="inline-flex items-center gap-2 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 hover:border-teal-500/40 text-zinc-200 font-semibold text-sm px-6 py-3 rounded-xl transition-all hover:scale-105 backdrop-blur">
+              <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+              Atur MQTT
+            </a>
+          </div>
+
+          <!-- Spec Tags -->
+          <div class="float-5 flex flex-wrap gap-2">
+            <span class="spec-tag"><i data-lucide="cpu" class="w-3 h-3"></i> ESP32-S3 Dual Core</span>
+            <span class="spec-tag"><i data-lucide="zap" class="w-3 h-3"></i> 4× INA219 ADC</span>
+            <span class="spec-tag"><i data-lucide="sun" class="w-3 h-3"></i> SEN0390 Lux</span>
+            <span class="spec-tag"><i data-lucide="thermometer" class="w-3 h-3"></i> DS18B20 Suhu</span>
+            <span class="spec-tag"><i data-lucide="hard-drive" class="w-3 h-3"></i> MicroSD 1s</span>
+            <span class="spec-tag"><i data-lucide="cloud" class="w-3 h-3"></i> Supabase 24/7</span>
+          </div>
         </div>
 
-        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight mb-4">
-          Monitoring Daya PLTS 50Wp &amp; Akuisisi Dataset
-        </h1>
+        <!-- RIGHT: MINI ENERGY FLOW DIAGRAM -->
+        <div class="float-6 hidden lg:flex flex-col items-center">
+          <div class="relative bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 backdrop-blur shadow-2xl shadow-black/40" style="min-width:320px;">
+            <div class="text-[11px] font-mono text-zinc-500 mb-4 flex items-center gap-2">
+              <span class="live-dot w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Live Energy Flow Preview
+            </div>
+            <!-- Mini SVG Flow -->
+            <svg viewBox="0 0 280 200" class="w-full h-auto">
+              <!-- Panel -->
+              <rect x="4" y="70" width="72" height="60" rx="8" fill="#18181b" stroke="#f59e0b" stroke-width="1.2"/>
+              <text x="40" y="96" text-anchor="middle" fill="#fbbf24" font-size="8" font-family="JetBrains Mono" font-weight="600">PANEL</text>
+              <text x="40" y="109" text-anchor="middle" fill="#f4f4f5" font-size="10" font-family="JetBrains Mono" font-weight="700">50Wp</text>
+              <text x="40" y="122" text-anchor="middle" fill="#78716c" font-size="7" font-family="JetBrains Mono">INA1 0x40</text>
+              <!-- MPPT -->
+              <rect x="104" y="58" width="72" height="40" rx="8" fill="#18181b" stroke="#14b8a6" stroke-width="1.2"/>
+              <text x="140" y="80" text-anchor="middle" fill="#2dd4bf" font-size="8" font-family="JetBrains Mono" font-weight="600">MPPT</text>
+              <text x="140" y="93" text-anchor="middle" fill="#71717a" font-size="7" font-family="JetBrains Mono">INA2 0x41</text>
+              <!-- DC BUS -->
+              <circle cx="140" cy="130" r="18" fill="#18181b" stroke="#14b8a6" stroke-width="1.5"/>
+              <text x="140" y="128" text-anchor="middle" fill="#e4e4e7" font-size="7" font-weight="700" font-family="Plus Jakarta Sans">DC</text>
+              <text x="140" y="138" text-anchor="middle" fill="#a1a1aa" font-size="6" font-family="JetBrains Mono">BUS</text>
+              <!-- Baterai -->
+              <rect x="204" y="58" width="72" height="40" rx="8" fill="#18181b" stroke="#10b981" stroke-width="1.2"/>
+              <text x="240" y="80" text-anchor="middle" fill="#34d399" font-size="8" font-family="JetBrains Mono" font-weight="600">BATERAI</text>
+              <text x="240" y="93" text-anchor="middle" fill="#71717a" font-size="7" font-family="JetBrains Mono">LiFePO4</text>
+              <!-- Beban -->
+              <rect x="204" y="140" width="72" height="40" rx="8" fill="#18181b" stroke="#a855f7" stroke-width="1.2"/>
+              <text x="240" y="162" text-anchor="middle" fill="#c084fc" font-size="8" font-family="JetBrains Mono" font-weight="600">BEBAN</text>
+              <text x="240" y="175" text-anchor="middle" fill="#71717a" font-size="7" font-family="JetBrains Mono">Inverter</text>
 
-        <p class="text-zinc-400 text-sm md:text-base leading-relaxed mb-8">
-          Pantau aliran energi panel surya, MPPT, baterai LiFePO4, dan beban per detik melalui MQTT sekaligus rekam otomatis ke kartu MicroSD untuk dataset training offline &amp; online.
-        </p>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <a href="workspace.html#monitor" data-transition
-            class="inline-flex items-center gap-2 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-sm px-5 py-2.5 rounded-lg transition">
-            <i data-lucide="activity" class="w-4 h-4"></i>
-            Mulai Monitoring
-          </a>
-          <a href="workspace.html#pengaturan" data-transition
-            class="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-medium text-sm px-5 py-2.5 rounded-lg transition">
-            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-            Atur Koneksi MQTT
-          </a>
+              <!-- Flows -->
+              <!-- Panel -> MPPT -->
+              <path d="M76 100 L104 78" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="6 8" class="mini-flow"/>
+              <!-- MPPT -> BUS -->
+              <path d="M140 98 L140 112" stroke="#14b8a6" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 7" class="mini-flow"/>
+              <!-- BUS -> Batt -->
+              <path d="M158 125 L204 78" stroke="#10b981" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 7" class="mini-flow-slow"/>
+              <!-- BUS -> Load -->
+              <path d="M158 135 L204 160" stroke="#a855f7" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="5 7" class="mini-flow"/>
+            </svg>
+            <!-- Mini Stats -->
+            <div class="grid grid-cols-2 gap-2 mt-4">
+              <div class="bg-zinc-950/80 rounded-lg p-2.5 border border-amber-500/20">
+                <div class="text-[10px] text-zinc-500 mb-1">Panel</div>
+                <div class="text-sm font-bold font-mono text-amber-400">-- W</div>
+              </div>
+              <div class="bg-zinc-950/80 rounded-lg p-2.5 border border-teal-500/20">
+                <div class="text-[10px] text-zinc-500 mb-1">MPPT</div>
+                <div class="text-sm font-bold font-mono text-teal-400">-- W</div>
+              </div>
+              <div class="bg-zinc-950/80 rounded-lg p-2.5 border border-emerald-500/20">
+                <div class="text-[10px] text-zinc-500 mb-1">Baterai</div>
+                <div class="text-sm font-bold font-mono text-emerald-400">-- W</div>
+              </div>
+              <div class="bg-zinc-950/80 rounded-lg p-2.5 border border-purple-500/20">
+                <div class="text-[10px] text-zinc-500 mb-1">Beban</div>
+                <div class="text-sm font-bold font-mono text-purple-400">-- W</div>
+              </div>
+            </div>
+            <div class="mt-3 text-center">
+              <a href="workspace.html#monitor" data-transition class="text-[11px] text-teal-400 hover:text-teal-300 font-mono transition">
+                → Buka live monitoring
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Navigasi Cepat 4 Halaman -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16 pt-12 border-t border-zinc-900">
-        <a href="workspace.html#monitor" data-transition
-          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-          <div class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
-            <i data-lucide="gauge" class="w-4 h-4"></i>
-          </div>
-          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-            Live Monitoring
-            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-          </h2>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Skema aliran daya live 4 kanal INA219, cahaya, suhu panel, dan akumulasi energi Wh.
-          </p>
-        </a>
+      <!-- ═══ STATS ROW ═══ -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14 border-t border-zinc-800/60 pt-10">
+        <div class="text-center">
+          <div class="stat-num text-3xl font-extrabold font-mono text-teal-400">50Wp</div>
+          <div class="text-xs text-zinc-500 mt-1">Kapasitas Panel</div>
+        </div>
+        <div class="text-center">
+          <div class="stat-num text-3xl font-extrabold font-mono text-amber-400">1 s</div>
+          <div class="text-xs text-zinc-500 mt-1">Interval Sampling</div>
+        </div>
+        <div class="text-center">
+          <div class="stat-num text-3xl font-extrabold font-mono text-purple-400">15</div>
+          <div class="text-xs text-zinc-500 mt-1">Kolom CSV</div>
+        </div>
+        <div class="text-center">
+          <div class="stat-num text-3xl font-extrabold font-mono text-emerald-400">24/7</div>
+          <div class="text-xs text-zinc-500 mt-1">Supabase Cloud Sync</div>
+        </div>
+      </div>
 
-        <a href="workspace.html#grafik" data-transition
-          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-          <div class="w-9 h-9 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4">
-            <i data-lucide="line-chart" class="w-4 h-4"></i>
-          </div>
-          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-            Grafik 24 Jam
-            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-          </h2>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Grafik terpisah untuk Daya (W), Cahaya (Lux), dan Suhu (°C) + muat histori CSV MicroSD.
-          </p>
-        </a>
+      <!-- ═══ NAVIGASI CEPAT CARDS ═══ -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="h-px flex-1 bg-zinc-800/60"></div>
+          <span class="text-xs font-mono text-zinc-500 uppercase tracking-widest">Menu Navigasi</span>
+          <div class="h-px flex-1 bg-zinc-800/60"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        <a href="workspace.html#dataset" data-transition
-          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-          <div class="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
-            <i data-lucide="database" class="w-4 h-4"></i>
-          </div>
-          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-            Akuisisi Dataset
-            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-          </h2>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Rekam data online per 1 detik dan ekspor file CSV bersih untuk training regresi &amp; MLP.
-          </p>
-        </a>
+          <!-- Live Monitoring -->
+          <a href="workspace.html#monitor" data-transition
+            class="card-glow amber group p-6 rounded-2xl bg-zinc-900/60 hover:bg-zinc-900/80 border border-zinc-800/80 hover:border-amber-500/30 backdrop-blur transition-all">
+            <div class="flex items-center justify-between mb-5">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center group-hover:bg-amber-500/20 transition-all">
+                <i data-lucide="gauge" class="w-5 h-5 icon-spin"></i>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all"></i>
+            </div>
+            <h2 class="font-bold text-sm text-white mb-2">Live Monitoring</h2>
+            <p class="text-xs text-zinc-400 leading-relaxed">
+              Skema aliran daya live 4 kanal INA219, cahaya, suhu panel, dan akumulasi energi Wh.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-1.5">
+              <span class="text-[10px] font-mono text-amber-500/80 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Real-time</span>
+              <span class="text-[10px] font-mono text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-full">MQTT</span>
+            </div>
+          </a>
 
-        <a href="workspace.html#pengaturan" data-transition
-          class="group p-5 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 transition">
-          <div class="w-9 h-9 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center mb-4">
-            <i data-lucide="wifi" class="w-4 h-4"></i>
+          <!-- Grafik -->
+          <a href="workspace.html#grafik" data-transition
+            class="card-glow teal group p-6 rounded-2xl bg-zinc-900/60 hover:bg-zinc-900/80 border border-zinc-800/80 hover:border-teal-500/30 backdrop-blur transition-all">
+            <div class="flex items-center justify-between mb-5">
+              <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center group-hover:bg-teal-500/20 transition-all">
+                <i data-lucide="line-chart" class="w-5 h-5 icon-spin"></i>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-teal-400 group-hover:translate-x-1 transition-all"></i>
+            </div>
+            <h2 class="font-bold text-sm text-white mb-2">Grafik 24 Jam</h2>
+            <p class="text-xs text-zinc-400 leading-relaxed">
+              Grafik terpisah untuk Daya (W), Cahaya (Lux), dan Suhu (°C) + muat histori CSV MicroSD.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-1.5">
+              <span class="text-[10px] font-mono text-teal-500/80 bg-teal-500/10 px-2 py-0.5 rounded-full border border-teal-500/20">Chart.js</span>
+              <span class="text-[10px] font-mono text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-full">CSV Export</span>
+            </div>
+          </a>
+
+          <!-- Dataset -->
+          <a href="workspace.html#dataset" data-transition
+            class="card-glow indigo group p-6 rounded-2xl bg-zinc-900/60 hover:bg-zinc-900/80 border border-zinc-800/80 hover:border-indigo-500/30 backdrop-blur transition-all">
+            <div class="flex items-center justify-between mb-5">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:bg-indigo-500/20 transition-all">
+                <i data-lucide="database" class="w-5 h-5 icon-spin"></i>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all"></i>
+            </div>
+            <h2 class="font-bold text-sm text-white mb-2">Akuisisi Dataset</h2>
+            <p class="text-xs text-zinc-400 leading-relaxed">
+              Rekam data online per 1 detik dan ekspor file CSV bersih untuk training regresi &amp; MLP.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-1.5">
+              <span class="text-[10px] font-mono text-indigo-400/80 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">Supabase</span>
+              <span class="text-[10px] font-mono text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-full">15 Kolom</span>
+            </div>
+          </a>
+
+          <!-- Pengaturan -->
+          <a href="workspace.html#pengaturan" data-transition
+            class="card-glow gray group p-6 rounded-2xl bg-zinc-900/60 hover:bg-zinc-900/80 border border-zinc-800/80 hover:border-zinc-600 backdrop-blur transition-all">
+            <div class="flex items-center justify-between mb-5">
+              <div class="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center group-hover:bg-zinc-700 transition-all">
+                <i data-lucide="wifi" class="w-5 h-5 icon-spin"></i>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all"></i>
+            </div>
+            <h2 class="font-bold text-sm text-white mb-2">Koneksi &amp; AP</h2>
+            <p class="text-xs text-zinc-400 leading-relaxed">
+              Pengaturan HiveMQ Cloud WSS serta akses AP ESP32-S3 untuk kalibrasi &amp; unduh log SD.
+            </p>
+            <div class="mt-4 flex flex-wrap gap-1.5">
+              <span class="text-[10px] font-mono text-zinc-300/80 bg-zinc-700 px-2 py-0.5 rounded-full border border-zinc-600">HiveMQ</span>
+              <span class="text-[10px] font-mono text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-full">WSS</span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ═══ FEATURE STRIP ═══ -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 mb-10">
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
+          <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center shrink-0">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
           </div>
-          <h2 class="font-semibold text-sm text-white mb-1 flex items-center justify-between">
-            Koneksi &amp; AP
-            <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-600 group-hover:text-zinc-300 transition"></i>
-          </h2>
-          <p class="text-xs text-zinc-400 leading-relaxed">
-            Pengaturan HiveMQ Cloud WSS serta akses AP ESP32-S3 untuk kalibrasi &amp; unduh log SD.
-          </p>
-        </a>
-      </section>
+          <div>
+            <div class="text-xs font-semibold text-zinc-200 mb-1">Kalibrasi Terkalibrasi</div>
+            <div class="text-[11px] text-zinc-500 leading-relaxed">Semua nilai sudah dikoreksi dengan persamaan regresi y = m·x + c langsung di ESP32.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-zinc-200 mb-1">Dual Logger Offline+Online</div>
+            <div class="text-[11px] text-zinc-500 leading-relaxed">MicroSD sebagai logger offline fallback + Supabase PostgreSQL untuk akses 24/7 dari mana saja.</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+            <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-zinc-200 mb-1">Dataset ML-Ready</div>
+            <div class="text-[11px] text-zinc-500 leading-relaxed">Export 15-kolom CSV langsung siap untuk training Regresi, MLP, atau model prediksi daya surya.</div>
+          </div>
+        </div>
+      </div>
+
     </main>
 
-    <footer class="border-t border-zinc-900 py-6">
-      <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-zinc-500">
-        <span>Barokah Jaya Workspace</span>
-        <span class="font-mono">PLTS 50Wp Dual Logger • 1s Sync</span>
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="border-t border-zinc-900/80 py-6 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-zinc-500">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
+            <i data-lucide="sun" class="w-3 h-3 text-teal-400"></i>
+          </div>
+          <span>Barokah Jaya Workspace</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="font-mono">PLTS 50Wp Dual Logger</span>
+          <span>•</span>
+          <span class="font-mono">1s Sync</span>
+          <span>•</span>
+          <span id="footerYear" class="font-mono"></span>
+        </div>
       </div>
     </footer>
   </div>
@@ -157,13 +499,36 @@
   <script>
     lucide.createIcons();
 
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('mainNav');
+      if (window.scrollY > 10) nav.classList.add('nav-scrolled');
+      else nav.classList.remove('nav-scrolled');
+    });
+
+    // Live clock in navbar
+    function updateNavClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      const el = document.getElementById('navClock');
+      if (el) el.textContent = `${hh}:${mm}:${ss}`;
+    }
+    updateNavClock();
+    setInterval(updateNavClock, 1000);
+
+    // Footer year
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    // Page transitions
     document.querySelectorAll('a[data-transition]').forEach((link) => {
       link.addEventListener('click', (e) => {
         const href = link.getAttribute('href');
         if (!href) return;
         e.preventDefault();
         document.getElementById('appShell').classList.add('page-leaving');
-        setTimeout(() => { window.location.href = href; }, 180);
+        setTimeout(() => { window.location.href = href; }, 200);
       });
     });
 
