@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Workspace — Barokah Jaya PLTS 50Wp</title>
+  <title>Workspace — Barokah Jaya PLTS 50Wp HMI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -45,32 +45,57 @@
     .page-entering { animation: tabEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
     .page-exiting  { opacity: 0; transform: translateY(8px); pointer-events: none; }
 
-    /* ── ENERGY FLOW PATHS ── */
-    @keyframes flowForward { from { stroke-dashoffset: 28; } to { stroke-dashoffset: 0; } }
-    @keyframes flowReverse { from { stroke-dashoffset: 0; }  to { stroke-dashoffset: 28; } }
-    @keyframes spinSlow    { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .flow-track {
-      stroke: #27272a; stroke-width: 4; fill: none;
-      stroke-linecap: round; stroke-linejoin: round;
+    /* ── SCADA / INDUSTRIAL HMI STYLES ── */
+    .hmi-bezel {
+      background: linear-gradient(180deg, #0b0f16 0%, #070a0f 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 16px 40px rgba(0,0,0,0.6);
     }
-    .flow-glow-rail {
-      stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round;
-      opacity: 0; transition: opacity 0.3s ease, stroke 0.3s ease;
+    .hmi-node {
+      cursor: pointer;
+      transition: filter 0.2s ease;
     }
-    .flow-pulse {
-      stroke-width: 3; fill: none; stroke-dasharray: 8 20;
-      stroke-linecap: round; stroke-linejoin: round;
-      opacity: 0; transition: opacity 0.3s ease, stroke 0.3s ease;
+    .hmi-node:hover {
+      filter: brightness(1.08);
     }
-    .flow-forward { opacity: 0.95; animation: flowForward 0.9s linear infinite; }
-    .flow-reverse { opacity: 0.95; animation: flowReverse 0.9s linear infinite; }
-    .flow-particles { opacity: 0; transition: opacity 0.3s ease; }
-    .flow-particles.active { opacity: 1; }
-    .bus-ring-active {
-      transform-origin: 604px 220px;
-      animation: spinSlow 6s linear infinite;
-      opacity: 0.9 !important;
+    .pipe-casing {
+      stroke: #1e2430;
+      stroke-width: 9;
+      fill: none;
+      stroke-linecap: butt;
     }
+    .pipe-inner {
+      stroke: #090d14;
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: butt;
+    }
+    .pipe-active-rail {
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      opacity: 0;
+      transition: opacity 0.3s ease, stroke 0.3s ease;
+    }
+    .flow-particles {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .flow-particles.active {
+      opacity: 1;
+    }
+
+    @keyframes alarmBlink {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.45; }
+    }
+    .alarm-blink { animation: alarmBlink 1.2s ease-in-out infinite; }
+
+    @keyframes scanPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    .scan-led { animation: scanPulse 1.4s ease-in-out infinite; }
 
     /* ── BACKGROUND GRID ── */
     .bg-grid {
@@ -96,21 +121,6 @@
     }
     .nav-item:not(.active) { color: #71717a; border: 1px solid transparent; }
 
-    /* ── BADGE PULSE ── */
-    @keyframes badgePulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(20,184,166,0.5); }
-      50%       { opacity: 0.6; box-shadow: 0 0 0 4px rgba(20,184,166,0); }
-    }
-    .live-badge { animation: badgePulse 2s ease-in-out infinite; }
-
-    /* ── CARD VALUE SHIMMER on update ── */
-    @keyframes valueFlash {
-      0%   { color: inherit; }
-      30%  { color: #5eead4; text-shadow: 0 0 8px rgba(94,234,212,0.5); }
-      100% { color: inherit; }
-    }
-    .value-flash { animation: valueFlash 0.5s ease; }
-
     /* ── ENERGY ACC CARD ── */
     .acc-card {
       position: relative; overflow: hidden;
@@ -135,17 +145,6 @@
     .toast-visible { animation: toastIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
     .toast-hiding  { animation: toastOut 0.25s ease both; }
 
-    /* ── SIDEBAR COLLAPSED MOBILE ── */
-    .sidebar-mobile-open { max-height: 500px !important; }
-
-    /* ── SCROLL TO TOP ── */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .scroll-top-btn { animation: fadeInUp 0.3s ease both; }
-
-    /* ── CHART CONTAINER ── */
     .chart-wrapper {
       position: relative;
       background: linear-gradient(180deg, rgba(9,9,11,0) 0%, rgba(9,9,11,0.3) 100%);
@@ -162,7 +161,6 @@
       animation: shimmer 3s linear infinite;
     }
 
-    /* ── AURORA (subtle, behind sidebar area) ── */
     @keyframes auroraMove {
       0%,100% { transform: translate(0,0) scale(1); }
       50%      { transform: translate(3%,4%) scale(1.06); }
@@ -173,25 +171,10 @@
       background: radial-gradient(circle, rgba(20,184,166,0.07) 0%, transparent 70%);
       animation: auroraMove 14s ease-in-out infinite; z-index: 0;
     }
-
-    /* ── NUMBER COUNT-UP ── */
-    @keyframes numPop {
-      0%   { transform: scale(1); }
-      40%  { transform: scale(1.08); color: #5eead4; }
-      100% { transform: scale(1); }
-    }
-    .num-pop { animation: numPop 0.4s cubic-bezier(0.16,1,0.3,1); }
-
-    /* ── PROGRESS BAR ── */
-    @keyframes progressFill {
-      from { width: 0%; }
-    }
-    .progress-bar { animation: progressFill 1s cubic-bezier(0.16,1,0.3,1) both; }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen antialiased bg-grid">
 
-  <!-- Aurora BG -->
   <div class="aurora-sidebar"></div>
 
   <div id="appShell" class="shell-wrapper relative z-10 min-h-screen flex flex-col md:flex-row">
@@ -209,7 +192,7 @@
           </div>
           <div>
             <span class="font-bold text-sm tracking-tight text-white">Barokah Jaya</span>
-            <div class="text-[10px] font-mono text-zinc-500">PLTS 50Wp</div>
+            <div class="text-[10px] font-mono text-zinc-500">PLTS 50Wp • HMI SCADA</div>
           </div>
         </a>
         <a href="index.html" data-transition title="Kembali ke Beranda" class="text-zinc-500 hover:text-zinc-200 md:hidden transition">
@@ -244,7 +227,6 @@
 
       <!-- Sidebar Footer -->
       <div class="hidden md:flex flex-col mt-auto p-4 border-t border-zinc-900/80 gap-3">
-        <!-- Cloud Status -->
         <div class="bg-zinc-900/60 rounded-xl p-3 border border-zinc-800/60">
           <div class="text-[10px] text-zinc-500 font-mono mb-2 uppercase tracking-wider">Database</div>
           <div class="flex items-center gap-2 text-xs">
@@ -253,7 +235,6 @@
           </div>
         </div>
 
-        <!-- MQTT Status -->
         <div class="bg-zinc-900/60 rounded-xl p-3 border border-zinc-800/60">
           <div class="text-[10px] text-zinc-500 font-mono mb-2 uppercase tracking-wider">MQTT</div>
           <div class="flex items-center gap-2 text-xs">
@@ -278,31 +259,27 @@
       <header class="h-16 px-5 md:px-6 border-b border-zinc-900/80 bg-zinc-950/80 backdrop-blur-xl flex items-center justify-between gap-4 shrink-0 sticky top-0 z-20">
         <div class="flex items-center gap-3">
           <div class="w-1 h-6 rounded-full bg-gradient-to-b from-teal-400 to-teal-600 shrink-0"></div>
-          <h1 id="pageTitle" class="font-bold text-sm md:text-base text-white transition-opacity duration-200">Live Power Flow</h1>
+          <h1 id="pageTitle" class="font-bold text-sm md:text-base text-white transition-opacity duration-200">Live Power Flow HMI</h1>
         </div>
 
         <div class="flex items-center gap-2">
-          <!-- Cloud Badge -->
           <span id="cloudBadge" title="Status Database Cloud Supabase"
             class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-500 transition-all">
             <i data-lucide="cloud" class="w-3.5 h-3.5"></i>
             <span id="cloudText">DB: ...</span>
           </span>
 
-          <!-- SD Badge -->
           <span id="sdBadge" title="Status Data Logger Offline MicroSD"
             class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-500 transition-all">
             <i data-lucide="hard-drive" class="w-3.5 h-3.5"></i>
             <span id="sdText">SD: --</span>
           </span>
 
-          <!-- Clock -->
           <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
             <i data-lucide="clock" class="w-3.5 h-3.5"></i>
             <span id="rtcText" class="tabular-nums">--:--:--</span>
           </span>
 
-          <!-- MQTT Status Button -->
           <button onclick="switchPage('pengaturan')"
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-900 border border-zinc-800 text-zinc-400 hover:border-zinc-700 transition-all">
             <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
@@ -315,223 +292,491 @@
       <main class="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto">
 
         <!-- ══════════════════════════════
-             PAGE 1: LIVE MONITORING
+             PAGE 1: LIVE MONITORING (INDUSTRIAL HMI SCADA)
         ══════════════════════════════ -->
         <section id="page-monitor" class="page-section space-y-5">
 
-          <!-- POWER FLOW DIAGRAM CARD -->
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden backdrop-blur">
-            <div class="flex flex-wrap items-center justify-between gap-3 p-4 md:p-5 border-b border-zinc-800/60">
-              <div>
-                <h2 class="text-sm font-bold text-zinc-100">Skema Aliran Daya PLTS 50Wp</h2>
-                <p class="text-xs text-zinc-500 mt-0.5">Data terkalibrasi ESP32-S3 • Rekaman otomatis 24/7 (MicroSD + Supabase Cloud)</p>
+          <!-- INDUSTRIAL HMI MIMIC PANEL -->
+          <div class="hmi-bezel border border-slate-800/90 rounded-2xl overflow-hidden">
+
+            <!-- HMI Control Strip Header -->
+            <div class="flex flex-wrap items-center justify-between gap-3 px-4 md:px-5 py-3.5 bg-slate-950/90 border-b border-slate-800/80">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                  <i data-lucide="cpu" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="text-sm font-bold text-slate-100 tracking-tight">HMI SCADA — Aliran Daya PLTS 50Wp</h2>
+                    <span id="hmiSystemStatePill"
+                      class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700">
+                      <span id="hmiScanLed" class="scan-led w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                      <span id="hmiSystemStateText">STANDBY</span>
+                    </span>
+                  </div>
+                  <p class="text-[11px] font-mono text-slate-500 mt-0.5">Single-Line Diagram • 4× INA219 + SEN0390 + DS18B20 • Klik modul untuk inspeksi detail</p>
+                </div>
               </div>
-              <div class="flex flex-wrap items-center gap-3 text-[11px] text-zinc-400">
-                <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span> Panel</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span> MPPT</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50"></span> Charge</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-400 shadow-sm shadow-orange-400/50"></span> Discharge</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400/50"></span> Beban</span>
+
+              <!-- HMI Toolbar: Legend + Mode Simulasi -->
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="hidden xl:flex items-center gap-3 text-[10px] font-mono text-slate-400 pr-2 border-r border-slate-800">
+                  <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-amber-400"></span>PV</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-teal-400"></span>MPPT</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-400"></span>CHG</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-orange-400"></span>DIS</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-purple-400"></span>LOAD</span>
+                </div>
+
+                <!-- Simulasi / Preview Dropdown -->
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-mono text-slate-500 uppercase">Mode:</span>
+                  <select id="hmiSimSelect" onchange="setHmiSimMode(this.value)"
+                    class="bg-slate-900 border border-slate-700/80 hover:border-teal-500/50 text-slate-200 text-[11px] font-mono px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-teal-500 transition-colors cursor-pointer">
+                    <option value="live">● LIVE TELEMETRY</option>
+                    <option value="day">SIM: Siang Cerah (Normal)</option>
+                    <option value="night">SIM: Malam Backup (Normal)</option>
+                    <option value="fault">SIM: Anomali (Cek Kasus 22:35)</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div class="overflow-x-auto pb-2 p-2 md:p-4">
-              <svg viewBox="0 0 960 440" class="w-full min-w-[780px] h-auto select-none">
-                <defs>
-                  <path id="p-pv-mppt"     d="M 236 220 L 306 220" />
-                  <path id="p-mppt-bus"    d="M 511 220 L 576 220" />
-                  <path id="p-bus-batt-chg" d="M 604 195 L 604 124 Q 604 112 616 112 L 706 112" />
-                  <path id="p-batt-bus-dis" d="M 706 112 L 616 112 Q 604 112 604 124 L 604 195" />
-                  <path id="p-bus-load"    d="M 604 245 L 604 316 Q 604 328 616 328 L 706 328" />
+            <!-- DEMO MODE BANNER (Only visible when simulation active) -->
+            <div id="hmiDemoBanner" class="hidden px-4 md:px-5 py-2 bg-indigo-500/10 border-b border-indigo-500/30 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2 text-indigo-300 font-mono">
+                <i data-lucide="flask-conical" class="w-3.5 h-3.5 shrink-0"></i>
+                <span>MODE SIMULASI PREVIEW AKTIF — Tampilan di bawah adalah data uji coba (tidak direkam ke Dataset / Supabase).</span>
+              </div>
+              <button onclick="setHmiSimMode('live')" class="px-2.5 py-1 rounded bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 font-mono text-[11px] transition">
+                Kembali ke LIVE
+              </button>
+            </div>
 
-                  <!-- Glow filter for active flows -->
-                  <filter id="energyGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <!-- REAL-TIME DIAGNOSTIC / ANOMALY ALARM STRIP -->
+            <div id="hmiAlarmBar" class="hidden px-4 md:px-5 py-2.5 bg-amber-500/10 border-b border-amber-500/30">
+              <div class="flex items-start gap-2.5">
+                <div class="w-5 h-5 rounded bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 mt-0.5 alarm-blink">
+                  <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div id="hmiAlarmTitle" class="text-xs font-bold font-mono text-amber-300">ALM-01: ANOMALI TERDETEKSI</div>
+                  <p id="hmiAlarmDesc" class="text-[11px] text-amber-100/80 mt-0.5 leading-relaxed"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- INDUSTRIAL SLD SVG CANVAS -->
+            <div class="overflow-x-auto p-3 md:p-4">
+              <svg id="hmiSvg" viewBox="0 0 1080 480" class="w-full min-w-[880px] h-auto select-none">
+                <defs>
+                  <!-- CAD Engineering Grid -->
+                  <pattern id="hmiMinorGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(148,163,184,0.045)" stroke-width="0.7" />
+                  </pattern>
+                  <pattern id="hmiMajorGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <rect width="100" height="100" fill="url(#hmiMinorGrid)" />
+                    <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(148,163,184,0.09)" stroke-width="0.9" />
+                  </pattern>
+
+                  <!-- Orthogonal Feeder Motion Paths (100% straight segments — zero corner twist!) -->
+                  <path id="p-pv-mppt"     d="M 254 240 L 354 240" />
+                  <path id="p-mppt-bus"    d="M 576 240 L 668 240" />
+                  <path id="p-bus-up"      d="M 676 234 L 676 132" />
+                  <path id="p-bus-down-b"  d="M 676 132 L 676 234" />
+                  <path id="p-bus-down-l"  d="M 676 246 L 676 348" />
+                  <path id="p-bus-batt-c"  d="M 684 126 L 808 126" />
+                  <path id="p-batt-bus-d"  d="M 808 126 L 684 126" />
+                  <path id="p-bus-load"    d="M 684 354 L 808 354" />
+
+                  <filter id="orbGlow" x="-100%" y="-100%" width="300%" height="300%">
                     <feGaussianBlur stdDeviation="2.5" result="blur" />
                     <feMerge>
                       <feMergeNode in="blur" />
                       <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
-                  <!-- Glow filter for nodes -->
-                  <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                  <!-- Gradient for panel header -->
-                  <linearGradient id="panelGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stop-color="#f59e0b"/>
-                    <stop offset="100%" stop-color="#fbbf24"/>
+
+                  <linearGradient id="busMetalGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#1e293b" />
+                    <stop offset="50%" stop-color="#334155" />
+                    <stop offset="100%" stop-color="#1e293b" />
                   </linearGradient>
                 </defs>
 
-                <!-- ═══ 1. PANEL → MPPT ═══ -->
-                <path d="M 235 220 L 310 220" class="flow-track" />
-                <path id="railPvMppt"  d="M 235 220 L 310 220" class="flow-glow-rail" stroke="#f59e0b" />
-                <path id="flowPvMppt"  d="M 235 220 L 310 220" class="flow-pulse"     stroke="#fde68a" />
-                <polygon id="arrowPv"  points="309,220 299,214 299,226" fill="#3f3f46" />
-                <text id="flowValPv"   x="272" y="206" text-anchor="middle" fill="#71717a" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">IDLE</text>
-                <g id="particles-pv" class="flow-particles" filter="url(#energyGlow)">
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fbbf24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-pv" dur="1.1s" repeatCount="indefinite" rotate="auto"><mpath href="#p-pv-mppt" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fbbf24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-pv" dur="1.1s" begin="0.55s" repeatCount="indefinite" rotate="auto"><mpath href="#p-pv-mppt" /></animateMotion>
-                  </path>
+                <!-- Background Blueprint Grid -->
+                <rect x="0" y="0" width="1080" height="480" rx="10" fill="#06090f" />
+                <rect x="0" y="0" width="1080" height="480" rx="10" fill="url(#hmiMajorGrid)" />
+
+                <!-- Corner Industrial Registration Marks -->
+                <path d="M 10 22 L 10 10 L 22 10"       fill="none" stroke="#334155" stroke-width="1.5" />
+                <path d="M 1058 10 L 1070 10 L 1070 22"  fill="none" stroke="#334155" stroke-width="1.5" />
+                <path d="M 10 458 L 10 470 L 22 470"     fill="none" stroke="#334155" stroke-width="1.5" />
+                <path d="M 1058 470 L 1070 470 L 1070 458" fill="none" stroke="#334155" stroke-width="1.5" />
+
+                <!-- Technical Stamp Header inside Canvas -->
+                <text x="26" y="26" fill="#475569" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">SLD-01 // PLTS 50WP DC MICROGRID MIMIC</text>
+                <text x="26" y="40" fill="#334155" font-size="8.5" font-family="JetBrains Mono, monospace">CALIBRATED TELEMETRY: y = m·x + c | 1000ms CYCLE</text>
+                <text x="1054" y="26" text-anchor="end" fill="#475569" font-size="9.5" font-family="JetBrains Mono, monospace">NOMINAL BUS: 12.8V LiFePO4</text>
+
+                <!-- ═════════════════════════════════════════════
+                     FEEDER 1: PV-01 -> CONV-01 (y=240, x=252..360)
+                ═════════════════════════════════════════════ -->
+                <path d="M 252 240 L 360 240" class="pipe-casing" />
+                <path d="M 252 240 L 360 240" class="pipe-inner" />
+                <path id="railPvMppt" d="M 252 240 L 360 240" class="pipe-active-rail" stroke="#f59e0b" />
+
+                <!-- Orbs PV->MPPT -->
+                <g id="particles-pv" class="flow-particles" filter="url(#orbGlow)">
+                  <circle r="3.5" fill="#fde68a"><animateMotion class="anim-pv" dur="1.1s" repeatCount="indefinite"><mpath href="#p-pv-mppt" /></animateMotion></circle>
+                  <circle r="3.5" fill="#fbbf24"><animateMotion class="anim-pv" dur="1.1s" begin="0.36s" repeatCount="indefinite"><mpath href="#p-pv-mppt" /></animateMotion></circle>
+                  <circle r="3.5" fill="#fbbf24"><animateMotion class="anim-pv" dur="1.1s" begin="0.72s" repeatCount="indefinite"><mpath href="#p-pv-mppt" /></animateMotion></circle>
                 </g>
 
-                <!-- ═══ 2. MPPT → DC BUS ═══ -->
-                <path d="M 510 220 L 580 220" class="flow-track" />
-                <path id="railMpptBus" d="M 510 220 L 580 220" class="flow-glow-rail" stroke="#14b8a6" />
-                <path id="flowMpptBus" d="M 510 220 L 580 220" class="flow-pulse"     stroke="#99f6e4" />
-                <polygon id="arrowMppt" points="579,220 569,214 569,226" fill="#3f3f46" />
-                <text id="flowValMppt" x="545" y="206" text-anchor="middle" fill="#71717a" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">IDLE</text>
-                <g id="particles-mppt" class="flow-particles" filter="url(#energyGlow)">
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#2dd4bf" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-mppt" dur="1.1s" repeatCount="indefinite" rotate="auto"><mpath href="#p-mppt-bus" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#2dd4bf" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-mppt" dur="1.1s" begin="0.55s" repeatCount="indefinite" rotate="auto"><mpath href="#p-mppt-bus" /></animateMotion>
-                  </path>
-                </g>
-
-                <!-- ═══ 3. DC BUS ↔ BATERAI ═══ -->
-                <path d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-track" />
-                <path id="railBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-glow-rail" stroke="#10b981" />
-                <path id="flowBusBatt" d="M 604 196 L 604 124 Q 604 112 616 112 L 710 112" class="flow-pulse"     stroke="#a7f3d0" />
-                <polygon id="arrowBattCharge"   points="709,112 699,106 699,118" fill="#3f3f46" />
-                <polygon id="arrowBattDischarge" points="604,195 598,185 610,185" fill="#3f3f46" opacity="0.25" />
-                <text id="flowBattDir" x="658" y="98" text-anchor="middle" fill="#71717a" font-size="10" font-family="JetBrains Mono, monospace" font-weight="600">STANDBY</text>
-                <g id="particles-batt-chg" class="flow-particles" filter="url(#energyGlow)">
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-batt-chg" dur="1.4s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-batt-chg" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-batt-chg" dur="1.4s" begin="0.46s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-batt-chg" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-batt-chg" dur="1.4s" begin="0.93s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-batt-chg" /></animateMotion>
-                  </path>
-                </g>
-                <g id="particles-batt-dis" class="flow-particles" filter="url(#energyGlow)">
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fb923c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-batt-dis" dur="1.4s" repeatCount="indefinite" rotate="auto"><mpath href="#p-batt-bus-dis" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fb923c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-batt-dis" dur="1.4s" begin="0.46s" repeatCount="indefinite" rotate="auto"><mpath href="#p-batt-bus-dis" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#fb923c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-batt-dis" dur="1.4s" begin="0.93s" repeatCount="indefinite" rotate="auto"><mpath href="#p-batt-bus-dis" /></animateMotion>
-                  </path>
-                </g>
-
-                <!-- ═══ 4. DC BUS → BEBAN ═══ -->
-                <path d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-track" />
-                <path id="railBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-glow-rail" stroke="#a855f7" />
-                <path id="flowBusLoad" d="M 604 244 L 604 316 Q 604 328 616 328 L 710 328" class="flow-pulse"     stroke="#e9d5ff" />
-                <polygon id="arrowLoad" points="709,328 699,322 699,334" fill="#3f3f46" />
-                <text id="flowValLoad" x="658" y="346" text-anchor="middle" fill="#71717a" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="600">IDLE</text>
-                <g id="particles-load" class="flow-particles" filter="url(#energyGlow)">
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#c084fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-load" dur="1.4s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-load" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#c084fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-load" dur="1.4s" begin="0.46s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-load" /></animateMotion>
-                  </path>
-                  <path d="M -5 -4.5 L 3.5 0 L -5 4.5" fill="none" stroke="#c084fc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <animateMotion class="anim-load" dur="1.4s" begin="0.93s" repeatCount="indefinite" rotate="auto"><mpath href="#p-bus-load" /></animateMotion>
-                  </path>
-                </g>
-
-                <!-- ═══ DC BUS NODE ═══ -->
+                <!-- Breaker CB1 -->
                 <g>
-                  <circle id="busOuter" cx="604" cy="220" r="26" fill="#18181b" stroke="#3f3f46" stroke-width="2" />
-                  <circle id="busDot"   cx="604" cy="220" r="20" fill="none" stroke="#14b8a6" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.35" />
-                  <text x="604" y="217" text-anchor="middle" fill="#e4e4e7" font-size="10" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">DC</text>
-                  <text x="604" y="230" text-anchor="middle" fill="#a1a1aa" font-size="9"  font-family="JetBrains Mono, monospace">BUS</text>
+                  <rect id="cb1Box" x="264" y="233" width="14" height="14" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+                  <rect id="cb1Core" x="268" y="237" width="6" height="6" rx="1" fill="#334155" />
+                  <text x="271" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono, monospace">CB1</text>
+                </g>
+                <polygon id="arrowPv" points="357,240 347,235 347,245" fill="#475569" />
+
+                <!-- Pill PV -->
+                <line x1="312" y1="224" x2="312" y2="235" stroke="#334155" stroke-width="1" />
+                <rect id="pillPvBg" x="275" y="201" width="74" height="23" rx="5" fill="#0f172a" stroke="#334155" stroke-width="1" />
+                <text id="flowValPv" x="312" y="216" text-anchor="middle" fill="#64748b" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="700">IDLE</text>
+
+                <!-- ═════════════════════════════════════════════
+                     FEEDER 2: CONV-01 -> BUS-DC (y=240, x=574..676)
+                ═════════════════════════════════════════════ -->
+                <path d="M 574 240 L 672 240" class="pipe-casing" />
+                <path d="M 574 240 L 672 240" class="pipe-inner" />
+                <path id="railMpptBus" d="M 574 240 L 672 240" class="pipe-active-rail" stroke="#14b8a6" />
+
+                <!-- Orbs MPPT->BUS -->
+                <g id="particles-mppt" class="flow-particles" filter="url(#orbGlow)">
+                  <circle r="3.5" fill="#99f6e4"><animateMotion class="anim-mppt" dur="1.1s" repeatCount="indefinite"><mpath href="#p-mppt-bus" /></animateMotion></circle>
+                  <circle r="3.5" fill="#2dd4bf"><animateMotion class="anim-mppt" dur="1.1s" begin="0.36s" repeatCount="indefinite"><mpath href="#p-mppt-bus" /></animateMotion></circle>
+                  <circle r="3.5" fill="#2dd4bf"><animateMotion class="anim-mppt" dur="1.1s" begin="0.72s" repeatCount="indefinite"><mpath href="#p-mppt-bus" /></animateMotion></circle>
                 </g>
 
-                <!-- ═══ PANEL SURYA NODE ═══ -->
+                <!-- Breaker CB2 -->
                 <g>
-                  <rect x="20" y="106" width="215" height="228" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
-                  <rect x="20" y="106" width="215" height="4"   rx="2"  fill="url(#panelGrad)" />
-                  <rect x="36" y="124" width="28"  height="28"  rx="7"  fill="#f59e0b" fill-opacity="0.12" />
-                  <rect x="43" y="131" width="14"  height="14"  rx="2"  fill="none" stroke="#fbbf24" stroke-width="1.5" />
-                  <line x1="50" y1="131" x2="50" y2="145" stroke="#fbbf24" stroke-width="1.2" />
-                  <line x1="43" y1="138" x2="57" y2="138" stroke="#fbbf24" stroke-width="1.2" />
-                  <text x="74"  y="136" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Panel Surya</text>
-                  <text x="74"  y="150" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">50Wp • INA1 0x40</text>
-                  <text id="svgPvP"   x="36"  y="196" fill="#ffffff"  font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-                  <line x1="36"  y1="212" x2="219" y2="212" stroke="#27272a" stroke-width="1" />
-                  <text x="36"  y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
-                  <text id="svgPvV"   x="36"  y="247" fill="#e4e4e7"  font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-                  <text x="132" y="229" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
-                  <text id="svgPvI"   x="132" y="247" fill="#e4e4e7"  font-size="14" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-                  <rect x="36"  y="266" width="183" height="52" rx="9" fill="#09090b" stroke="#27272a" stroke-width="1" />
-                  <text x="48"  y="284" fill="#fbbf24" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Cahaya</text>
-                  <text id="svgLux"   x="48"  y="303" fill="#f4f4f5"  font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.0 lx</text>
-                  <line x1="138" y1="274" x2="138" y2="310" stroke="#27272a" stroke-width="1" />
-                  <text x="149" y="284" fill="#fb7185" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Suhu</text>
-                  <text id="svgTemp"  x="149" y="303" fill="#f4f4f5"  font-size="12" font-weight="600" font-family="JetBrains Mono, monospace">0.00 °C</text>
+                  <rect id="cb2Box" x="586" y="233" width="14" height="14" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+                  <rect id="cb2Core" x="590" y="237" width="6" height="6" rx="1" fill="#334155" />
+                  <text x="593" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono, monospace">CB2</text>
+                </g>
+                <polygon id="arrowMppt" points="668,240 658,235 658,245" fill="#475569" />
+
+                <!-- Pill MPPT -->
+                <line x1="631" y1="224" x2="631" y2="235" stroke="#334155" stroke-width="1" />
+                <rect id="pillMpptBg" x="594" y="201" width="74" height="23" rx="5" fill="#0f172a" stroke="#334155" stroke-width="1" />
+                <text id="flowValMppt" x="631" y="216" text-anchor="middle" fill="#64748b" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="700">IDLE</text>
+
+                <!-- ═════════════════════════════════════════════
+                     FEEDER 3: BUS-DC <-> BATT-01 (y=126, x=676..816)
+                ═════════════════════════════════════════════ -->
+                <path d="M 678 126 L 816 126" class="pipe-casing" />
+                <path d="M 678 126 L 816 126" class="pipe-inner" />
+                <path id="railBusBatt" d="M 678 126 L 816 126" class="pipe-active-rail" stroke="#10b981" />
+
+                <g id="particles-batt-chg" class="flow-particles" filter="url(#orbGlow)">
+                  <circle r="3.5" fill="#a7f3d0"><animateMotion class="anim-batt-chg" dur="1.2s" repeatCount="indefinite"><mpath href="#p-bus-batt-c" /></animateMotion></circle>
+                  <circle r="3.5" fill="#34d399"><animateMotion class="anim-batt-chg" dur="1.2s" begin="0.4s" repeatCount="indefinite"><mpath href="#p-bus-batt-c" /></animateMotion></circle>
+                  <circle r="3.5" fill="#34d399"><animateMotion class="anim-batt-chg" dur="1.2s" begin="0.8s" repeatCount="indefinite"><mpath href="#p-bus-batt-c" /></animateMotion></circle>
+                </g>
+                <g id="particles-batt-dis" class="flow-particles" filter="url(#orbGlow)">
+                  <circle r="3.5" fill="#fed7aa"><animateMotion class="anim-batt-dis" dur="1.2s" repeatCount="indefinite"><mpath href="#p-batt-bus-d" /></animateMotion></circle>
+                  <circle r="3.5" fill="#fb923c"><animateMotion class="anim-batt-dis" dur="1.2s" begin="0.4s" repeatCount="indefinite"><mpath href="#p-batt-bus-d" /></animateMotion></circle>
+                  <circle r="3.5" fill="#fb923c"><animateMotion class="anim-batt-dis" dur="1.2s" begin="0.8s" repeatCount="indefinite"><mpath href="#p-batt-bus-d" /></animateMotion></circle>
                 </g>
 
-                <!-- ═══ MPPT NODE ═══ -->
+                <!-- Breaker CB3 -->
                 <g>
-                  <rect x="310" y="130" width="200" height="180" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
-                  <rect x="310" y="130" width="200" height="4"   rx="2"  fill="#14b8a6" />
-                  <rect x="326" y="148" width="28"  height="28"  rx="7"  fill="#14b8a6" fill-opacity="0.12" />
-                  <polyline points="333,165 338,157 342,163 347,155" fill="none" stroke="#2dd4bf" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-                  <text x="364" y="160" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">MPPT Output</text>
-                  <text x="364" y="174" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA2 • 0x41</text>
-                  <text id="svgMpptP"  x="326" y="218" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-                  <line x1="326" y1="232" x2="494" y2="232" stroke="#27272a" stroke-width="1" />
-                  <text x="326" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
-                  <text id="svgMpptV"  x="326" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-                  <text x="415" y="248" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
-                  <text id="svgMpptI"  x="415" y="265" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-                  <rect x="326" y="277" width="168" height="22" rx="6" fill="#14b8a6" fill-opacity="0.12" />
-                  <text id="svgEff"    x="410" y="292" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">Efisiensi: 0.0%</text>
+                  <rect id="cb3Box" x="692" y="119" width="14" height="14" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+                  <rect id="cb3Core" x="696" y="123" width="6" height="6" rx="1" fill="#334155" />
+                  <text x="699" y="146" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono, monospace">CB3</text>
+                </g>
+                <polygon id="arrowBattCharge"    points="813,126 803,121 803,131" fill="#475569" opacity="0.3" />
+                <polygon id="arrowBattDischarge" points="684,126 692,121 692,131" fill="#475569" opacity="0.2" />
+
+                <!-- Pill Battery -->
+                <line x1="756" y1="110" x2="756" y2="121" stroke="#334155" stroke-width="1" />
+                <rect id="pillBattBg" x="713" y="87" width="86" height="23" rx="5" fill="#0f172a" stroke="#334155" stroke-width="1" />
+                <text id="flowBattDir" x="756" y="102" text-anchor="middle" fill="#64748b" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="700">STANDBY</text>
+
+                <!-- ═════════════════════════════════════════════
+                     FEEDER 4: BUS-DC -> LOAD-01 (y=354, x=676..816)
+                ═════════════════════════════════════════════ -->
+                <path d="M 678 354 L 816 354" class="pipe-casing" />
+                <path d="M 678 354 L 816 354" class="pipe-inner" />
+                <path id="railBusLoad" d="M 678 354 L 816 354" class="pipe-active-rail" stroke="#a855f7" />
+
+                <g id="particles-load" class="flow-particles" filter="url(#orbGlow)">
+                  <circle r="3.5" fill="#e9d5ff"><animateMotion class="anim-load" dur="1.2s" repeatCount="indefinite"><mpath href="#p-bus-load" /></animateMotion></circle>
+                  <circle r="3.5" fill="#c084fc"><animateMotion class="anim-load" dur="1.2s" begin="0.4s" repeatCount="indefinite"><mpath href="#p-bus-load" /></animateMotion></circle>
+                  <circle r="3.5" fill="#c084fc"><animateMotion class="anim-load" dur="1.2s" begin="0.8s" repeatCount="indefinite"><mpath href="#p-bus-load" /></animateMotion></circle>
                 </g>
 
-                <!-- ═══ BATERAI NODE ═══ -->
+                <!-- Breaker CB4 -->
                 <g>
-                  <rect x="710" y="24"  width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
-                  <rect id="battTopBar" x="710" y="24" width="230" height="4" rx="2" fill="#10b981" />
-                  <rect x="726" y="42"  width="28"  height="28"  rx="7"  fill="#10b981" fill-opacity="0.12" />
-                  <rect x="733" y="51"  width="12"  height="10"  rx="1.5" fill="none" stroke="#34d399" stroke-width="1.5" />
-                  <line x1="747" y1="54" x2="747" y2="58" stroke="#34d399" stroke-width="2" stroke-linecap="round" />
-                  <text x="764" y="54"  fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Baterai LiFePO4</text>
-                  <text x="764" y="68"  fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA3 • 0x44</text>
-                  <text id="svgBattP"  x="726" y="110" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-                  <line x1="726" y1="124" x2="924" y2="124" stroke="#27272a" stroke-width="1" />
-                  <text x="726" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
-                  <text id="svgBattV" x="726" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-                  <text x="826" y="140" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
-                  <text id="svgBattI" x="826" y="157" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">+0.000 A</text>
-                  <rect id="svgBattBadgeBg" x="726" y="168" width="198" height="22" rx="6" fill="#27272a" />
-                  <text id="svgBattState" x="825" y="183" text-anchor="middle" fill="#a1a1aa" font-size="11" font-weight="600" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
+                  <rect id="cb4Box" x="692" y="347" width="14" height="14" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+                  <rect id="cb4Core" x="696" y="351" width="6" height="6" rx="1" fill="#334155" />
+                  <text x="699" y="374" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono, monospace">CB4</text>
+                </g>
+                <polygon id="arrowLoad" points="813,354 803,349 803,359" fill="#475569" />
+
+                <!-- Pill Load -->
+                <line x1="756" y1="338" x2="756" y2="349" stroke="#334155" stroke-width="1" />
+                <rect id="pillLoadBg" x="713" y="315" width="86" height="23" rx="5" fill="#0f172a" stroke="#334155" stroke-width="1" />
+                <text id="flowValLoad" x="756" y="330" text-anchor="middle" fill="#64748b" font-size="9.5" font-family="JetBrains Mono, monospace" font-weight="700">IDLE</text>
+
+                <!-- ═════════════════════════════════════════════
+                     CENTRAL INDUSTRIAL VERTICAL DC BUSBAR (x=676)
+                ═════════════════════════════════════════════ -->
+                <g>
+                  <!-- Metal Busbar Rail -->
+                  <rect id="busMetalBar" x="670" y="114" width="12" height="252" rx="4" fill="url(#busMetalGrad)" stroke="#475569" stroke-width="1.2" />
+                  <!-- Upper & Lower Active Core Segments -->
+                  <line id="railBusUpper" x1="676" y1="240" x2="676" y2="126" stroke="#10b981" stroke-width="3.5" opacity="0" stroke-linecap="round" />
+                  <line id="railBusLower" x1="676" y1="240" x2="676" y2="354" stroke="#a855f7" stroke-width="3.5" opacity="0" stroke-linecap="round" />
+
+                  <!-- Busbar Vertical Animated Orbs -->
+                  <g id="particles-bus-up" class="flow-particles" filter="url(#orbGlow)">
+                    <circle r="3" fill="#6ee7b7"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#p-bus-up" /></animateMotion></circle>
+                    <circle r="3" fill="#34d399"><animateMotion dur="0.9s" begin="0.45s" repeatCount="indefinite"><mpath href="#p-bus-up" /></animateMotion></circle>
+                  </g>
+                  <g id="particles-bus-down-b" class="flow-particles" filter="url(#orbGlow)">
+                    <circle r="3" fill="#fdba74"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#p-bus-down-b" /></animateMotion></circle>
+                    <circle r="3" fill="#fb923c"><animateMotion dur="0.9s" begin="0.45s" repeatCount="indefinite"><mpath href="#p-bus-down-b" /></animateMotion></circle>
+                  </g>
+                  <g id="particles-bus-down-l" class="flow-particles" filter="url(#orbGlow)">
+                    <circle r="3" fill="#d8b4fe"><animateMotion dur="0.9s" repeatCount="indefinite"><mpath href="#p-bus-down-l" /></animateMotion></circle>
+                    <circle r="3" fill="#c084fc"><animateMotion dur="0.9s" begin="0.45s" repeatCount="indefinite"><mpath href="#p-bus-down-l" /></animateMotion></circle>
+                  </g>
+
+                  <!-- Busbar Tap Junctions -->
+                  <circle id="busTapTop" cx="676" cy="126" r="5" fill="#0f172a" stroke="#475569" stroke-width="1.8" />
+                  <circle id="busTapMid" cx="676" cy="240" r="6" fill="#0f172a" stroke="#14b8a6" stroke-width="2" />
+                  <circle id="busTapBot" cx="676" cy="354" r="5" fill="#0f172a" stroke="#475569" stroke-width="1.8" />
+
+                  <!-- Tap Arm to Busbar Monitor Card -->
+                  <line x1="682" y1="240" x2="698" y2="240" stroke="#334155" stroke-width="2" />
                 </g>
 
-                <!-- ═══ BEBAN NODE ═══ -->
-                <g>
-                  <rect x="710" y="240" width="230" height="176" rx="14" fill="#18181b" stroke="#27272a" stroke-width="1.5" />
-                  <rect x="710" y="240" width="230" height="4"   rx="2"  fill="#a855f7" />
-                  <rect x="726" y="258" width="28"  height="28"  rx="7"  fill="#a855f7" fill-opacity="0.12" />
-                  <polygon points="741,264 734,273 740,273 739,280 746,271 740,271" fill="#c084fc" />
-                  <text x="764" y="270" fill="#f4f4f5" font-size="13" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Beban &amp; Inverter</text>
-                  <text x="764" y="284" fill="#a1a1aa" font-size="10" font-family="JetBrains Mono, monospace">INA4 • 0x45</text>
-                  <text id="svgLoadP"  x="726" y="326" fill="#ffffff" font-size="28" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
-                  <line x1="726" y1="340" x2="924" y2="340" stroke="#27272a" stroke-width="1" />
-                  <text x="726" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Tegangan</text>
-                  <text id="svgLoadV" x="726" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.00 V</text>
-                  <text x="826" y="356" fill="#71717a" font-size="10" font-family="Plus Jakarta Sans, sans-serif">Arus</text>
-                  <text id="svgLoadI" x="826" y="373" fill="#e4e4e7" font-size="13" font-weight="600" font-family="JetBrains Mono, monospace">0.000 A</text>
-                  <rect x="726" y="384" width="198" height="22" rx="6" fill="#a855f7" fill-opacity="0.12" />
-                  <text x="825" y="399" text-anchor="middle" fill="#c084fc" font-size="10.5" font-family="Plus Jakarta Sans, sans-serif">Inverter DC-AC + Kontrol Mini560</text>
+                <!-- Busbar Telemetry Monitor Box (Clickable) -->
+                <g id="node-bus" class="hmi-node" onclick="selectHmiNode('bus')">
+                  <rect id="busCardBorder" x="698" y="182" width="106" height="116" rx="8" fill="#0b111b" stroke="#1e293b" stroke-width="1.5" />
+                  <rect x="698" y="182" width="106" height="22" rx="8" fill="#131c2b" />
+                  <rect x="698" y="196" width="106" height="8" fill="#131c2b" />
+                  <circle id="busLed" cx="710" cy="193" r="3" fill="#14b8a6" />
+                  <text x="718" y="196.5" fill="#cbd5e1" font-size="9.5" font-weight="700" font-family="JetBrains Mono, monospace">DC BUSBAR</text>
+
+                  <rect x="706" y="211" width="90" height="32" rx="4" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="712" y="222" fill="#64748b" font-size="8" font-family="JetBrains Mono, monospace">BUS VOLT</text>
+                  <text id="svgBusV" x="712" y="237" fill="#2dd4bf" font-size="13" font-weight="700" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                  <rect x="706" y="248" width="90" height="42" rx="4" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="712" y="260" fill="#64748b" font-size="8" font-family="JetBrains Mono, monospace">BAL (Pin-Pout)</text>
+                  <text id="svgBusBalance" x="712" y="274" fill="#e2e8f0" font-size="10.5" font-weight="600" font-family="JetBrains Mono, monospace">ΔP: 0.00 W</text>
+                  <text id="svgBusKcl" x="712" y="285" fill="#34d399" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">KCL: STANDBY</text>
+                </g>
+
+                <!-- ═════════════════════════════════════════════
+                     MODULE 1: PV-01 // PANEL SURYA (x=24, y=72, w=228, h=336)
+                ═════════════════════════════════════════════ -->
+                <g id="node-pv" class="hmi-node" onclick="selectHmiNode('pv')">
+                  <rect id="pvCardBorder" x="24" y="72" width="228" height="336" rx="10" fill="#0c111b" stroke="#1e293b" stroke-width="1.5" />
+                  <!-- Top Accent & Header -->
+                  <rect x="24" y="72" width="228" height="34" rx="10" fill="#121927" />
+                  <rect x="24" y="96" width="228" height="10" fill="#121927" />
+                  <rect x="24" y="72" width="228" height="3" rx="1.5" fill="#f59e0b" />
+
+                  <rect x="34" y="81" width="38" height="16" rx="3" fill="#f59e0b" fill-opacity="0.16" stroke="#f59e0b" stroke-opacity="0.4" stroke-width="0.8" />
+                  <text x="53" y="92" text-anchor="middle" fill="#fbbf24" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">PV-01</text>
+                  <text x="79" y="89" fill="#f1f5f9" font-size="11.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">PANEL SURYA</text>
+                  <text x="79" y="100" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">50Wp • INA1 0x40</text>
+                  <circle id="pvLed" cx="238" cy="89" r="4" fill="#334155" />
+
+                  <!-- Main LCD Power Box -->
+                  <rect x="34" y="114" width="208" height="72" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="44" y="129" fill="#64748b" font-size="8.5" font-weight="600" font-family="JetBrains Mono, monospace">DAYA INPUT PV</text>
+                  <text id="pvModeTag" x="232" y="129" text-anchor="end" fill="#64748b" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">IDLE</text>
+                  <text id="svgPvP" x="44" y="159" fill="#ffffff" font-size="26" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+                  <!-- Rated Capacity Bar -->
+                  <text id="svgPvPct" x="232" y="158" text-anchor="end" fill="#94a3b8" font-size="9.5" font-weight="600" font-family="JetBrains Mono, monospace">0.0% / 50W</text>
+                  <rect x="44" y="170" width="188" height="5" rx="2.5" fill="#1e293b" />
+                  <rect id="pvCapBar" x="44" y="170" width="0" height="5" rx="2.5" fill="#f59e0b" />
+
+                  <!-- V & I Sub-cells -->
+                  <rect x="34" y="194" width="100" height="58" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="44" y="211" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">TEGANGAN (V)</text>
+                  <text id="svgPvV" x="44" y="236" fill="#e2e8f0" font-size="15" font-weight="700" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                  <rect x="142" y="194" width="100" height="58" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="152" y="211" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">ARUS (I)</text>
+                  <text id="svgPvI" x="152" y="236" fill="#e2e8f0" font-size="15" font-weight="700" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                  <!-- Environmental Sensor Sub-Panel -->
+                  <rect x="34" y="260" width="208" height="136" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="44" y="276" fill="#64748b" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">SENSOR LINGKUNGAN</text>
+
+                  <!-- Lux Row -->
+                  <rect x="42" y="284" width="192" height="48" rx="5" fill="#0b1019" stroke="#1e293b" stroke-width="0.8" />
+                  <text x="51" y="298" fill="#fbbf24" font-size="8.5" font-family="JetBrains Mono, monospace">CAHAYA • SEN0390</text>
+                  <rect id="svgLuxTagBg" x="178" y="289" width="48" height="14" rx="3" fill="#1e293b" />
+                  <text id="svgLuxTag" x="202" y="299" text-anchor="middle" fill="#94a3b8" font-size="7.5" font-weight="700" font-family="JetBrains Mono, monospace">GELAP</text>
+                  <text id="svgLux" x="51" y="319" fill="#f8fafc" font-size="13.5" font-weight="700" font-family="JetBrains Mono, monospace">0.0 lx</text>
+                  <rect x="51" y="324" width="174" height="3.5" rx="1.75" fill="#1e293b" />
+                  <rect id="luxGaugeBar" x="51" y="324" width="0" height="3.5" rx="1.75" fill="#fbbf24" />
+
+                  <!-- Temp Row -->
+                  <rect x="42" y="338" width="192" height="48" rx="5" fill="#0b1019" stroke="#1e293b" stroke-width="0.8" />
+                  <text x="51" y="352" fill="#fb7185" font-size="8.5" font-family="JetBrains Mono, monospace">SUHU • DS18B20</text>
+                  <rect id="svgTempTagBg" x="178" y="343" width="48" height="14" rx="3" fill="#064e3b" />
+                  <text id="svgTempTag" x="202" y="353" text-anchor="middle" fill="#34d399" font-size="7.5" font-weight="700" font-family="JetBrains Mono, monospace">NORMAL</text>
+                  <text id="svgTemp" x="51" y="373" fill="#f8fafc" font-size="13.5" font-weight="700" font-family="JetBrains Mono, monospace">0.00 °C</text>
+                  <rect x="51" y="378" width="174" height="3.5" rx="1.75" fill="#1e293b" />
+                  <rect id="tempGaugeBar" x="51" y="378" width="0" height="3.5" rx="1.75" fill="#fb7185" />
+                </g>
+
+                <!-- ═════════════════════════════════════════════
+                     MODULE 2: CONV-01 // MPPT OUTPUT (x=360, y=108, w=214, h=264)
+                ═════════════════════════════════════════════ -->
+                <g id="node-mppt" class="hmi-node" onclick="selectHmiNode('mppt')">
+                  <rect id="mpptCardBorder" x="360" y="108" width="214" height="264" rx="10" fill="#0c111b" stroke="#1e293b" stroke-width="1.5" />
+                  <rect x="360" y="108" width="214" height="34" rx="10" fill="#121927" />
+                  <rect x="360" y="132" width="214" height="10" fill="#121927" />
+                  <rect id="mpptTopBar" x="360" y="108" width="214" height="3" rx="1.5" fill="#14b8a6" />
+
+                  <rect x="370" y="117" width="46" height="16" rx="3" fill="#14b8a6" fill-opacity="0.16" stroke="#14b8a6" stroke-opacity="0.4" stroke-width="0.8" />
+                  <text x="393" y="128" text-anchor="middle" fill="#2dd4bf" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">CONV-01</text>
+                  <text x="422" y="125" fill="#f1f5f9" font-size="11.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">MPPT OUTPUT</text>
+                  <text x="422" y="136" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">INA2 • 0x41</text>
+                  <circle id="mpptLed" cx="560" cy="125" r="4" fill="#334155" />
+
+                  <!-- Main LCD Power -->
+                  <rect x="370" y="150" width="194" height="66" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="380" y="165" fill="#64748b" font-size="8.5" font-weight="600" font-family="JetBrains Mono, monospace">DAYA KELUARAN</text>
+                  <text id="mpptModeTag" x="554" y="165" text-anchor="end" fill="#64748b" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">STANDBY</text>
+                  <text id="svgMpptP" x="380" y="199" fill="#ffffff" font-size="26" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+
+                  <!-- V & I Sub-cells -->
+                  <rect x="370" y="224" width="93" height="58" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="379" y="241" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">V_OUT (V)</text>
+                  <text id="svgMpptV" x="379" y="266" fill="#e2e8f0" font-size="14.5" font-weight="700" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                  <rect x="471" y="224" width="93" height="58" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="480" y="241" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">I_OUT (A)</text>
+                  <text id="svgMpptI" x="480" y="266" fill="#e2e8f0" font-size="14.5" font-weight="700" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                  <!-- Conversion Efficiency Box -->
+                  <rect id="svgEffBox" x="370" y="290" width="194" height="70" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text id="svgEff" x="380" y="309" fill="#2dd4bf" font-size="9.5" font-weight="700" font-family="JetBrains Mono, monospace">EFF: 0.0%</text>
+                  <text id="svgMpptLoss" x="554" y="309" text-anchor="end" fill="#64748b" font-size="9" font-family="JetBrains Mono, monospace">LOSS: 0.00W</text>
+                  <rect x="380" y="320" width="174" height="6" rx="3" fill="#1e293b" />
+                  <rect id="mpptEffBar" x="380" y="320" width="0" height="6" rx="3" fill="#14b8a6" />
+                  <text id="svgMpptHint" x="380" y="346" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">Konversi DC-DC MPPT</text>
+                </g>
+
+                <!-- ═════════════════════════════════════════════
+                     MODULE 3: BATT-01 // BATERAI LiFePO4 (x=816, y=28, w=240, h=200)
+                ═════════════════════════════════════════════ -->
+                <g id="node-batt" class="hmi-node" onclick="selectHmiNode('batt')">
+                  <rect id="battCardBorder" x="816" y="28" width="240" height="200" rx="10" fill="#0c111b" stroke="#1e293b" stroke-width="1.5" />
+                  <rect x="816" y="28" width="240" height="34" rx="10" fill="#121927" />
+                  <rect x="816" y="52" width="240" height="10" fill="#121927" />
+                  <rect id="battTopBar" x="816" y="28" width="240" height="3" rx="1.5" fill="#10b981" />
+
+                  <rect x="826" y="37" width="46" height="16" rx="3" fill="#10b981" fill-opacity="0.16" stroke="#10b981" stroke-opacity="0.4" stroke-width="0.8" />
+                  <text x="849" y="48" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">BATT-01</text>
+                  <text x="878" y="45" fill="#f1f5f9" font-size="11.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">LiFePO4 4S</text>
+                  <text x="878" y="56" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">INA3 • 0x44</text>
+                  <circle id="battLed" cx="1042" cy="45" r="4" fill="#334155" />
+
+                  <!-- Main Power + 4-Cell Gauge -->
+                  <rect x="826" y="69" width="220" height="60" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="836" y="84" fill="#64748b" font-size="8.5" font-weight="600" font-family="JetBrains Mono, monospace">DAYA BATERAI</text>
+                  <text id="svgBattP" x="836" y="114" fill="#ffffff" font-size="25" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+
+                  <!-- Battery Cell Graphic -->
+                  <g transform="translate(970, 77)">
+                    <rect x="0" y="0" width="58" height="22" rx="3" fill="#0b1019" stroke="#475569" stroke-width="1.2" />
+                    <rect x="59" y="6" width="3" height="10" rx="1" fill="#475569" />
+                    <rect id="battCell1" x="4"  y="4" width="11" height="14" rx="1.5" fill="#1e293b" />
+                    <rect id="battCell2" x="17" y="4" width="11" height="14" rx="1.5" fill="#1e293b" />
+                    <rect id="battCell3" x="30" y="4" width="11" height="14" rx="1.5" fill="#1e293b" />
+                    <rect id="battCell4" x="43" y="4" width="11" height="14" rx="1.5" fill="#1e293b" />
+                    <text id="svgBattSoc" x="29" y="36" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">Est: --%</text>
+                  </g>
+
+                  <!-- V & I Sub-cells -->
+                  <rect x="826" y="135" width="106" height="54" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="835" y="151" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">TEGANGAN (V)</text>
+                  <text id="svgBattV" x="835" y="175" fill="#e2e8f0" font-size="14.5" font-weight="700" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                  <rect x="940" y="135" width="106" height="54" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="949" y="151" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">ARUS (I)</text>
+                  <text id="svgBattI" x="949" y="175" fill="#e2e8f0" font-size="14.5" font-weight="700" font-family="JetBrains Mono, monospace">+0.000 A</text>
+
+                  <!-- Status Footer Pill -->
+                  <rect id="svgBattBadgeBg" x="826" y="196" width="220" height="22" rx="5" fill="#1e293b" />
+                  <text id="svgBattState" x="936" y="210.5" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700" font-family="JetBrains Mono, monospace">STATUS: STANDBY</text>
+                </g>
+
+                <!-- ═════════════════════════════════════════════
+                     MODULE 4: LOAD-01 // BEBAN & INVERTER (x=816, y=252, w=240, h=200)
+                ═════════════════════════════════════════════ -->
+                <g id="node-load" class="hmi-node" onclick="selectHmiNode('load')">
+                  <rect id="loadCardBorder" x="816" y="252" width="240" height="200" rx="10" fill="#0c111b" stroke="#1e293b" stroke-width="1.5" />
+                  <rect x="816" y="252" width="240" height="34" rx="10" fill="#121927" />
+                  <rect x="816" y="276" width="240" height="10" fill="#121927" />
+                  <rect x="816" y="252" width="240" height="3" rx="1.5" fill="#a855f7" />
+
+                  <rect x="826" y="261" width="46" height="16" rx="3" fill="#a855f7" fill-opacity="0.16" stroke="#a855f7" stroke-opacity="0.4" stroke-width="0.8" />
+                  <text x="849" y="272" text-anchor="middle" fill="#c084fc" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">LOAD-01</text>
+                  <text x="878" y="269" fill="#f1f5f9" font-size="11.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">BEBAN &amp; INV</text>
+                  <text x="878" y="280" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">INA4 • 0x45</text>
+                  <circle id="loadLed" cx="1042" cy="269" r="4" fill="#334155" />
+
+                  <!-- Main Power + Load Utilization Bar -->
+                  <rect x="826" y="293" width="220" height="60" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="836" y="308" fill="#64748b" font-size="8.5" font-weight="600" font-family="JetBrains Mono, monospace">DAYA BEBAN</text>
+                  <text id="loadModeTag" x="1036" y="308" text-anchor="end" fill="#64748b" font-size="8.5" font-weight="700" font-family="JetBrains Mono, monospace">IDLE</text>
+                  <text id="svgLoadP" x="836" y="338" fill="#ffffff" font-size="25" font-weight="700" font-family="JetBrains Mono, monospace">0.00 W</text>
+                  <text id="svgLoadPct" x="1036" y="328" text-anchor="end" fill="#94a3b8" font-size="9" font-family="JetBrains Mono, monospace">0% / 50W</text>
+                  <rect x="964" y="335" width="72" height="5" rx="2.5" fill="#1e293b" />
+                  <rect id="loadCapBar" x="964" y="335" width="0" height="5" rx="2.5" fill="#a855f7" />
+
+                  <!-- V & I Sub-cells -->
+                  <rect x="826" y="359" width="106" height="54" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="835" y="375" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">TEGANGAN (V)</text>
+                  <text id="svgLoadV" x="835" y="399" fill="#e2e8f0" font-size="14.5" font-weight="700" font-family="JetBrains Mono, monospace">0.00 V</text>
+
+                  <rect x="940" y="359" width="106" height="54" rx="6" fill="#05080d" stroke="#1e293b" stroke-width="1" />
+                  <text x="949" y="375" fill="#64748b" font-size="8.5" font-family="JetBrains Mono, monospace">ARUS (I)</text>
+                  <text id="svgLoadI" x="949" y="399" fill="#e2e8f0" font-size="14.5" font-weight="700" font-family="JetBrains Mono, monospace">0.000 A</text>
+
+                  <!-- Footer -->
+                  <rect x="826" y="420" width="220" height="22" rx="5" fill="#a855f7" fill-opacity="0.12" />
+                  <text x="936" y="434.5" text-anchor="middle" fill="#c084fc" font-size="9.5" font-weight="600" font-family="Plus Jakarta Sans, sans-serif">Inverter DC-AC + Kontrol Mini560</text>
                 </g>
               </svg>
+            </div>
+
+            <!-- INTERACTIVE HMI NODE INSPECTOR BAR -->
+            <div class="px-4 md:px-5 py-3 bg-slate-950/90 border-t border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[10px] font-mono text-slate-500 uppercase mr-1">Inspeksi Unit:</span>
+                <button onclick="selectHmiNode('pv')"   id="insp-btn-pv"   class="insp-tab px-2.5 py-1 rounded text-[11px] font-mono border transition">PV-01</button>
+                <button onclick="selectHmiNode('mppt')" id="insp-btn-mppt" class="insp-tab px-2.5 py-1 rounded text-[11px] font-mono border transition">CONV-01</button>
+                <button onclick="selectHmiNode('bus')"  id="insp-btn-bus"  class="insp-tab px-2.5 py-1 rounded text-[11px] font-mono border transition">BUS-DC</button>
+                <button onclick="selectHmiNode('batt')" id="insp-btn-batt" class="insp-tab px-2.5 py-1 rounded text-[11px] font-mono border transition">BATT-01</button>
+                <button onclick="selectHmiNode('load')" id="insp-btn-load" class="insp-tab px-2.5 py-1 rounded text-[11px] font-mono border transition">LOAD-01</button>
+              </div>
+              <div id="hmiInspectorDetail" class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-slate-300">
+                <span class="text-slate-500">Klik modul di skema atau pilih unit untuk melihat diagnostik sesi.</span>
+              </div>
             </div>
           </div>
 
@@ -544,7 +789,7 @@
                 </div>
                 <div>
                   <h2 class="text-sm font-bold text-zinc-100">Akumulasi Energi (Wh)</h2>
-                  <p class="text-[11px] text-zinc-500">Dihitung sejak sesi dimulai atau terakhir reset</p>
+                  <p class="text-[11px] text-zinc-500">Integrasi energi real-time Δt sejak sesi dimulai atau terakhir reset</p>
                 </div>
               </div>
               <button onclick="resetEnergyAcc()"
@@ -555,10 +800,9 @@
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              <!-- Panel Wh -->
               <div class="acc-card bg-zinc-950/70 border border-amber-500/20 rounded-xl p-4 hover:border-amber-500/40">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-[11px] text-zinc-500 font-medium">Panel</span>
+                  <span class="text-[11px] text-zinc-500 font-medium">Panel Surya</span>
                   <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span>
                 </div>
                 <div class="text-xl font-bold font-mono tabular-nums text-amber-400">
@@ -566,10 +810,10 @@
                 </div>
                 <div class="text-[10px] text-zinc-600 mt-0.5">Wh dihasilkan</div>
               </div>
-              <!-- MPPT Wh -->
+
               <div class="acc-card bg-zinc-950/70 border border-teal-500/20 rounded-xl p-4 hover:border-teal-500/40">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-[11px] text-zinc-500 font-medium">MPPT</span>
+                  <span class="text-[11px] text-zinc-500 font-medium">MPPT Output</span>
                   <span class="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span>
                 </div>
                 <div class="text-xl font-bold font-mono tabular-nums text-teal-400">
@@ -577,7 +821,7 @@
                 </div>
                 <div class="text-[10px] text-zinc-600 mt-0.5">Wh output MPPT</div>
               </div>
-              <!-- Charge Wh -->
+
               <div class="acc-card bg-zinc-950/70 border border-emerald-500/20 rounded-xl p-4 hover:border-emerald-500/40">
                 <div class="flex items-center justify-between mb-3">
                   <span class="text-[11px] text-zinc-500 font-medium">Baterai Terisi</span>
@@ -588,7 +832,7 @@
                 </div>
                 <div class="text-[10px] text-zinc-600 mt-0.5">Wh charge total</div>
               </div>
-              <!-- Discharge Wh -->
+
               <div class="acc-card bg-zinc-950/70 border border-orange-500/20 rounded-xl p-4 hover:border-orange-500/40">
                 <div class="flex items-center justify-between mb-3">
                   <span class="text-[11px] text-zinc-500 font-medium">Baterai Terkuras</span>
@@ -599,7 +843,7 @@
                 </div>
                 <div class="text-[10px] text-zinc-600 mt-0.5">Wh discharge total</div>
               </div>
-              <!-- Load Wh -->
+
               <div class="acc-card bg-zinc-950/70 border border-purple-500/20 rounded-xl p-4 hover:border-purple-500/40 col-span-2 sm:col-span-1">
                 <div class="flex items-center justify-between mb-3">
                   <span class="text-[11px] text-zinc-500 font-medium">Beban Terpakai</span>
@@ -619,7 +863,6 @@
         ══════════════════════════════ -->
         <section id="page-grafik" class="page-section hidden space-y-5">
 
-          <!-- Controls -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 backdrop-blur space-y-3">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div class="flex flex-wrap items-center gap-2">
@@ -660,7 +903,6 @@
             </div>
           </div>
 
-          <!-- Grafik Daya 4 Kanal -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 backdrop-blur">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
@@ -676,7 +918,6 @@
             </div>
           </div>
 
-          <!-- Cahaya + Suhu -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 backdrop-blur">
               <div class="flex items-center justify-between mb-4">
@@ -713,7 +954,6 @@
              PAGE 3: DATASET
         ══════════════════════════════ -->
         <section id="page-dataset" class="page-section hidden space-y-5">
-          <!-- Controls -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 space-y-4 backdrop-blur">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div class="flex flex-wrap items-center gap-2.5">
@@ -756,7 +996,6 @@
               </div>
             </div>
 
-            <!-- Stats Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-zinc-800/60">
               <div class="bg-zinc-950/70 border border-zinc-800 rounded-xl p-3.5 hover:border-zinc-700 transition-all">
                 <span class="text-zinc-500 block text-[11px] mb-1">Total Akumulasi</span>
@@ -783,7 +1022,6 @@
             </div>
           </div>
 
-          <!-- Tabel Dataset -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden backdrop-blur">
             <div class="px-5 py-3.5 border-b border-zinc-800/60 flex flex-wrap items-center justify-between gap-2 bg-zinc-900/40">
               <div class="flex items-center gap-2">
@@ -830,7 +1068,6 @@
         ══════════════════════════════ -->
         <section id="page-pengaturan" class="page-section hidden max-w-2xl space-y-5">
 
-          <!-- MQTT Config -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-6 space-y-4 backdrop-blur">
             <div class="flex items-center justify-between gap-2">
               <div>
@@ -875,7 +1112,6 @@
             </div>
           </div>
 
-          <!-- AP Portal Info -->
           <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-6 space-y-4 backdrop-blur">
             <div class="flex items-center justify-between gap-2">
               <div>
@@ -908,7 +1144,7 @@
     </div>
   </div>
 
-  <!-- ══ TOAST NOTIFICATION ══ -->
+  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 hidden max-w-xs">
     <div class="bg-zinc-900 border border-teal-500/40 text-teal-100 text-xs font-medium px-4 py-3 rounded-xl shadow-2xl shadow-black/50 flex items-center gap-2.5">
       <i data-lucide="check-circle" class="w-4 h-4 text-teal-400 shrink-0"></i>
@@ -966,8 +1202,20 @@
     let currentPage = null;
     let pageSwitchTimer = null;
 
+    // HMI State & Session Inspector Stats
+    let selectedHmiNode = "bus";
+    let hmiSimMode = "live";
+    let lastLiveTelemetry = null;
+    let lastRenderedTelemetry = null;
+    const sessionStats = {
+      pv:   { peakP: 0, minV: Infinity, maxV: 0, samples: 0 },
+      mppt: { peakP: 0, minV: Infinity, maxV: 0, samples: 0 },
+      batt: { peakP: 0, minV: Infinity, maxV: 0, samples: 0 },
+      load: { peakP: 0, minV: Infinity, maxV: 0, samples: 0 },
+    };
+
     const PAGE_TITLES = {
-      monitor:    "Live Power Flow",
+      monitor:    "Live Power Flow HMI",
       grafik:     "Grafik Harian (24 Jam)",
       dataset:    "Akuisisi Dataset",
       pengaturan: "Pengaturan Koneksi",
@@ -977,7 +1225,7 @@
     // TOAST
     // ════════════════════════════════════════
     let toastTimer = null;
-    function showToast(msg, type = 'success') {
+    function showToast(msg) {
       const container = document.getElementById("toast");
       const msgEl = document.getElementById("toastMsg");
       msgEl.textContent = msg;
@@ -1156,7 +1404,10 @@
         if (Array.isArray(json.latest) && json.latest.length > 0) {
           await mergeIncomingBatch(json.latest, false);
           const newest = normalizeTelemetry(json.latest[json.latest.length-1]);
-          if (newest && !isConnected) renderPowerFlowUI(newest);
+          if (newest) {
+            lastLiveTelemetry = newest;
+            if (!isConnected && hmiSimMode === "live") renderPowerFlowUI(newest);
+          }
         }
         updateDatasetStatsUI();
         renderTable();
@@ -1450,29 +1701,34 @@
     }
 
     // ════════════════════════════════════════
-    // ENERGY FLOW ANIMATION
+    // INDUSTRIAL HMI HELPER FUNCTIONS
     // ════════════════════════════════════════
     function updateParticleSpeed(animClass, watts, baseDur) {
       const absW = Math.abs(watts);
-      const tier = absW>25?"fast":absW>8?"med":"slow";
-      const dur = tier==="fast" ? (baseDur*0.65).toFixed(2)+"s" : tier==="med" ? baseDur.toFixed(2)+"s" : (baseDur*1.35).toFixed(2)+"s";
-      document.querySelectorAll("."+animClass).forEach((el) => { if (el.dataset.tier !== tier) { el.dataset.tier=tier; el.setAttribute("dur",dur); } });
+      const tier = absW > 25 ? "fast" : absW > 8 ? "med" : "slow";
+      const dur = tier === "fast" ? (baseDur * 0.6).toFixed(2) + "s"
+                : tier === "med"  ? baseDur.toFixed(2) + "s"
+                : (baseDur * 1.35).toFixed(2) + "s";
+      document.querySelectorAll("." + animClass).forEach((el) => {
+        if (el.dataset.tier !== tier) {
+          el.dataset.tier = tier;
+          el.setAttribute("dur", dur);
+        }
+      });
     }
 
-    function setFlowLine(pathId, railId, mode, watts, railColor, pulseColor) {
-      const el   = document.getElementById(pathId);
+    function setBreakerState(boxId, coreId, active, color) {
+      const box  = document.getElementById(boxId);
+      const core = document.getElementById(coreId);
+      if (box)  box.setAttribute("stroke", active ? color : "#475569");
+      if (core) core.setAttribute("fill", active ? color : "#334155");
+    }
+
+    function setPipeRail(railId, active, color) {
       const rail = document.getElementById(railId);
-      if (el) {
-        el.classList.remove("flow-forward","flow-reverse");
-        if (pulseColor) el.setAttribute("stroke",pulseColor);
-        if (mode==="forward") el.classList.add("flow-forward");
-        else if (mode==="reverse") el.classList.add("flow-reverse");
-        if (mode!=="idle") { const dur=Math.max(0.35,Math.min(1.25,1.3-(Math.abs(watts)/55))); el.style.animationDuration=dur.toFixed(2)+"s"; }
-      }
-      if (rail) {
-        if (railColor) rail.setAttribute("stroke",railColor);
-        rail.style.opacity = mode!=="idle"?"0.3":"0";
-      }
+      if (!rail) return;
+      if (color) rail.setAttribute("stroke", color);
+      rail.style.opacity = active ? "0.85" : "0";
     }
 
     function setParticleGroup(groupId, active) {
@@ -1480,12 +1736,573 @@
       if (el) el.classList.toggle("active", Boolean(active));
     }
 
+    function setPillStyle(bgId, txtId, label, active, textColor, borderColor, bgFill = "#0f172a") {
+      const bg  = document.getElementById(bgId);
+      const txt = document.getElementById(txtId);
+      if (bg) {
+        bg.setAttribute("stroke", active ? borderColor : "#334155");
+        bg.setAttribute("fill", active ? bgFill : "#0f172a");
+      }
+      if (txt) {
+        txt.textContent = label;
+        txt.setAttribute("fill", active ? textColor : "#64748b");
+      }
+    }
+
+    function estimateLiFePO4SoC(v) {
+      if (v <= 1.0) return 0;
+      // 4S LiFePO4 resting/under-load voltage curve approximation (10.8V=0%, 13.6V=100%)
+      const table = [
+        [10.80, 0], [11.60, 5], [12.00, 10], [12.40, 15], [12.50, 20],
+        [12.80, 30], [12.95, 50], [13.10, 70], [13.25, 85], [13.40, 95], [13.60, 100]
+      ];
+      if (v <= table[0][0]) return 0;
+      if (v >= table[table.length - 1][0]) return 100;
+      for (let i = 1; i < table.length; i++) {
+        if (v <= table[i][0]) {
+          const [v0, s0] = table[i - 1];
+          const [v1, s1] = table[i];
+          return Math.round(s0 + ((v - v0) / (v1 - v0)) * (s1 - s0));
+        }
+      }
+      return 50;
+    }
+
+    function setHmiSimMode(mode) {
+      hmiSimMode = mode;
+      const sel = document.getElementById("hmiSimSelect");
+      if (sel && sel.value !== mode) sel.value = mode;
+      const banner = document.getElementById("hmiDemoBanner");
+      if (mode === "live") {
+        banner.classList.add("hidden");
+        if (lastLiveTelemetry) renderPowerFlowUI(lastLiveTelemetry);
+        return;
+      }
+      banner.classList.remove("hidden");
+      const nowStr = new Date().toTimeString().slice(0, 8);
+      const today  = getLocalDateStr();
+      const presets = {
+        day: {
+          ts: `${today} ${nowStr}`, sd: true, lux: 68420.5, temp: 41.25,
+          pv:   { v: 18.42, i: 2.085, p: 38.41 },
+          mppt: { v: 13.42, i: 2.680, p: 35.97 },
+          batt: { v: 13.38, i: -1.520, p: -20.34 },
+          load: { v: 13.39, i: 1.135, p: 15.20 },
+        },
+        night: {
+          ts: `${today} ${nowStr}`, sd: true, lux: 0.2, temp: 25.40,
+          pv:   { v: 0.18, i: 0.001, p: 0.00 },
+          mppt: { v: 0.22, i: 0.002, p: 0.00 },
+          batt: { v: 12.82, i: 0.805, p: 10.32 },
+          load: { v: 12.74, i: 0.775, p: 9.87 },
+        },
+        fault: {
+          ts: `${today} 22:35:17`, sd: true, lux: 0.1, temp: 25.63,
+          pv:   { v: 0.27, i: 0.001, p: 0.00 },
+          mppt: { v: 12.81, i: 0.815, p: 10.44 },
+          batt: { v: 12.49, i: -0.046, p: -0.57 },
+          load: { v: 12.54, i: 0.771, p: 9.67 },
+        },
+      };
+      if (presets[mode]) renderPowerFlowUI(presets[mode]);
+    }
+
+    function selectHmiNode(nodeKey) {
+      selectedHmiNode = nodeKey;
+      const borderMap = {
+        pv:   { el: "pvCardBorder",   color: "#f59e0b" },
+        mppt: { el: "mpptCardBorder", color: "#14b8a6" },
+        bus:  { el: "busCardBorder",  color: "#2dd4bf" },
+        batt: { el: "battCardBorder", color: "#10b981" },
+        load: { el: "loadCardBorder", color: "#a855f7" },
+      };
+      Object.entries(borderMap).forEach(([k, cfg]) => {
+        const el = document.getElementById(cfg.el);
+        if (el) {
+          el.setAttribute("stroke", k === nodeKey ? cfg.color : "#1e293b");
+          el.setAttribute("stroke-width", k === nodeKey ? "2" : "1.5");
+        }
+        const btn = document.getElementById("insp-btn-" + k);
+        if (btn) {
+          if (k === nodeKey) {
+            btn.className = "insp-tab px-2.5 py-1 rounded text-[11px] font-mono border bg-teal-500/15 border-teal-500/40 text-teal-300 font-bold transition";
+          } else {
+            btn.className = "insp-tab px-2.5 py-1 rounded text-[11px] font-mono border bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 transition";
+          }
+        }
+      });
+      if (lastRenderedTelemetry) renderInspectorBar(lastRenderedTelemetry);
+    }
+
+    function renderInspectorBar(d) {
+      const box = document.getElementById("hmiInspectorDetail");
+      if (!box || !d) return;
+
+      const pvP = d.pv.p, mpptP = d.mppt.p, battP = Math.abs(d.batt.p), loadP = d.load.p;
+      const isCharging = d.batt.i < -0.015;
+      const isDischarging = d.batt.i > 0.015;
+      const pIn = (mpptP > 0.15 ? mpptP : 0) + (isDischarging ? battP : 0);
+      const pOut = (loadP > 0.15 ? loadP : 0) + (isCharging ? battP : 0);
+      const pDelta = pIn - pOut;
+      const iIn = (d.mppt.i > 0 ? d.mppt.i : 0) + (isDischarging ? d.batt.i : 0);
+      const iOut = (d.load.i > 0 ? d.load.i : 0) + (isCharging ? Math.abs(d.batt.i) : 0);
+      const iDiff = iIn - iOut;
+
+      const fmtVRange = (st) => st.samples > 0 ? `${st.minV.toFixed(2)}–${st.maxV.toFixed(2)}V` : "--";
+
+      if (selectedHmiNode === "pv") {
+        box.innerHTML = `
+          <span class="text-amber-400 font-bold">PV-01 (INA1 0x40)</span>
+          <span>Rating: <b class="text-white">${((pvP / 50) * 100).toFixed(1)}%</b> dari 50Wp</span>
+          <span>Lux: <b class="text-amber-300">${d.lux.toFixed(1)} lx</b></span>
+          <span>Suhu: <b class="text-rose-300">${d.temp.toFixed(2)} °C</b></span>
+          <span>Sesi Peak: <b class="text-slate-200">${sessionStats.pv.peakP.toFixed(2)} W</b> (${fmtVRange(sessionStats.pv)})</span>
+        `;
+      } else if (selectedHmiNode === "mppt") {
+        const faultNoPv = mpptP > 0.5 && pvP < 0.2;
+        const effStr = faultNoPv ? "ANOMALI (PV 0W!)" : pvP > 0.3 ? `${Math.min(100, (mpptP / pvP) * 100).toFixed(1)}%` : "STANDBY";
+        box.innerHTML = `
+          <span class="text-teal-400 font-bold">CONV-01 (INA2 0x41)</span>
+          <span>Eff: <b class="${faultNoPv ? "text-amber-300" : "text-teal-300"}">${effStr}</b></span>
+          <span>Drop V (MPPT→Load): <b class="text-white">${(d.mppt.v - d.load.v).toFixed(2)} V</b></span>
+          <span>Sesi Peak: <b class="text-slate-200">${sessionStats.mppt.peakP.toFixed(2)} W</b> (${fmtVRange(sessionStats.mppt)})</span>
+        `;
+      } else if (selectedHmiNode === "bus") {
+        box.innerHTML = `
+          <span class="text-teal-300 font-bold">BUS-DC (12V RAIL)</span>
+          <span>Pin: <b class="text-teal-300">${pIn.toFixed(2)} W</b> | Pout: <b class="text-purple-300">${pOut.toFixed(2)} W</b></span>
+          <span>ΔP Rugi Jalur: <b class="text-white">${pDelta >= 0 ? "+" : ""}${pDelta.toFixed(2)} W</b></span>
+          <span>KCL Arus (ΣI_in - ΣI_out): <b class="${Math.abs(iDiff) <= 0.15 ? "text-emerald-400" : "text-amber-400"}">${iDiff >= 0 ? "+" : ""}${iDiff.toFixed(3)} A</b></span>
+        `;
+      } else if (selectedHmiNode === "batt") {
+        const soc = estimateLiFePO4SoC(d.batt.v);
+        const dirText = isCharging ? "Masuk ke Baterai (Charge)" : isDischarging ? "Keluar ke Bus (Discharge)" : "Standby";
+        box.innerHTML = `
+          <span class="text-emerald-400 font-bold">BATT-01 (INA3 0x44)</span>
+          <span>Mode: <b class="${isDischarging ? "text-orange-300" : isCharging ? "text-emerald-300" : "text-slate-300"}">${dirText}</b></span>
+          <span>Est. SoC 4S: <b class="text-white">~${soc}%</b></span>
+          <span>Rentang V Sesi: <b class="text-slate-200">${fmtVRange(sessionStats.batt)}</b></span>
+        `;
+      } else if (selectedHmiNode === "load") {
+        box.innerHTML = `
+          <span class="text-purple-400 font-bold">LOAD-01 (INA4 0x45)</span>
+          <span>Beban: <b class="text-purple-300">${loadP.toFixed(2)} W</b> (${d.load.i.toFixed(3)} A)</span>
+          <span>Utilisasi 50W: <b class="text-white">${Math.min(100, (loadP / 50) * 100).toFixed(1)}%</b></span>
+          <span>Sesi Peak: <b class="text-slate-200">${sessionStats.load.peakP.toFixed(2)} W</b> (${fmtVRange(sessionStats.load)})</span>
+        `;
+      }
+    }
+
+    function updateSessionStats(d) {
+      if (hmiSimMode !== "live") return;
+      const updateOne = (key, ch) => {
+        const st = sessionStats[key];
+        st.samples++;
+        const absP = Math.abs(ch.p);
+        if (absP > st.peakP) st.peakP = absP;
+        if (ch.v > 0.5) {
+          if (ch.v < st.minV) st.minV = ch.v;
+          if (ch.v > st.maxV) st.maxV = ch.v;
+        }
+      };
+      updateOne("pv", d.pv);
+      updateOne("mppt", d.mppt);
+      updateOne("batt", d.batt);
+      updateOne("load", d.load);
+    }
+
+    // ════════════════════════════════════════
+    // RENDER INDUSTRIAL HMI POWER FLOW
+    // ════════════════════════════════════════
+    function renderPowerFlowUI(d) {
+      lastRenderedTelemetry = d;
+      document.getElementById("rtcText").textContent = (d.ts || "--:--:--").split(" ")[1] || d.ts;
+
+      const sdBadge = document.getElementById("sdBadge");
+      const sdText  = document.getElementById("sdText");
+      if (typeof d.sd === "boolean") {
+        if (d.sd) {
+          sdBadge.className = "hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-300 transition-all";
+          sdText.textContent = "SD: LOGGING";
+        } else {
+          sdBadge.className = "hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs font-mono text-rose-300 transition-all";
+          sdText.textContent = "SD: OFF";
+        }
+      }
+
+      // ── 1. PANEL SURYA (PV-01) ──
+      const pvV = d.pv.v, pvI = d.pv.i, pvP = d.pv.p;
+      const pvActive = pvP > 0.15;
+      const pvPct = Math.min(100, Math.max(0, (pvP / 50) * 100));
+
+      document.getElementById("svgPvP").textContent   = `${pvP.toFixed(2)} W`;
+      document.getElementById("svgPvV").textContent   = `${pvV.toFixed(2)} V`;
+      document.getElementById("svgPvI").textContent   = `${pvI.toFixed(3)} A`;
+      document.getElementById("svgPvPct").textContent = `${pvPct.toFixed(1)}% / 50W`;
+      document.getElementById("pvCapBar").setAttribute("width", ((pvPct / 100) * 188).toFixed(1));
+      document.getElementById("pvLed").setAttribute("fill", pvActive ? "#fbbf24" : "#334155");
+
+      const pvModeEl = document.getElementById("pvModeTag");
+      pvModeEl.textContent = pvActive ? "GENERATING" : d.lux > 50 ? "OPEN/LOW" : "IDLE";
+      pvModeEl.setAttribute("fill", pvActive ? "#fbbf24" : "#64748b");
+
+      // Environmental Sensors (consistent dot decimal!)
+      const luxText = d.lux >= 1000
+        ? `${d.lux.toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} lx`
+        : `${d.lux.toFixed(1)} lx`;
+      document.getElementById("svgLux").textContent = luxText;
+      const luxPct = Math.min(100, Math.max(0, (d.lux / 80000) * 100));
+      document.getElementById("luxGaugeBar").setAttribute("width", ((luxPct / 100) * 174).toFixed(1));
+
+      const luxTag = document.getElementById("svgLuxTag");
+      const luxBg  = document.getElementById("svgLuxTagBg");
+      if (d.lux >= 25000) {
+        luxTag.textContent = "CERAH"; luxTag.setAttribute("fill", "#fbbf24"); luxBg.setAttribute("fill", "#451a03");
+      } else if (d.lux >= 500) {
+        luxTag.textContent = "MENDUNG"; luxTag.setAttribute("fill", "#38bdf8"); luxBg.setAttribute("fill", "#0c4a6e");
+      } else if (d.lux >= 10) {
+        luxTag.textContent = "REDUP"; luxTag.setAttribute("fill", "#94a3b8"); luxBg.setAttribute("fill", "#1e293b");
+      } else {
+        luxTag.textContent = "GELAP"; luxTag.setAttribute("fill", "#64748b"); luxBg.setAttribute("fill", "#1e293b");
+      }
+
+      document.getElementById("svgTemp").textContent = `${d.temp.toFixed(2)} °C`;
+      const tempPct = Math.min(100, Math.max(0, (d.temp / 75) * 100));
+      document.getElementById("tempGaugeBar").setAttribute("width", ((tempPct / 100) * 174).toFixed(1));
+      const tempTag = document.getElementById("svgTempTag");
+      const tempBg  = document.getElementById("svgTempTagBg");
+      const tempBar = document.getElementById("tempGaugeBar");
+      if (d.temp >= 58) {
+        tempTag.textContent = "PANAS"; tempTag.setAttribute("fill", "#fda4af"); tempBg.setAttribute("fill", "#881337"); tempBar.setAttribute("fill", "#f43f5e");
+      } else if (d.temp >= 42) {
+        tempTag.textContent = "HANGAT"; tempTag.setAttribute("fill", "#fcd34d"); tempBg.setAttribute("fill", "#451a03"); tempBar.setAttribute("fill", "#f59e0b");
+      } else {
+        tempTag.textContent = "NORMAL"; tempTag.setAttribute("fill", "#34d399"); tempBg.setAttribute("fill", "#064e3b"); tempBar.setAttribute("fill", "#38bdf8");
+      }
+
+      // Feeder 1: PV -> MPPT
+      setPipeRail("railPvMppt", pvActive, "#f59e0b");
+      setParticleGroup("particles-pv", pvActive);
+      if (pvActive) updateParticleSpeed("anim-pv", pvP, 1.0);
+      setBreakerState("cb1Box", "cb1Core", pvActive, "#fbbf24");
+      document.getElementById("arrowPv").setAttribute("fill", pvActive ? "#fbbf24" : "#475569");
+      setPillStyle("pillPvBg", "flowValPv", pvActive ? `${pvP.toFixed(1)}W ▶` : "IDLE", pvActive, "#fbbf24", "#f59e0b");
+
+      // ── 2. MPPT OUTPUT (CONV-01) ──
+      const mpptV = d.mppt.v, mpptI = d.mppt.i, mpptP = d.mppt.p;
+      const mpptActive = mpptP > 0.15;
+      const faultMpptNoPv = mpptP > 0.5 && pvP < 0.2;
+      const faultPvNoMppt = pvP > 2.0 && mpptP < 0.1;
+
+      document.getElementById("svgMpptP").textContent = `${mpptP.toFixed(2)} W`;
+      document.getElementById("svgMpptV").textContent = `${mpptV.toFixed(2)} V`;
+      document.getElementById("svgMpptI").textContent = `${mpptI.toFixed(3)} A`;
+
+      const effEl   = document.getElementById("svgEff");
+      const lossEl  = document.getElementById("svgMpptLoss");
+      const effBar  = document.getElementById("mpptEffBar");
+      const hintEl  = document.getElementById("svgMpptHint");
+      const mpptLed = document.getElementById("mpptLed");
+      const mpptMode = document.getElementById("mpptModeTag");
+      const mpptTop  = document.getElementById("mpptTopBar");
+      const effBox   = document.getElementById("svgEffBox");
+
+      if (faultMpptNoPv) {
+        effEl.textContent  = "EFF: N/A (NO PV)";
+        effEl.setAttribute("fill", "#fbbf24");
+        lossEl.textContent = "PV FAULT";
+        lossEl.setAttribute("fill", "#f87171");
+        effBar.setAttribute("width", "174");
+        effBar.setAttribute("fill", "#f59e0b");
+        hintEl.textContent = "Cek INA2/INA3 tertukar / PSU";
+        hintEl.setAttribute("fill", "#fcd34d");
+        mpptLed.setAttribute("fill", "#f59e0b");
+        mpptMode.textContent = "ANOMALI";
+        mpptMode.setAttribute("fill", "#fbbf24");
+        mpptTop.setAttribute("fill", "#f59e0b");
+        effBox.setAttribute("stroke", "#b45309");
+      } else if (pvP > 0.3) {
+        const eff = Math.min(100, Math.max(0, (mpptP / pvP) * 100));
+        const loss = Math.max(0, pvP - mpptP);
+        effEl.textContent  = `EFF: ${eff.toFixed(1)}%`;
+        effEl.setAttribute("fill", "#2dd4bf");
+        lossEl.textContent = `LOSS: ${loss.toFixed(2)}W`;
+        lossEl.setAttribute("fill", "#94a3b8");
+        effBar.setAttribute("width", ((eff / 100) * 174).toFixed(1));
+        effBar.setAttribute("fill", "#14b8a6");
+        hintEl.textContent = "MPPT Tracking Normal";
+        hintEl.setAttribute("fill", "#64748b");
+        mpptLed.setAttribute("fill", "#14b8a6");
+        mpptMode.textContent = "TRACKING";
+        mpptMode.setAttribute("fill", "#2dd4bf");
+        mpptTop.setAttribute("fill", "#14b8a6");
+        effBox.setAttribute("stroke", "#1e293b");
+      } else {
+        effEl.textContent  = "EFF: STANDBY";
+        effEl.setAttribute("fill", "#64748b");
+        lossEl.textContent = "LOSS: 0.00W";
+        lossEl.setAttribute("fill", "#64748b");
+        effBar.setAttribute("width", "0");
+        hintEl.textContent = "Konversi DC-DC MPPT";
+        hintEl.setAttribute("fill", "#64748b");
+        mpptLed.setAttribute("fill", "#334155");
+        mpptMode.textContent = "STANDBY";
+        mpptMode.setAttribute("fill", "#64748b");
+        mpptTop.setAttribute("fill", "#14b8a6");
+        effBox.setAttribute("stroke", "#1e293b");
+      }
+
+      // Feeder 2: MPPT -> BUS
+      const mpptFlowColor = faultMpptNoPv ? "#f59e0b" : "#14b8a6";
+      const mpptTextColor = faultMpptNoPv ? "#fbbf24" : "#2dd4bf";
+      setPipeRail("railMpptBus", mpptActive, mpptFlowColor);
+      setParticleGroup("particles-mppt", mpptActive);
+      if (mpptActive) updateParticleSpeed("anim-mppt", mpptP, 1.0);
+      setBreakerState("cb2Box", "cb2Core", mpptActive, mpptTextColor);
+      document.getElementById("arrowMppt").setAttribute("fill", mpptActive ? mpptTextColor : "#475569");
+      setPillStyle("pillMpptBg", "flowValMppt", mpptActive ? `${mpptP.toFixed(1)}W ▶` : "IDLE", mpptActive, mpptTextColor, mpptFlowColor);
+
+      // ── 3. BATERAI LiFePO4 (BATT-01) ──
+      const battV = d.batt.v, battI = d.batt.i, battP = d.batt.p;
+      const absBattP = Math.abs(battP);
+      document.getElementById("svgBattP").textContent = `${absBattP.toFixed(2)} W`;
+      document.getElementById("svgBattV").textContent = `${battV.toFixed(2)} V`;
+      document.getElementById("svgBattI").textContent = `${battI >= 0 ? "+" : ""}${battI.toFixed(3)} A`;
+
+      // Battery SoC 4-cell gauge
+      const soc = estimateLiFePO4SoC(battV);
+      document.getElementById("svgBattSoc").textContent = battV > 1 ? `Est: ~${soc}%` : "Est: --%";
+      const cellThreshold = [15, 40, 65, 85];
+      const socColor = soc <= 20 ? "#f97316" : soc <= 50 ? "#eab308" : "#10b981";
+      for (let i = 0; i < 4; i++) {
+        const cell = document.getElementById("battCell" + (i + 1));
+        if (cell) cell.setAttribute("fill", soc >= cellThreshold[i] ? socColor : "#1e293b");
+      }
+
+      const battStateEl  = document.getElementById("svgBattState");
+      const battBgEl     = document.getElementById("svgBattBadgeBg");
+      const battBarEl    = document.getElementById("battTopBar");
+      const battLed      = document.getElementById("battLed");
+      const arrCharge    = document.getElementById("arrowBattCharge");
+      const arrDischarge = document.getElementById("arrowBattDischarge");
+
+      let battActive = false;
+      const isCharging    = battI < -0.015;
+      const isDischarging = battI > 0.015;
+
+      if (isCharging) {
+        battActive = true;
+        setPipeRail("railBusBatt", true, "#10b981");
+        setParticleGroup("particles-batt-chg", true);
+        setParticleGroup("particles-batt-dis", false);
+        updateParticleSpeed("anim-batt-chg", absBattP, 1.2);
+        setBreakerState("cb3Box", "cb3Core", true, "#34d399");
+
+        battStateEl.textContent = "CHARGING • MASUK";
+        battStateEl.setAttribute("fill", "#34d399");
+        battBgEl.setAttribute("fill", "#064e3b");
+        battBarEl.setAttribute("fill", "#10b981");
+        battLed.setAttribute("fill", "#10b981");
+        arrCharge.setAttribute("fill", "#34d399"); arrCharge.setAttribute("opacity", "1");
+        arrDischarge.setAttribute("opacity", "0.15");
+        setPillStyle("pillBattBg", "flowBattDir", `CHG ${absBattP.toFixed(1)}W ▶`, true, "#34d399", "#10b981");
+      } else if (isDischarging) {
+        battActive = true;
+        setPipeRail("railBusBatt", true, "#fb923c");
+        setParticleGroup("particles-batt-chg", false);
+        setParticleGroup("particles-batt-dis", true);
+        updateParticleSpeed("anim-batt-dis", absBattP, 1.2);
+        setBreakerState("cb3Box", "cb3Core", true, "#fb923c");
+
+        battStateEl.textContent = "DISCHARGING • KELUAR";
+        battStateEl.setAttribute("fill", "#fdba74");
+        battBgEl.setAttribute("fill", "#7c2d12");
+        battBarEl.setAttribute("fill", "#fb923c");
+        battLed.setAttribute("fill", "#fb923c");
+        arrCharge.setAttribute("opacity", "0.15");
+        arrDischarge.setAttribute("fill", "#fb923c"); arrDischarge.setAttribute("opacity", "1");
+        setPillStyle("pillBattBg", "flowBattDir", `◀ DIS ${absBattP.toFixed(1)}W`, true, "#fb923c", "#fb923c");
+      } else {
+        setPipeRail("railBusBatt", false);
+        setParticleGroup("particles-batt-chg", false);
+        setParticleGroup("particles-batt-dis", false);
+        setBreakerState("cb3Box", "cb3Core", false);
+
+        battStateEl.textContent = "STATUS: STANDBY";
+        battStateEl.setAttribute("fill", "#94a3b8");
+        battBgEl.setAttribute("fill", "#1e293b");
+        battBarEl.setAttribute("fill", "#475569");
+        battLed.setAttribute("fill", "#334155");
+        arrCharge.setAttribute("fill", "#475569"); arrCharge.setAttribute("opacity", "0.25");
+        arrDischarge.setAttribute("fill", "#475569"); arrDischarge.setAttribute("opacity", "0.2");
+        setPillStyle("pillBattBg", "flowBattDir", "STANDBY", false);
+      }
+
+      // ── 4. BEBAN & INVERTER (LOAD-01) ──
+      const loadV = d.load.v, loadI = d.load.i, loadP = d.load.p;
+      const loadActive = loadP > 0.15;
+      const loadPct = Math.min(100, Math.max(0, (loadP / 50) * 100));
+
+      document.getElementById("svgLoadP").textContent   = `${loadP.toFixed(2)} W`;
+      document.getElementById("svgLoadV").textContent   = `${loadV.toFixed(2)} V`;
+      document.getElementById("svgLoadI").textContent   = `${loadI.toFixed(3)} A`;
+      document.getElementById("svgLoadPct").textContent = `${loadPct.toFixed(0)}% / 50W`;
+      document.getElementById("loadCapBar").setAttribute("width", ((loadPct / 100) * 72).toFixed(1));
+      document.getElementById("loadLed").setAttribute("fill", loadActive ? "#c084fc" : "#334155");
+
+      const loadMode = document.getElementById("loadModeTag");
+      loadMode.textContent = loadActive ? "ACTIVE" : "IDLE";
+      loadMode.setAttribute("fill", loadActive ? "#c084fc" : "#64748b");
+
+      setPipeRail("railBusLoad", loadActive, "#a855f7");
+      setParticleGroup("particles-load", loadActive);
+      if (loadActive) updateParticleSpeed("anim-load", loadP, 1.2);
+      setBreakerState("cb4Box", "cb4Core", loadActive, "#c084fc");
+      document.getElementById("arrowLoad").setAttribute("fill", loadActive ? "#c084fc" : "#475569");
+      setPillStyle("pillLoadBg", "flowValLoad", loadActive ? `${loadP.toFixed(1)}W ▶` : "IDLE", loadActive, "#c084fc", "#a855f7");
+
+      // ── 5. DC BUSBAR VERTICAL FLOWS & KIRCHHOFF BALANCE ──
+      const railUpper = document.getElementById("railBusUpper");
+      const railLower = document.getElementById("railBusLower");
+
+      if (isCharging) {
+        railUpper.setAttribute("stroke", "#10b981");
+        railUpper.style.opacity = "0.85";
+        setParticleGroup("particles-bus-up", true);
+        setParticleGroup("particles-bus-down-b", false);
+      } else if (isDischarging) {
+        railUpper.setAttribute("stroke", "#fb923c");
+        railUpper.style.opacity = "0.85";
+        setParticleGroup("particles-bus-up", false);
+        setParticleGroup("particles-bus-down-b", true);
+      } else {
+        railUpper.style.opacity = "0";
+        setParticleGroup("particles-bus-up", false);
+        setParticleGroup("particles-bus-down-b", false);
+      }
+
+      if (loadActive) {
+        railLower.setAttribute("stroke", "#a855f7");
+        railLower.style.opacity = "0.85";
+        setParticleGroup("particles-bus-down-l", true);
+      } else {
+        railLower.style.opacity = "0";
+        setParticleGroup("particles-bus-down-l", false);
+      }
+
+      const activeVoltages = [
+        mpptV > 1 ? mpptV : 0,
+        battV > 1 ? battV : 0,
+        loadV > 1 ? loadV : 0,
+      ].filter((v) => v > 0);
+      const busV = activeVoltages.length ? activeVoltages.reduce((a, b) => a + b, 0) / activeVoltages.length : 0;
+
+      const pIn = (mpptActive ? mpptP : 0) + (isDischarging ? absBattP : 0);
+      const pOut = (loadActive ? loadP : 0) + (isCharging ? absBattP : 0);
+      const pDelta = pIn - pOut;
+      const iIn = (mpptI > 0 ? mpptI : 0) + (isDischarging ? battI : 0);
+      const iOut = (loadI > 0 ? loadI : 0) + (isCharging ? Math.abs(battI) : 0);
+      const iDiff = iIn - iOut;
+      const anyFlow = mpptActive || battActive || loadActive;
+
+      document.getElementById("svgBusV").textContent = `${busV.toFixed(2)} V`;
+      document.getElementById("svgBusBalance").textContent = `ΔP: ${pDelta >= 0 ? "+" : ""}${pDelta.toFixed(2)} W`;
+
+      const kclEl = document.getElementById("svgBusKcl");
+      if (!anyFlow) {
+        kclEl.textContent = "KCL: STANDBY";
+        kclEl.setAttribute("fill", "#64748b");
+      } else if (Math.abs(iDiff) <= 0.15) {
+        kclEl.textContent = `KCL OK (${iDiff >= 0 ? "+" : ""}${iDiff.toFixed(2)}A)`;
+        kclEl.setAttribute("fill", "#34d399");
+      } else {
+        kclEl.textContent = `IMBAL (${iDiff >= 0 ? "+" : ""}${iDiff.toFixed(2)}A)`;
+        kclEl.setAttribute("fill", "#fbbf24");
+      }
+
+      document.getElementById("busTapTop").setAttribute("stroke", isCharging ? "#34d399" : isDischarging ? "#fb923c" : "#475569");
+      document.getElementById("busTapMid").setAttribute("stroke", anyFlow ? "#14b8a6" : "#475569");
+      document.getElementById("busTapBot").setAttribute("stroke", loadActive ? "#c084fc" : "#475569");
+      document.getElementById("busLed").setAttribute("fill", anyFlow ? "#14b8a6" : "#475569");
+
+      // ── 6. SYSTEM OPERATING STATE & DIAGNOSTIC ALARMS ──
+      const statePill = document.getElementById("hmiSystemStatePill");
+      const stateTxt  = document.getElementById("hmiSystemStateText");
+      const scanLed   = document.getElementById("hmiScanLed");
+      const alarmBar  = document.getElementById("hmiAlarmBar");
+      const alarmTitle = document.getElementById("hmiAlarmTitle");
+      const alarmDesc  = document.getElementById("hmiAlarmDesc");
+
+      const alarms = [];
+      if (faultMpptNoPv) {
+        alarms.push({
+          title: `ALM-01 [ANOMALI DAYA]: MPPT Output terbaca ${mpptP.toFixed(2)} W saat Panel Surya ${pvP.toFixed(2)} W (${d.lux.toFixed(1)} lx)`,
+          desc: `Energi tidak mungkin berasal dari PV yang 0 W. KCL Bus menunjukkan INA2 (${mpptV.toFixed(2)}V, +${mpptI.toFixed(3)}A) menyuplai Beban (${loadI.toFixed(3)}A) + Baterai (${battI.toFixed(3)}A). Kemungkinan: (1) Alamat I2C / kabel sensor INA2 (0x41) & INA3 (0x44) tertukar, (2) Kabel/sekering PV INA1 (0x40) putus, atau (3) Ada adaptor/PSU terhubung di jalur MPPT.`,
+        });
+      } else if (faultPvNoMppt) {
+        alarms.push({
+          title: `ALM-02 [ANOMALI KONVERSI]: PV menghasilkan ${pvP.toFixed(2)} W tetapi MPPT Output ${mpptP.toFixed(2)} W`,
+          desc: `Periksa sekering/relay antara PV dan MPPT, baterai penuh (float cutoff), atau koneksi sensor INA2 (0x41).`,
+        });
+      }
+      if (anyFlow && Math.abs(iDiff) > 0.25) {
+        alarms.push({
+          title: `ALM-03 [KCL IMBALANCE]: Selisih arus DC Bus ${iDiff >= 0 ? "+" : ""}${iDiff.toFixed(3)} A`,
+          desc: `Cek kalibrasi y = m·x + c atau arah polaritas sensor INA219 pada salah satu cabang.`,
+        });
+      }
+      if (battV > 1.0 && battV < 11.6) {
+        alarms.push({
+          title: `ALM-04 [LOW BATTERY]: Tegangan LiFePO4 turun ke ${battV.toFixed(2)} V`,
+          desc: `Baterai mendekati batas cut-off aman LiFePO4 4S. Pertimbangkan memutus beban inverter.`,
+        });
+      }
+
+      if (alarms.length > 0) {
+        alarmBar.classList.remove("hidden");
+        alarmTitle.textContent = alarms[0].title;
+        alarmDesc.textContent  = alarms[0].desc;
+
+        statePill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/40";
+        stateTxt.textContent = "ANOMALY • CHECK";
+        scanLed.className = "scan-led w-1.5 h-1.5 rounded-full bg-amber-400";
+      } else {
+        alarmBar.classList.add("hidden");
+        if (pvActive && isCharging) {
+          statePill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/40";
+          stateTxt.textContent = "SOLAR + CHARGING";
+          scanLed.className = "scan-led w-1.5 h-1.5 rounded-full bg-emerald-400";
+        } else if (pvActive) {
+          statePill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-teal-500/15 text-teal-300 border border-teal-500/40";
+          stateTxt.textContent = "SOLAR ACTIVE";
+          scanLed.className = "scan-led w-1.5 h-1.5 rounded-full bg-teal-400";
+        } else if (isDischarging && loadActive) {
+          statePill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-orange-500/15 text-orange-300 border border-orange-500/40";
+          stateTxt.textContent = "BATTERY BACKUP";
+          scanLed.className = "scan-led w-1.5 h-1.5 rounded-full bg-orange-400";
+        } else if (anyFlow) {
+          statePill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/40";
+          stateTxt.textContent = "LOAD ACTIVE";
+          scanLed.className = "scan-led w-1.5 h-1.5 rounded-full bg-purple-400";
+        } else {
+          statePill.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700";
+          stateTxt.textContent = "STANDBY • IDLE";
+          scanLed.className = "scan-led w-1.5 h-1.5 rounded-full bg-zinc-400";
+        }
+      }
+
+      renderInspectorBar(d);
+    }
+
+    // ════════════════════════════════════════
+    // ENERGY ACCUMULATION & SYNC
+    // ════════════════════════════════════════
     function renderEnergyAcc() {
-      document.getElementById("accPv").textContent          = energyAcc.pv.toFixed(3);
-      document.getElementById("accMppt").textContent        = energyAcc.mppt.toFixed(3);
-      document.getElementById("accBattCharge").textContent  = energyAcc.battCharge.toFixed(3);
+      document.getElementById("accPv").textContent            = energyAcc.pv.toFixed(3);
+      document.getElementById("accMppt").textContent          = energyAcc.mppt.toFixed(3);
+      document.getElementById("accBattCharge").textContent    = energyAcc.battCharge.toFixed(3);
       document.getElementById("accBattDischarge").textContent = energyAcc.battDischarge.toFixed(3);
-      document.getElementById("accLoad").textContent        = energyAcc.load.toFixed(3);
+      document.getElementById("accLoad").textContent          = energyAcc.load.toFixed(3);
     }
 
     function resetEnergyAcc() {
@@ -1497,9 +2314,6 @@
       showToast("Akumulasi energi Wh direset");
     }
 
-    // ════════════════════════════════════════
-    // BATCH SYNC
-    // ════════════════════════════════════════
     function saveSyncPref() {
       localStorage.setItem(KEY_SYNC_PREF, document.getElementById("chkSyncApi").checked?"1":"0");
     }
@@ -1587,121 +2401,17 @@
     }
 
     // ════════════════════════════════════════
-    // RENDER POWER FLOW
-    // ════════════════════════════════════════
-    function renderPowerFlowUI(d) {
-      document.getElementById("rtcText").textContent = (d.ts||"--:--:--").split(" ")[1] || d.ts;
-
-      const sdBadge = document.getElementById("sdBadge");
-      const sdText  = document.getElementById("sdText");
-      if (typeof d.sd === "boolean") {
-        if (d.sd) {
-          sdBadge.className = "hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-300 transition-all";
-          sdText.textContent = "SD: LOGGING";
-        } else {
-          sdBadge.className = "hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs font-mono text-rose-300 transition-all";
-          sdText.textContent = "SD: OFF";
-        }
-      }
-
-      document.getElementById("svgLux").textContent  = `${d.lux.toLocaleString("id-ID",{minimumFractionDigits:1,maximumFractionDigits:1})} lx`;
-      document.getElementById("svgTemp").textContent = `${d.temp.toFixed(2)} °C`;
-
-      const pvP = d.pv.p;
-      document.getElementById("svgPvP").textContent = `${pvP.toFixed(2)} W`;
-      document.getElementById("svgPvV").textContent = `${d.pv.v.toFixed(2)} V`;
-      document.getElementById("svgPvI").textContent = `${d.pv.i.toFixed(3)} A`;
-      const pvActive = pvP > 0.15;
-      setFlowLine("flowPvMppt","railPvMppt", pvActive?"forward":"idle", pvP,"#f59e0b","#fde68a");
-      setParticleGroup("particles-pv", pvActive);
-      if (pvActive) updateParticleSpeed("anim-pv", pvP, 1.0);
-      document.getElementById("arrowPv").setAttribute("fill", pvActive?"#fbbf24":"#3f3f46");
-      const pvLbl = document.getElementById("flowValPv");
-      pvLbl.textContent = pvActive ? `${pvP.toFixed(1)}W →` : "IDLE";
-      pvLbl.setAttribute("fill", pvActive?"#fbbf24":"#71717a");
-
-      const mpptP = d.mppt.p;
-      const eff = pvP>0.3 ? Math.min(100,(mpptP/pvP)*100) : 0;
-      document.getElementById("svgMpptP").textContent = `${mpptP.toFixed(2)} W`;
-      document.getElementById("svgMpptV").textContent = `${d.mppt.v.toFixed(2)} V`;
-      document.getElementById("svgMpptI").textContent = `${d.mppt.i.toFixed(3)} A`;
-      document.getElementById("svgEff").textContent   = `Efisiensi: ${eff.toFixed(1)}%`;
-      const mpptActive = mpptP > 0.15;
-      setFlowLine("flowMpptBus","railMpptBus", mpptActive?"forward":"idle", mpptP,"#14b8a6","#99f6e4");
-      setParticleGroup("particles-mppt", mpptActive);
-      if (mpptActive) updateParticleSpeed("anim-mppt", mpptP, 1.0);
-      document.getElementById("arrowMppt").setAttribute("fill", mpptActive?"#2dd4bf":"#3f3f46");
-      const mpptLbl = document.getElementById("flowValMppt");
-      mpptLbl.textContent = mpptActive ? `${mpptP.toFixed(1)}W →` : "IDLE";
-      mpptLbl.setAttribute("fill", mpptActive?"#2dd4bf":"#71717a");
-
-      const battI = d.batt.i;
-      const absBattP = Math.abs(d.batt.p);
-      document.getElementById("svgBattP").textContent = `${absBattP.toFixed(2)} W`;
-      document.getElementById("svgBattV").textContent = `${d.batt.v.toFixed(2)} V`;
-      document.getElementById("svgBattI").textContent = `${battI>=0?"+":""}${battI.toFixed(3)} A`;
-
-      const battStateEl = document.getElementById("svgBattState");
-      const battBgEl    = document.getElementById("svgBattBadgeBg");
-      const battBarEl   = document.getElementById("battTopBar");
-      const battDirEl   = document.getElementById("flowBattDir");
-      const arrCharge   = document.getElementById("arrowBattCharge");
-      const arrDischarge= document.getElementById("arrowBattDischarge");
-      let battActive = false;
-
-      if (battI < -0.015) {
-        battActive = true;
-        setFlowLine("flowBusBatt","railBusBatt","forward",absBattP,"#10b981","#a7f3d0");
-        setParticleGroup("particles-batt-chg",true); setParticleGroup("particles-batt-dis",false);
-        updateParticleSpeed("anim-batt-chg",absBattP,1.35);
-        battStateEl.textContent="STATUS: CHARGING"; battStateEl.setAttribute("fill","#34d399");
-        battBgEl.setAttribute("fill","#064e3b"); battBarEl.setAttribute("fill","#10b981");
-        battDirEl.textContent=`CHARGING ${absBattP.toFixed(1)}W →`; battDirEl.setAttribute("fill","#34d399");
-        arrCharge.setAttribute("fill","#34d399"); arrCharge.setAttribute("opacity","1"); arrDischarge.setAttribute("opacity","0.2");
-      } else if (battI > 0.015) {
-        battActive = true;
-        setFlowLine("flowBusBatt","railBusBatt","reverse",absBattP,"#fb923c","#fed7aa");
-        setParticleGroup("particles-batt-chg",false); setParticleGroup("particles-batt-dis",true);
-        updateParticleSpeed("anim-batt-dis",absBattP,1.35);
-        battStateEl.textContent="STATUS: DISCHARGING"; battStateEl.setAttribute("fill","#fdba74");
-        battBgEl.setAttribute("fill","#7c2d12"); battBarEl.setAttribute("fill","#fb923c");
-        battDirEl.textContent=`← DISCHARGING ${absBattP.toFixed(1)}W`; battDirEl.setAttribute("fill","#fb923c");
-        arrCharge.setAttribute("opacity","0.2"); arrDischarge.setAttribute("fill","#fb923c"); arrDischarge.setAttribute("opacity","1");
-      } else {
-        setFlowLine("flowBusBatt","railBusBatt","idle",0,"#10b981","#a7f3d0");
-        setParticleGroup("particles-batt-chg",false); setParticleGroup("particles-batt-dis",false);
-        battStateEl.textContent="STATUS: STANDBY"; battStateEl.setAttribute("fill","#a1a1aa");
-        battBgEl.setAttribute("fill","#27272a"); battBarEl.setAttribute("fill","#52525b");
-        battDirEl.textContent="STANDBY"; battDirEl.setAttribute("fill","#71717a");
-        arrCharge.setAttribute("fill","#3f3f46"); arrCharge.setAttribute("opacity","0.4");
-        arrDischarge.setAttribute("fill","#3f3f46"); arrDischarge.setAttribute("opacity","0.25");
-      }
-
-      const loadP = d.load.p;
-      document.getElementById("svgLoadP").textContent = `${loadP.toFixed(2)} W`;
-      document.getElementById("svgLoadV").textContent = `${d.load.v.toFixed(2)} V`;
-      document.getElementById("svgLoadI").textContent = `${d.load.i.toFixed(3)} A`;
-      const loadActive = loadP > 0.15;
-      setFlowLine("flowBusLoad","railBusLoad", loadActive?"forward":"idle", loadP,"#a855f7","#e9d5ff");
-      setParticleGroup("particles-load", loadActive);
-      if (loadActive) updateParticleSpeed("anim-load", loadP, 1.35);
-      document.getElementById("arrowLoad").setAttribute("fill", loadActive?"#c084fc":"#3f3f46");
-      const loadLbl = document.getElementById("flowValLoad");
-      loadLbl.textContent = loadActive ? `${loadP.toFixed(1)}W →` : "IDLE";
-      loadLbl.setAttribute("fill", loadActive?"#c084fc":"#71717a");
-
-      const anyFlow = mpptActive || battActive || loadActive;
-      document.getElementById("busDot").classList.toggle("bus-ring-active", anyFlow);
-      document.getElementById("busOuter").setAttribute("stroke", anyFlow?"#14b8a6":"#3f3f46");
-    }
-
-    // ════════════════════════════════════════
     // INCOMING TELEMETRY
     // ════════════════════════════════════════
     function handleIncomingTelemetry(rawD) {
       const d = normalizeTelemetry(rawD);
       if (!d) return;
-      renderPowerFlowUI(d);
+      lastLiveTelemetry = d;
+      updateSessionStats(d);
+
+      if (hmiSimMode === "live") {
+        renderPowerFlowUI(d);
+      }
       try { localStorage.setItem(KEY_LAST_TELEM, JSON.stringify(d)); } catch {}
 
       const isNewTimestamp = !seenTimestamps.has(d.ts);
@@ -1883,7 +2593,6 @@
         });
       });
 
-      // Load saved MQTT config
       const savedCfg = localStorage.getItem(KEY_MQTT_CFG);
       if (savedCfg) {
         try {
@@ -1911,11 +2620,17 @@
       }
       renderEnergyAcc();
 
+      selectHmiNode("bus");
+
       const lastTelem = localStorage.getItem(KEY_LAST_TELEM);
       if (lastTelem) {
         try {
           const parsedLast = normalizeTelemetry(JSON.parse(lastTelem));
-          if (parsedLast) { renderPowerFlowUI(parsedLast); lastEnergyTsMs=parseTimestamp(parsedLast.ts).ms; }
+          if (parsedLast) {
+            lastLiveTelemetry = parsedLast;
+            renderPowerFlowUI(parsedLast);
+            lastEnergyTsMs = parseTimestamp(parsedLast.ts).ms;
+          }
         } catch {}
       }
 
