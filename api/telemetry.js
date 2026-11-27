@@ -1,10 +1,25 @@
 const CSV_HEADER =
   "timestamp,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p";
 
+function cleanEnvValue(val) {
+  return String(val || "").trim().replace(/^["']|["']$/g, "");
+}
+
 function getSupabaseCfg() {
-  const url = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  if (!url || !key) return null;
+  const rawUrl = cleanEnvValue(process.env.SUPABASE_URL);
+  const key = cleanEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (!rawUrl || !key) return { error: "Environment Variables SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY belum diatur di Vercel." };
+
+  if (!/^https?:\/\//i.test(rawUrl)) {
+    return { error: "SUPABASE_URL di Vercel tidak valid (harus diawali https://... bukan API key)." };
+  }
+
+  // Ambil origin murni (mencegah error PGRST125 jika SUPABASE_URL di Vercel terlanjur diisi .../rest/v1)
+  let url = rawUrl.replace(/\/rest\/v1.*$/i, "").replace(/\/+$/, "");
+  try {
+    url = new URL(rawUrl).origin;
+  } catch {}
+
   return { url, key };
 }
 
@@ -15,6 +30,13 @@ function sbHeaders(key, extra = {}) {
     "Content-Type": "application/json",
     ...extra,
   };
+}
+
+function buildDateRangeFilter(dateStr) {
+  if (!dateStr || dateStr === "ALL" || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return "";
+  const start = encodeURIComponent(`${dateStr} 00:00:00`);
+  const end = encodeURIComponent(`${dateStr} 23:59:59`);
+  return `&ts=gte.${start}&ts=lte.${end}`;
 }
 
 function normalizeIncoming(d) {
@@ -74,9 +96,25 @@ function dbRowToCsv(r) {
   ].join(",");
 }
 
+async function fetchExactCount(cfg, dateStr = "") {
+  const filter = buildDateRangeFilter(dateStr);
+  const res = await fetch(`${cfg.url}/rest/v1/plts_telemetry?select=ts${filter}`, {
+    method: "HEAD",
+    headers: sbHeaders(cfg.key, { Prefer: "count=exact" }),
+  });
+  if (!res.ok) return 0;
+  const range = res.headers.get("content-range") || "";
+  const slashIdx = range.indexOf("/");
+  if (slashIdx < 0) return 0;
+  const n = Number(range.slice(slashIdx + 1));
+  return Number.isFinite(n) ? n : 0;
+}
+
 async function fetchChartDay(cfg, dateStr) {
   const all = [];
-  // 2 halaman x 1000 sudah mencakup seluruh 1440 menit dalam 24 jam
+  let rpcOk = false;
+
+  // Jalur cepat: RPC get_plts_chart_day (maks 1440 titik/menit dalam 24 jam)
   for (const [from, to] of [[0, 999], [1000, 1999]]) {
     const res = await fetch(`${cfg.url}/rest/v1/rpc/get_plts_chart_day`, {
       method: "POST",
@@ -84,11 +122,37 @@ async function fetchChartDay(cfg, dateStr) {
       body: JSON.stringify({ p_date: dateStr }),
     });
     if (!res.ok) break;
+    rpcOk = true;
     const chunk = await res.json();
     if (!Array.isArray(chunk) || chunk.length === 0) break;
     all.push(...chunk);
     if (chunk.length < 1000) break;
   }
+
+  // Fallback otomatis jika RPC get_plts_chart_day belum terpasang: tarik & resample 1 titik/menit
+  if (!rpcOk && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const filter = buildDateRangeFilter(dateStr);
+    const byMin = new Map();
+    for (let page = 0; page < 90; page++) {
+      const from = page * 1000;
+      const to = from + 999;
+      const res = await fetch(
+        `${cfg.url}/rest/v1/plts_telemetry?select=ts,lux,temp_c,pv_p,mppt_p,batt_p,load_p${filter}&order=ts.asc`,
+        { headers: sbHeaders(cfg.key, { Range: `${from}-${to}` }) }
+      );
+      if (!res.ok) break;
+      const chunk = await res.json();
+      if (!Array.isArray(chunk) || chunk.length === 0) break;
+      for (const r of chunk) {
+        if (typeof r.ts === "string" && r.ts.length >= 16) {
+          byMin.set(r.ts.slice(0, 16), r);
+        }
+      }
+      if (chunk.length < 1000) break;
+    }
+    all.push(...Array.from(byMin.values()));
+  }
+
   return all.map((r) => ({
     ts: r.ts,
     lux: Number(r.lux || 0),
@@ -108,11 +172,11 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
 
   const cfg = getSupabaseCfg();
-  if (!cfg) {
+  if (cfg.error) {
     return res.status(503).json({
       ok: false,
       cloud: false,
-      error: "Environment Variables SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY belum diatur di Vercel.",
+      error: cfg.error,
     });
   }
 
@@ -127,15 +191,12 @@ module.exports = async function handler(req, res) {
       if (format === "csv") {
         const csvLines = [CSV_HEADER];
         const pageSize = 1000;
-        const maxPages = 90; // Maks 90.000 baris (> 1 hari penuh 1 detik)
+        const maxPages = 90;
+        const dateFilter = buildDateRangeFilter(filterDate);
 
         for (let page = 0; page < maxPages; page++) {
           const from = page * pageSize;
           const to = from + pageSize - 1;
-          const dateFilter =
-            filterDate && filterDate !== "ALL"
-              ? `&date_key=eq.${encodeURIComponent(filterDate)}`
-              : "";
           const url = `${cfg.url}/rest/v1/plts_telemetry?select=ts,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p${dateFilter}&order=ts.asc`;
 
           const r = await fetch(url, {
@@ -172,7 +233,26 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // 3. Ringkasan cepat saat website dibuka/refresh (Tanggal + Total + 30 baris terbaru + Grafik Hari Ini)
+      // 3. Preview 20 baris terbaru untuk filter tanggal di tabel Dataset (lintas perangkat identik)
+      if (mode === "table") {
+        const limit = Math.min(50, Math.max(1, Number(req.query?.limit || 20)));
+        const dateFilter = buildDateRangeFilter(filterDate);
+        const url = `${cfg.url}/rest/v1/plts_telemetry?select=ts,sd,lux,temp_c,pv_v,pv_i,pv_p,mppt_v,mppt_i,mppt_p,batt_v,batt_i,batt_p,load_v,load_i,load_p${dateFilter}&order=ts.desc&limit=${limit}`;
+        const r = await fetch(url, { headers: sbHeaders(cfg.key) });
+        if (!r.ok) {
+          const errTxt = await r.text();
+          return res.status(502).json({ ok: false, cloud: false, error: errTxt });
+        }
+        const rows = await r.json();
+        return res.status(200).json({
+          ok: true,
+          cloud: true,
+          date: filterDate || "ALL",
+          data: Array.isArray(rows) ? rows.map(dbRowToClient) : [],
+        });
+      }
+
+      // 4. Ringkasan saat website dibuka/refresh/polling (Tanggal + Total + 30 baris terbaru + Grafik Hari Ini)
       if (mode === "summary") {
         const targetDate = filterDate || new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10);
 
@@ -189,15 +269,44 @@ module.exports = async function handler(req, res) {
           fetchChartDay(cfg, targetDate),
         ]);
 
-        const datesRaw = datesRes.ok ? await datesRes.json() : [];
-        const latestRaw = latestRes.ok ? await latestRes.json() : [];
+        // Jangan telan error Supabase! Jika tabel utama gagal diakses (mis. PGRST125/key salah), laporkan jujur!
+        if (!latestRes.ok) {
+          const errTxt = await latestRes.text();
+          return res.status(502).json({
+            ok: false,
+            cloud: false,
+            error: `Supabase Error (${latestRes.status}): ${errTxt}`,
+          });
+        }
 
-        const dates = Array.isArray(datesRaw)
-          ? datesRaw.map((d) => ({ date: d.date_key, count: Number(d.row_count || 0) }))
-          : [];
-        const totalCount = dates.reduce((acc, item) => acc + item.count, 0);
-        const todayEntry = dates.find((d) => d.date === targetDate);
-        const todayCount = todayEntry ? todayEntry.count : 0;
+        const latestRaw = await latestRes.json();
+        let dates = [];
+        let totalCount = 0;
+        let todayCount = 0;
+
+        if (datesRes.ok) {
+          const datesRaw = await datesRes.json();
+          dates = Array.isArray(datesRaw)
+            ? datesRaw.map((d) => ({ date: d.date_key, count: Number(d.row_count || 0) }))
+            : [];
+          totalCount = dates.reduce((acc, item) => acc + item.count, 0);
+          const todayEntry = dates.find((d) => d.date === targetDate);
+          todayCount = todayEntry ? todayEntry.count : 0;
+        } else {
+          // Fallback jika RPC get_plts_dates belum ada: hitung persis lewat header Content-Range
+          [totalCount, todayCount] = await Promise.all([
+            fetchExactCount(cfg),
+            fetchExactCount(cfg, targetDate),
+          ]);
+          const dateSet = new Set([targetDate]);
+          for (const r of latestRaw) {
+            if (typeof r.ts === "string" && r.ts.length >= 10) dateSet.add(r.ts.slice(0, 10));
+          }
+          dates = Array.from(dateSet).sort().reverse().map((dt) => ({
+            date: dt,
+            count: dt === targetDate ? todayCount : 0,
+          }));
+        }
 
         return res.status(200).json({
           ok: true,
@@ -210,16 +319,17 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // 4. Default GET: 30 baris terbaru (opsional filter tanggal)
-      const dateQuery =
-        filterDate && filterDate !== "ALL"
-          ? `&date_key=eq.${encodeURIComponent(filterDate)}`
-          : "";
+      // 5. Default GET: 50 baris terbaru
+      const dateQuery = buildDateRangeFilter(filterDate);
       const r = await fetch(
         `${cfg.url}/rest/v1/plts_telemetry?select=*${dateQuery}&order=ts.desc&limit=50`,
         { headers: sbHeaders(cfg.key) }
       );
-      const rows = r.ok ? await r.json() : [];
+      if (!r.ok) {
+        const errTxt = await r.text();
+        return res.status(502).json({ ok: false, cloud: false, error: errTxt });
+      }
+      const rows = await r.json();
       return res.status(200).json({
         ok: true,
         cloud: true,
@@ -238,7 +348,6 @@ module.exports = async function handler(req, res) {
           ? rawBody.batch
           : [rawBody];
 
-      // Deduplikasi internal per batch berdasarkan ts
       const map = new Map();
       for (const item of incoming) {
         const clean = normalizeIncoming(item);
@@ -249,7 +358,6 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ ok: false, error: "Payload sensor tidak valid" });
       }
 
-      // Kirim per potongan maks 500 baris agar aman untuk impor CSV besar
       for (let i = 0; i < rows.length; i += 500) {
         const slice = rows.slice(i, i + 500);
         const up = await fetch(`${cfg.url}/rest/v1/plts_telemetry?on_conflict=ts`, {
@@ -272,8 +380,8 @@ module.exports = async function handler(req, res) {
     if (req.method === "DELETE") {
       const filterDate = req.query?.date ? String(req.query.date).trim() : "";
       const filterParam =
-        filterDate && filterDate !== "ALL"
-          ? `date_key=eq.${encodeURIComponent(filterDate)}`
+        filterDate && filterDate !== "ALL" && /^\d{4}-\d{2}-\d{2}$/.test(filterDate)
+          ? `ts=gte.${encodeURIComponent(filterDate + " 00:00:00")}&ts=lte.${encodeURIComponent(filterDate + " 23:59:59")}`
           : `ts=not.is.null`;
 
       const del = await fetch(`${cfg.url}/rest/v1/plts_telemetry?${filterParam}`, {
