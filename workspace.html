@@ -979,7 +979,7 @@
                 </button>
               </div>
               <div class="flex flex-wrap items-center gap-2">
-                <select id="datasetDateFilter" onchange="renderTable()"
+                <select id="datasetDateFilter" onchange="onDatasetDateFilterChange()"
                   class="bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs font-mono px-2.5 py-2 rounded-lg focus:outline-none focus:border-teal-500 transition-colors">
                   <option value="ALL">Semua Tanggal</option>
                 </select>
@@ -1166,11 +1166,12 @@
       topic: "barokahjaya/plts/telemetry",
     };
 
-    const KEY_MQTT_CFG    = "barokah_jaya_mqtt_cfg_v3";
-    const KEY_ENERGY_ACC  = "barokah_jaya_energy_acc_v2";
-    const KEY_LAST_TELEM  = "barokah_jaya_last_telem_v1";
-    const KEY_RECORD_PREF = "barokah_jaya_record_pref_v1";
-    const KEY_SYNC_PREF   = "barokah_jaya_sync_pref_v1";
+    const KEY_MQTT_CFG      = "barokah_jaya_mqtt_cfg_v3";
+    const KEY_ENERGY_ACC    = "barokah_jaya_energy_acc_v2";
+    const KEY_ENERGY_RESET  = "barokah_jaya_energy_reset_ts_v1";
+    const KEY_LAST_TELEM    = "barokah_jaya_last_telem_v1";
+    const KEY_RECORD_PREF   = "barokah_jaya_record_pref_v1";
+    const KEY_SYNC_PREF     = "barokah_jaya_sync_pref_v1";
 
     const IDB_NAME  = "BarokahJayaPLTS_DB";
     const IDB_VER   = 1;
@@ -1182,16 +1183,21 @@
     let manualDisconnect = false;
     let isRecording = true;
     let cloudAvailable = false;
+    let hasLiveMqttPacket = false;
+    let lastCloudErrorAlerted = "";
 
     let recordedDataset = [];
     let seenTimestamps = new Set();
     let pendingApiQueue = [];
+    let liveRecentRows = [];
+    let cloudLatestRows = [];
+    let cloudTableCache = new Map();
 
     let cloudDatesMap = new Map();
     let cloudBaseTotal = 0;
     let cloudBaseToday = 0;
-    let liveAddedSinceSummary = 0;
-    let liveTodaySinceSummary = 0;
+    let cloudChartTodayPoints = [];
+    let energyResetTs = localStorage.getItem(KEY_ENERGY_RESET) || "";
 
     let dailyHistory = {};
     let selectedChartDate = getLocalDateStr();
@@ -1388,27 +1394,51 @@
       try {
         const res  = await fetch(`/api/telemetry?mode=summary&date=${encodeURIComponent(today)}`,{ cache:"no-store" });
         const json = await res.json();
-        if (!res.ok || !json.ok) { setCloudUI(false,"Env Supabase Belum Diisi"); return; }
+        if (!res.ok || !json.ok) {
+          const errReason = json && json.error ? String(json.error).slice(0, 64) : "Env Supabase Belum Diisi";
+          setCloudUI(false, errReason);
+          if (showNotify) showToast(`Cloud Error: ${errReason}`);
+          return;
+        }
         setCloudUI(true);
+        lastCloudErrorAlerted = "";
         cloudDatesMap.clear();
         if (Array.isArray(json.dates)) {
           for (const d of json.dates) cloudDatesMap.set(d.date, Number(d.count||0));
         }
         cloudBaseTotal = Number(json.totalCount||0);
         cloudBaseToday = Number(json.todayCount||0);
-        liveAddedSinceSummary = 0;
-        liveTodaySinceSummary = 0;
+
+        cloudChartTodayPoints = [];
         if (Array.isArray(json.chartToday)) {
-          for (const pt of json.chartToday) { const c=normalizeTelemetry(pt); if(c) upsertHistoryPoint(c); }
+          for (const pt of json.chartToday) {
+            const c = normalizeTelemetry(pt);
+            if (c) {
+              upsertHistoryPoint(c);
+              cloudChartTodayPoints.push(c);
+            }
+          }
+          recomputeSyncedEnergyToday();
         }
-        if (Array.isArray(json.latest) && json.latest.length > 0) {
-          await mergeIncomingBatch(json.latest, false);
-          const newest = normalizeTelemetry(json.latest[json.latest.length-1]);
-          if (newest) {
-            lastLiveTelemetry = newest;
-            if (!isConnected && hmiSimMode === "live") renderPowerFlowUI(newest);
+
+        if (Array.isArray(json.latest)) {
+          cloudLatestRows = json.latest.map(normalizeTelemetry).filter(Boolean);
+          cloudTableCache.set("ALL", cloudLatestRows.slice().reverse());
+          if (cloudLatestRows.length > 0) {
+            await mergeIncomingBatch(cloudLatestRows, false);
+            const newest = cloudLatestRows[cloudLatestRows.length - 1];
+            if (newest) {
+              lastLiveTelemetry = newest;
+              if (!hasLiveMqttPacket && hmiSimMode === "live") renderPowerFlowUI(newest);
+            }
           }
         }
+
+        const activeFilter = document.getElementById("datasetDateFilter")?.value || "ALL";
+        if (activeFilter !== "ALL" && currentPage === "dataset") {
+          await fetchCloudTableForDate(activeFilter);
+        }
+
         updateDatasetStatsUI();
         renderTable();
         renderChartsForDate(selectedChartDate);
@@ -1416,6 +1446,105 @@
       } catch {
         setCloudUI(false, "Mode Offline / Lokal");
       }
+    }
+
+    async function fetchCloudTableForDate(filterDate) {
+      if (!cloudAvailable || !filterDate || filterDate === "ALL") return;
+      try {
+        const res = await fetch(`/api/telemetry?mode=table&date=${encodeURIComponent(filterDate)}&limit=20`, { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json.ok && Array.isArray(json.data)) {
+          cloudTableCache.set(filterDate, json.data.map(normalizeTelemetry).filter(Boolean));
+        }
+      } catch {}
+    }
+
+    async function onDatasetDateFilterChange() {
+      const filterDate = document.getElementById("datasetDateFilter").value || "ALL";
+      renderTable();
+      if (cloudAvailable && filterDate !== "ALL") {
+        await fetchCloudTableForDate(filterDate);
+        renderTable();
+      }
+    }
+
+    function integrateCloudChartEnergy(points, resetTsStr) {
+      const acc = { pv: 0, mppt: 0, battCharge: 0, battDischarge: 0, load: 0 };
+      if (!Array.isArray(points) || points.length === 0) return { acc, lastTs: "" };
+
+      const filtered = points
+        .filter((p) => !resetTsStr || p.ts > resetTsStr)
+        .map((p) => ({ ...p, parsed: parseTimestamp(p.ts) }))
+        .sort((a, b) => a.parsed.ms - b.parsed.ms);
+
+      if (filtered.length === 0) return { acc, lastTs: "" };
+
+      for (let i = 0; i < filtered.length; i++) {
+        const cur = filtered[i];
+        let dtH = 1 / 60;
+        let pvP = cur.pv.p, mpptP = cur.mppt.p, battP = cur.batt.p, loadP = cur.load.p;
+
+        if (i > 0) {
+          const prev = filtered[i - 1];
+          const diffH = (cur.parsed.ms - prev.parsed.ms) / 3600000;
+          if (diffH > 0 && diffH <= 0.1) {
+            dtH = diffH;
+            pvP   = (prev.pv.p + cur.pv.p) / 2;
+            mpptP = (prev.mppt.p + cur.mppt.p) / 2;
+            battP = (prev.batt.p + cur.batt.p) / 2;
+            loadP = (prev.load.p + cur.load.p) / 2;
+          }
+        }
+
+        acc.pv   += Math.max(0, pvP) * dtH;
+        acc.mppt += Math.max(0, mpptP) * dtH;
+        if (battP < -0.15) acc.battCharge += Math.abs(battP) * dtH;
+        else if (battP > 0.15) acc.battDischarge += Math.abs(battP) * dtH;
+        acc.load += Math.max(0, loadP) * dtH;
+      }
+
+      return { acc, lastTs: filtered[filtered.length - 1].ts };
+    }
+
+    function recomputeSyncedEnergyToday() {
+      if (!cloudAvailable) return;
+      const today = getLocalDateStr();
+      if (energyResetTs && !energyResetTs.startsWith(today)) {
+        energyResetTs = "";
+        localStorage.removeItem(KEY_ENERGY_RESET);
+      }
+
+      const { acc: baseAcc, lastTs: cloudLastTs } = integrateCloudChartEnergy(cloudChartTodayPoints, energyResetTs);
+      const tailRows = liveRecentRows.filter((r) =>
+        r.ts.startsWith(today) &&
+        (!energyResetTs || r.ts > energyResetTs) &&
+        (!cloudLastTs || r.ts > cloudLastTs)
+      ).sort((a, b) => a.ts.localeCompare(b.ts));
+
+      let prevMs = cloudLastTs ? parseTimestamp(cloudLastTs).ms : null;
+      for (const r of tailRows) {
+        const curMs = parseTimestamp(r.ts).ms;
+        let dtMs = 1000;
+        if (prevMs !== null) {
+          const diff = curMs - prevMs;
+          dtMs = (diff > 0 && diff <= 5000) ? diff : 1000;
+        }
+        prevMs = curMs;
+        const dtH = dtMs / 3600000;
+        baseAcc.pv   += Math.max(0, r.pv.p) * dtH;
+        baseAcc.mppt += Math.max(0, r.mppt.p) * dtH;
+        if (r.batt.i < -0.015) baseAcc.battCharge += Math.abs(r.batt.p) * dtH;
+        else if (r.batt.i > 0.015) baseAcc.battDischarge += Math.abs(r.batt.p) * dtH;
+        baseAcc.load += Math.max(0, r.load.p) * dtH;
+      }
+
+      energyAcc = baseAcc;
+      if (tailRows.length > 0) lastEnergyTsMs = parseTimestamp(tailRows[tailRows.length - 1].ts).ms;
+      else if (cloudLastTs) lastEnergyTsMs = parseTimestamp(cloudLastTs).ms;
+
+      renderEnergyAcc();
+      try { localStorage.setItem(KEY_ENERGY_ACC, JSON.stringify(energyAcc)); } catch {}
     }
 
     // ════════════════════════════════════════
@@ -1690,7 +1819,7 @@
         titleEl.style.opacity = "1";
         currentPage = page;
         if (page === "grafik") { renderChartsForDate(selectedChartDate); powerChart.resize(); luxChart.resize(); tempChart.resize(); }
-        else if (page === "dataset") { renderTable(); }
+        else if (page === "dataset") { onDatasetDateFilterChange(); }
       };
 
       if (instant || !prevEl) { showTarget(); return; }
@@ -2307,6 +2436,12 @@
 
     function resetEnergyAcc() {
       if (!confirm("Reset semua nilai Akumulasi Energi (Wh) ke 0?")) return;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const nowStr = `${getLocalDateStr(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      energyResetTs = (lastLiveTelemetry && lastLiveTelemetry.ts > nowStr) ? lastLiveTelemetry.ts : nowStr;
+      localStorage.setItem(KEY_ENERGY_RESET, energyResetTs);
+
       energyAcc = { pv:0, mppt:0, battCharge:0, battDischarge:0, load:0 };
       lastEnergyTsMs = null;
       localStorage.removeItem(KEY_ENERGY_ACC);
@@ -2326,10 +2461,23 @@
       if (useBeacon && navigator.sendBeacon) { navigator.sendBeacon("/api/telemetry", new Blob([bodyStr],{type:"application/json"})); return; }
       try {
         const res = await fetch("/api/telemetry",{ method:"POST", headers:{"Content-Type":"application/json"}, body:bodyStr });
-        if (!res.ok) pendingApiQueue.unshift(...batch);
+        if (!res.ok) {
+          pendingApiQueue.unshift(...batch);
+          let errMsg = `HTTP ${res.status}`;
+          try { const j = await res.json(); if (j?.error) errMsg = String(j.error).slice(0, 80); } catch {}
+          if (errMsg !== lastCloudErrorAlerted) {
+            lastCloudErrorAlerted = errMsg;
+            showToast(`Gagal simpan ke Cloud: ${errMsg}`);
+          }
+          if (pendingApiQueue.length > 600) pendingApiQueue.splice(0, pendingApiQueue.length-600);
+          return false;
+        }
+        lastCloudErrorAlerted = "";
+        return true;
       } catch {
         pendingApiQueue.unshift(...batch);
         if (pendingApiQueue.length > 600) pendingApiQueue.splice(0, pendingApiQueue.length-600);
+        return false;
       }
     }
 
@@ -2406,6 +2554,7 @@
     function handleIncomingTelemetry(rawD) {
       const d = normalizeTelemetry(rawD);
       if (!d) return;
+      hasLiveMqttPacket = true;
       lastLiveTelemetry = d;
       updateSessionStats(d);
 
@@ -2414,8 +2563,13 @@
       }
       try { localStorage.setItem(KEY_LAST_TELEM, JSON.stringify(d)); } catch {}
 
+      if (!liveRecentRows.some((r) => r.ts === d.ts)) {
+        liveRecentRows.push(d);
+        if (liveRecentRows.length > 240) liveRecentRows.shift();
+      }
+
       const isNewTimestamp = !seenTimestamps.has(d.ts);
-      if (isNewTimestamp) {
+      if (isNewTimestamp && (!energyResetTs || d.ts > energyResetTs)) {
         const parsedTs = parseTimestamp(d.ts);
         let dtMs = 1000;
         if (lastEnergyTsMs !== null) {
@@ -2443,8 +2597,6 @@
         seenTimestamps.add(d.ts);
         recordedDataset.push(d);
         idbPutOne(d);
-        liveAddedSinceSummary++;
-        if (d.ts.startsWith(getLocalDateStr())) liveTodaySinceSummary++;
         if (cloudAvailable && document.getElementById("chkSyncApi").checked) pendingApiQueue.push(d);
         updateDatasetStatsUI();
         if (currentPage==="dataset") renderTable();
@@ -2460,11 +2612,20 @@
       const dateSet = new Set(cloudDatesMap.keys());
       for (let i = 0; i < recordedDataset.length; i++) {
         const dt = recordedDataset[i].ts.slice(0,10);
-        dateSet.add(dt);
+        if (!cloudAvailable) dateSet.add(dt);
         if (dt===today) localToday++;
       }
-      const displayTotal = cloudAvailable ? Math.max(recordedDataset.length, cloudBaseTotal+liveAddedSinceSummary) : recordedDataset.length;
-      const displayToday = cloudAvailable ? Math.max(localToday, cloudBaseToday+liveTodaySinceSummary) : localToday;
+
+      const latestCloudTs = cloudLatestRows.length > 0 ? cloudLatestRows[cloudLatestRows.length - 1].ts : "";
+      const liveDeltaAll = cloudAvailable
+        ? liveRecentRows.filter((r) => !latestCloudTs || r.ts > latestCloudTs).length
+        : 0;
+      const liveDeltaToday = cloudAvailable
+        ? liveRecentRows.filter((r) => r.ts.startsWith(today) && (!latestCloudTs || r.ts > latestCloudTs)).length
+        : 0;
+
+      const displayTotal = cloudAvailable ? (cloudBaseTotal + liveDeltaAll) : recordedDataset.length;
+      const displayToday = cloudAvailable ? (cloudBaseToday + liveDeltaToday) : localToday;
 
       document.getElementById("recordCount").textContent      = displayTotal.toLocaleString("id-ID");
       document.getElementById("todayRecordCount").textContent = displayToday.toLocaleString("id-ID");
@@ -2490,12 +2651,27 @@
 
     function renderTable() {
       const tbody = document.getElementById("tableBody");
-      const list  = getFilteredLocalDataset();
-      if (list.length===0) {
-        tbody.innerHTML = `<tr><td colspan="15" class="py-10 text-center text-zinc-500 font-sans text-xs">${cloudAvailable?"Gunakan tombol Export CSV untuk mengunduh histori tanggal ini dari Supabase Cloud.":"Belum ada data terekam untuk filter ini."}</td></tr>`;
+      const filterDate = document.getElementById("datasetDateFilter").value || "ALL";
+      let latestRows = [];
+
+      if (cloudAvailable) {
+        const cachedCloud = cloudTableCache.get(filterDate) || (filterDate === "ALL" ? cloudLatestRows : []);
+        const map = new Map();
+        for (const r of cachedCloud) map.set(r.ts, r);
+        for (const r of liveRecentRows) {
+          if (filterDate === "ALL" || r.ts.startsWith(filterDate)) map.set(r.ts, r);
+        }
+        latestRows = Array.from(map.values())
+          .sort((a, b) => b.ts.localeCompare(a.ts))
+          .slice(0, 20);
+      } else {
+        latestRows = getFilteredLocalDataset().slice(-20).reverse();
+      }
+
+      if (latestRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="15" class="py-10 text-center text-zinc-500 font-sans text-xs">${cloudAvailable?"Memuat sampel dari Supabase Cloud atau belum ada data untuk tanggal ini.":"Belum ada data terekam untuk filter ini."}</td></tr>`;
         return;
       }
-      const latestRows = list.slice(-20).reverse();
       tbody.innerHTML = latestRows.map((r) => `
         <tr class="hover:bg-zinc-900/60 transition-colors">
           <td class="py-2 px-3 text-zinc-500">${r.ts}</td>
@@ -2537,12 +2713,16 @@
       if (!confirm(`Hapus dataset untuk ${scope} di browser dan Supabase Cloud?`)) return;
       if (filterDate && filterDate!=="ALL") {
         recordedDataset = recordedDataset.filter((r) => !r.ts.startsWith(filterDate));
+        liveRecentRows  = liveRecentRows.filter((r) => !r.ts.startsWith(filterDate));
+        cloudLatestRows = cloudLatestRows.filter((r) => !r.ts.startsWith(filterDate));
+        cloudTableCache.delete(filterDate);
+        cloudTableCache.delete("ALL");
         seenTimestamps = new Set(recordedDataset.map((r)=>r.ts));
         delete dailyHistory[filterDate]; cloudDatesMap.delete(filterDate);
         await idbClear(); await idbPutMany(recordedDataset);
       } else {
-        recordedDataset=[]; seenTimestamps.clear(); pendingApiQueue=[];
-        dailyHistory={}; cloudDatesMap.clear(); cloudBaseTotal=cloudBaseToday=liveAddedSinceSummary=liveTodaySinceSummary=0;
+        recordedDataset=[]; seenTimestamps.clear(); pendingApiQueue=[]; liveRecentRows=[]; cloudLatestRows=[]; cloudTableCache.clear();
+        dailyHistory={}; cloudDatesMap.clear(); cloudBaseTotal=cloudBaseToday=0;
         await idbClear();
       }
       if (cloudAvailable) {
@@ -2652,8 +2832,10 @@
       connectMqtt(true);
       await loadCloudSummary(false);
 
-      setInterval(() => flushApiQueue(false), 15000);
-      setInterval(() => { if (cloudAvailable) loadCloudSummary(false); }, 60000);
+      setInterval(async () => {
+        await flushApiQueue(false);
+        await loadCloudSummary(false);
+      }, 20000);
     });
 
     window.addEventListener("pagehide", () => flushApiQueue(true));
